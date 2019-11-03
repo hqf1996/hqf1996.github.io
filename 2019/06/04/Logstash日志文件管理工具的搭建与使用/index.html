@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/pic_32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/pic_16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Logstash,日志管理," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言由于实验室需要搭建一个类似于后台运维的平台，其中涉及到了日志的收集这一项。需要的是从不同的服务器中收集到有用的信息，并统一进行处理展示。这里的日志收集我主要是用Logstash来进行的，下面简单介绍一下logstach的搭建与使用。">
+<meta name="keywords" content="Logstash,日志管理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Logstach日志文件管理工具的搭建与使用">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;06&#x2F;04&#x2F;Logstash%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7%E7%9A%84%E6%90%AD%E5%BB%BA%E4%B8%8E%E4%BD%BF%E7%94%A8&#x2F;index.html">
+<meta property="og:site_name" content="hqfBlog">
+<meta property="og:description" content="前言由于实验室需要搭建一个类似于后台运维的平台，其中涉及到了日志的收集这一项。需要的是从不同的服务器中收集到有用的信息，并统一进行处理展示。这里的日志收集我主要是用Logstash来进行的，下面简单介绍一下logstach的搭建与使用。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-07-15T13:03:24.766Z">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/06/04/Logstash日志文件管理工具的搭建与使用/"/>
+
+
+
+
+
+  <title>Logstach日志文件管理工具的搭建与使用 | hqfBlog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<!--<a href="https://github.com/hqf1996" target="_blank" rel="noopener"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>-->
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">hqfBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/04/Logstash%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7%E7%9A%84%E6%90%AD%E5%BB%BA%E4%B8%8E%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="hqf1996">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hqfBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Logstach日志文件管理工具的搭建与使用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-04T14:44:47+08:00">
+                2019-06-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Logstash/" itemprop="url" rel="index">
+                    <span itemprop="name">Logstash</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>由于实验室需要搭建一个类似于后台运维的平台，其中涉及到了日志的收集这一项。需要的是从不同的服务器中收集到有用的信息，并统一进行处理展示。这里的日志收集我主要是用Logstash来进行的，下面简单介绍一下logstach的搭建与使用。</p>
+<a id="more"></a>
+
+<h1 id="一、平台的搭建"><a href="#一、平台的搭建" class="headerlink" title="一、平台的搭建"></a>一、平台的搭建</h1><p><strong>先来了解一下Logstash是啥：</strong>Logstash是一个开源数据搜集引擎，支持实时数据管道功能。Logstash可以动态整合分散的数据源，根据你的选择对数据标准化。根据不同的高级下游分析和可视化用例对数据进行梳理。尽管Logstash的早期目标是搜集日志，现在它的功能已完全不只于此。任何事件类型都可以加入分析，通过输入、过滤器和输出插件进行转换。与此同时，还提供了很多原生编解码工具简化消息处理。Logstash通过海量数据处理和多种多样的数据格式支持延伸了你对数据的洞察力。</p>
+<p>那么就来简单的搭建一下吧</p>
+<p>logstash的搭建非常的简单，可以从官网【<a href="https://www.elastic.co/cn/products/logstash" target="_blank" rel="noopener">https://www.elastic.co/cn/products/logstash</a>】上下载logstash的安装包。由于我使用的是服务器，就直接用wget命令了。注意，logstash安装的前提是确保已经安装jdk1.8。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://artifacts.elastic.co/downloads/logstash/logstash-6.4.2.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>解压到文件夹</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -zxvf logstash-6.4.2.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>下面可以根据相应的需求进入文件夹的bin目录下进行配置。</p>
+<h1 id="二、对配置文件的配置"><a href="#二、对配置文件的配置" class="headerlink" title="二、对配置文件的配置"></a>二、对配置文件的配置</h1><h2 id="1-一个demo"><a href="#1-一个demo" class="headerlink" title="1.一个demo"></a>1.一个demo</h2><p>首先我们要先了解，Logstash 通过管道进行运作，管道有两个必需的元素，输入和输出，还有一个可选的元素，过滤器。输入插件从数据源获取数据，过滤器插件根据用户指定的数据格式修改数据，输出插件则将数据写入到目的地。</p>
+<p>比如我们在bin目录下直接输入，将会启动logstash</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./logstash -e 'input &#123; stdin &#123; &#125; &#125; output &#123; stdout &#123;&#125; &#125;'</span><br></pre></td></tr></table></figure>
+
+<p>启动logstash，输入hello world~之后会有如下结果：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@HadoopSlave1 bin]# ./logstash -e 'input &#123; stdin &#123; &#125; &#125; output &#123; stdout &#123;&#125; &#125;'</span><br><span class="line">Sending Logstash logs to /logstash-6.4.2/logs which is now configured via log4j2.properties</span><br><span class="line">[2019-06-04T15:52:12,718][WARN ][logstash.config.source.multilocal] Ignoring the 'pipelines.yml' file because modules or command line options are specified</span><br><span class="line">[2019-06-04T15:52:13,316][INFO ][logstash.runner          ] Starting Logstash &#123;"logstash.version"=&gt;"6.4.2"&#125;</span><br><span class="line">[2019-06-04T15:52:15,272][INFO ][logstash.pipeline        ] Starting pipeline &#123;:pipeline_id=&gt;"main", "pipeline.workers"=&gt;4, "pipeline.batch.size"=&gt;125, "pipeline.batch.delay"=&gt;50&#125;</span><br><span class="line">[2019-06-04T15:52:15,404][INFO ][logstash.pipeline        ] Pipeline started successfully &#123;:pipeline_id=&gt;"main", :thread=&gt;"#&lt;Thread:0x3b59181c run&gt;"&#125;</span><br><span class="line">The stdin plugin is now waiting for input:</span><br><span class="line">[2019-06-04T15:52:15,460][INFO ][logstash.agent           ] Pipelines running &#123;:count=&gt;1, :running_pipelines=&gt;[:main], :non_running_pipelines=&gt;[]&#125;</span><br><span class="line">[2019-06-04T15:52:15,697][INFO ][logstash.agent           ] Successfully started Logstash API endpoint &#123;:port=&gt;9600&#125;</span><br><span class="line">hello world~</span><br><span class="line">&#123;</span><br><span class="line">      "@version" =&gt; "1",</span><br><span class="line">    "@timestamp" =&gt; 2019-06-04T07:52:35.587Z,</span><br><span class="line">       "message" =&gt; "hello world~",</span><br><span class="line">          "host" =&gt; "HadoopSlave1"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>输入的hello world~经过管道和过滤器之后变成了这一段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">      "@version" =&gt; "1",</span><br><span class="line">    "@timestamp" =&gt; 2019-06-04T07:52:35.587Z,</span><br><span class="line">       "message" =&gt; "hello world~",</span><br><span class="line">          "host" =&gt; "HadoopSlave1"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在此基础上更进一步</p>
+<h2 id="2-简单的数据监控"><a href="#2-简单的数据监控" class="headerlink" title="2.简单的数据监控"></a>2.简单的数据监控</h2><p>比如要对某个文件进行监控，当文件有变动时就做出相应的反应，这时我们需要在配置文件中配置下面一段代码</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">input&#123;</span><br><span class="line">    file&#123;</span><br><span class="line">        path =&gt; ["/LabDataUpdate/test.log"]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">output &#123;</span><br><span class="line">   file&#123;</span><br><span class="line">        path =&gt; ["/collection.txt"]</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接着，启动logstash</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup ./logstash -f file.conf &amp;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>对这段配置代码的解释是这样子的，我需要监控的文件位置位于 <strong>/LabDataUpdate/test.log</strong> 下，将其读入到logstash的管道中，当其中的日志文件发生变化时，就会将变化的日志输出到 <strong>/collection.txt</strong> 下。注意，logstash仅仅只会将变化的日志输入到文件下，而不是全部日志。</p>
+</blockquote>
+<p>当然，上述的简单监控仅仅局限于同一台服务器的日志收集，那么我们想要收集不同服务器中的日志到同一台服务器下时该怎么做？</p>
+<p>3.用tcp传输</p>
+<p>比如说我有两台服务器，其中主服务器也就是存放所有收集来的日志服务器。主服务器称为111，另外一台服务器称为112，我要将112的日志输出到111中。</p>
+<p>先对112进行配置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 这里是输入</span></span><br><span class="line">input&#123;</span><br><span class="line">    file&#123;</span><br><span class="line">        path =&gt; ["/LabDataUpdate/count.log", "/LabPatentUpdate/count.log", "/LabProjectUpdate/project_log.log"]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 这里是过滤器</span></span><br><span class="line">filter &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#</span><span class="bash"> 这里是输出</span></span><br><span class="line">output &#123;</span><br><span class="line">  tcp &#123;</span><br><span class="line">        host  =&gt; "10.1.13.111"</span><br><span class="line">        port  =&gt; 9600</span><br><span class="line">        codec =&gt; json_lines</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再对111进行配置，同样的，111服务器上也需要安装logstash，两边同时都要启动，从而进行日志的收集监控。111中的配置如下。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">input&#123;</span><br><span class="line">    tcp &#123;</span><br><span class="line">	mode =&gt; "server"</span><br><span class="line">	port =&gt; 9600</span><br><span class="line">	ssl_enable =&gt; false</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">output &#123;</span><br><span class="line">  file &#123;</span><br><span class="line">        path =&gt; "/logstash-6.4.2/bin/log/%&#123;host&#125;.log"</span><br><span class="line">		codec =&gt; line &#123; format =&gt; "custom format: %&#123;message&#125;"&#125;</span><br><span class="line">   &#125;</span><br><span class="line">   stdout &#123;</span><br><span class="line">      codec =&gt; rubydebug</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样将会收集112服务器的指定目录的日志到111服务器的output目录下。要注意一点的是，两个配置文件的端口号要统一，否则无法完成收集任务。也能配置多个服务器，只要端口相同，都能收集到111服务器的相应文件下。</p>
+<h2 id="3-监控数据库"><a href="#3-监控数据库" class="headerlink" title="3.监控数据库"></a>3.监控数据库</h2><p>logstash还能够对数据库表进行监控，当表的数据发生变化时，能对数据库进行检测。也能按照时间间隔对数据库进行一次检测。我这边选择的策略是按照时间间隔来监控数据库其中四张表。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br></pre></td><td class="code"><pre><span class="line">input&#123;</span><br><span class="line">    tcp &#123;</span><br><span class="line">	mode =&gt; "server"</span><br><span class="line">	port =&gt; 9600</span><br><span class="line">	ssl_enable =&gt; false</span><br><span class="line">    &#125;</span><br><span class="line">    jdbc&#123;</span><br><span class="line">    	# 这个是类型，下面的输出可以根据这个字段选择输出的文件路径</span><br><span class="line">        type =&gt; "project"</span><br><span class="line">        # 这个是要连接的数据库</span><br><span class="line">        jdbc_connection_string =&gt; "jdbc:mysql://10.1.13.29/techpooldata"</span><br><span class="line">        # 需要引入jdbc的jar包</span><br><span class="line">        jdbc_driver_library =&gt; "/mysql_dirver/mysql-connector-java-5.1.13-bin.jar"</span><br><span class="line">        jdbc_driver_class =&gt; "com.mysql.jdbc.Driver"</span><br><span class="line">        # 数据库用户名</span><br><span class="line">        jdbc_user =&gt; "root"</span><br><span class="line">        # 数据库密码</span><br><span class="line">        jdbc_password =&gt; "tdlabDatabase"</span><br><span class="line">		</span><br><span class="line"><span class="meta">		#</span><span class="bash"> 监控的时间间隔，这边是一分钟</span></span><br><span class="line">        schedule =&gt; "* * * * *"</span><br><span class="line">        tracking_column =&gt; "id"</span><br><span class="line">        use_column_value =&gt; "true"</span><br><span class="line">        schedule =&gt; "* * * * *"</span><br><span class="line">        last_run_metadata_path =&gt; "./logstash_jdbc_last_run"</span><br><span class="line">        # 要监控的数据库信息，这边选择监控数据库的数量变化情况</span><br><span class="line">        statement =&gt; "select count(*) from project where id &gt; :sql_last_value"</span><br><span class="line">        jdbc_default_timezone =&gt;"Asia/Shanghai"</span><br><span class="line">    &#125;</span><br><span class="line">    jdbc&#123;</span><br><span class="line">        type =&gt; "patent"</span><br><span class="line">        jdbc_connection_string =&gt; "jdbc:mysql://10.1.13.29/techpooldata"</span><br><span class="line">        jdbc_driver_library =&gt; "/mysql_dirver/mysql-connector-java-5.1.13-bin.jar"</span><br><span class="line">        jdbc_driver_class =&gt; "com.mysql.jdbc.Driver"</span><br><span class="line">        jdbc_user =&gt; "root"</span><br><span class="line">        jdbc_password =&gt; "tdlabDatabase"</span><br><span class="line"></span><br><span class="line">        schedule =&gt; "* * * * *"</span><br><span class="line">        tracking_column =&gt; "id"</span><br><span class="line">        use_column_value =&gt; "true"</span><br><span class="line">        schedule =&gt; "* * * * *"</span><br><span class="line">        last_run_metadata_path =&gt; "./logstash_jdbc_last_run"</span><br><span class="line">        statement =&gt; "select count(*) from patent where id &gt; :sql_last_value"</span><br><span class="line">        jdbc_default_timezone =&gt;"Asia/Shanghai"</span><br><span class="line">    &#125;</span><br><span class="line">    jdbc&#123;</span><br><span class="line">        type =&gt; "paper"</span><br><span class="line">        jdbc_connection_string =&gt; "jdbc:mysql://10.1.13.29/techpooldata"</span><br><span class="line">        jdbc_driver_library =&gt; "/mysql_dirver/mysql-connector-java-5.1.13-bin.jar"</span><br><span class="line">        jdbc_driver_class =&gt; "com.mysql.jdbc.Driver"</span><br><span class="line">        jdbc_user =&gt; "root"</span><br><span class="line">        jdbc_password =&gt; "tdlabDatabase"</span><br><span class="line"></span><br><span class="line">        schedule =&gt; "* * * * *"</span><br><span class="line">        tracking_column =&gt; "id"</span><br><span class="line">        use_column_value =&gt; "true"</span><br><span class="line">        schedule =&gt; "* * * * *"</span><br><span class="line">        last_run_metadata_path =&gt; "./logstash_jdbc_last_run"</span><br><span class="line">        statement =&gt; "select count(*) from paper where id &gt; :sql_last_value"</span><br><span class="line">        jdbc_default_timezone =&gt;"Asia/Shanghai"</span><br><span class="line">    &#125;</span><br><span class="line">    jdbc&#123;</span><br><span class="line">        type =&gt; "expert"</span><br><span class="line">        jdbc_connection_string =&gt; "jdbc:mysql://10.1.13.29/techpooldata"</span><br><span class="line">        jdbc_driver_library =&gt; "/mysql_dirver/mysql-connector-java-5.1.13-bin.jar"</span><br><span class="line">        jdbc_driver_class =&gt; "com.mysql.jdbc.Driver"</span><br><span class="line">        jdbc_user =&gt; "root"</span><br><span class="line">        jdbc_password =&gt; "tdlabDatabase"</span><br><span class="line"></span><br><span class="line">        schedule =&gt; "* * * * *"</span><br><span class="line">        tracking_column =&gt; "id"</span><br><span class="line">        use_column_value =&gt; "true"</span><br><span class="line">        schedule =&gt; "* * * * *"</span><br><span class="line">        last_run_metadata_path =&gt; "./logstash_jdbc_last_run"</span><br><span class="line">        statement =&gt; "select count(*) from expert where id &gt; :sql_last_value"</span><br><span class="line">        jdbc_default_timezone =&gt;"Asia/Shanghai"</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">output &#123;</span><br><span class="line">  file &#123;</span><br><span class="line">        path =&gt; "/logstash-6.4.2/bin/log/%&#123;host&#125;.log"</span><br><span class="line">		codec =&gt; line &#123; format =&gt; "custom format: %&#123;message&#125;"&#125;</span><br><span class="line">   &#125;</span><br><span class="line">   stdout &#123;</span><br><span class="line">      codec =&gt; rubydebug</span><br><span class="line">  &#125;</span><br><span class="line"><span class="meta">  #</span><span class="bash"> 可以根据类型不同输出到不同的文件夹中，这边是输出到同一个文件中</span></span><br><span class="line">  if [type]=="patent"&#123;</span><br><span class="line">     file &#123;</span><br><span class="line">         path =&gt; "/logstash-6.4.2/bin/log/MysqlOutPut.log"</span><br><span class="line">     &#125;</span><br><span class="line">     stdout&#123;</span><br><span class="line">     	# 以json的格式进行输出</span><br><span class="line">         codec =&gt; json_lines</span><br><span class="line">     &#125;</span><br><span class="line">   &#125;</span><br><span class="line"> if [type]=="paper"&#123;</span><br><span class="line">     file &#123;</span><br><span class="line">         path =&gt; "/logstash-6.4.2/bin/log/MysqlOutPut.log"</span><br><span class="line">     &#125;</span><br><span class="line">     stdout&#123;</span><br><span class="line">         codec =&gt; json_lines</span><br><span class="line">     &#125;</span><br><span class="line">   &#125;</span><br><span class="line"> if [type]=="project"&#123;</span><br><span class="line">     file &#123;</span><br><span class="line">         path =&gt; "/logstash-6.4.2/bin/log/MysqlOutPut.log"</span><br><span class="line">     &#125;</span><br><span class="line">     stdout&#123;</span><br><span class="line">         codec =&gt; json_lines</span><br><span class="line">     &#125;</span><br><span class="line">   &#125;</span><br><span class="line"> if [type]=="expert"&#123;</span><br><span class="line">     file &#123;</span><br><span class="line">         path =&gt; "/logstash-6.4.2/bin/log/MysqlOutPut.log"</span><br><span class="line">     &#125;</span><br><span class="line">     stdout&#123;</span><br><span class="line">         codec =&gt; json_lines</span><br><span class="line">     &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>每个字段的解释都在代码中给出。</p>
+</blockquote>
+<p>这样和之前的代码相结合，就能实现logstash最简单的日志监控功能。</p>
+<h1 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h1><p>主要介绍和实现了logstash的简单搭建与监控功能。其一，监控同一台服务器下的日志文件。其二，监控不同服务器下的日志文件，实现日志的收集功能。其三，监控数据库。</p>
+<p>本文中还没有介绍过滤器的功能，有时间再后续补上。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Logstash/" rel="tag"># Logstash</a>
+          
+            <a href="/tags/%E6%97%A5%E5%BF%97%E7%AE%A1%E7%90%86/" rel="tag"># 日志管理</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/11/%E7%BA%BF%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B%E6%B1%A0/" rel="next" title="线程与线程池">
+                <i class="fa fa-chevron-left"></i> 线程与线程池
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/13/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94JVM%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F/" rel="prev" title="JVM笔记——JVM内存区域">
+                JVM笔记——JVM内存区域 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png"
+                alt="hqf1996" />
+            
+              <p class="site-author-name" itemprop="name">hqf1996</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、平台的搭建"><span class="nav-text">一、平台的搭建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、对配置文件的配置"><span class="nav-text">二、对配置文件的配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-一个demo"><span class="nav-text">1.一个demo</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-简单的数据监控"><span class="nav-text">2.简单的数据监控</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-监控数据库"><span class="nav-text">3.监控数据库</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三、总结"><span class="nav-text">三、总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">hqf1996</span>
+
+  
+</div>
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共字 |</span>
+</div>
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/pic_32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/pic_16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,多线程,线程间通信," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言wait和notify这两个方法通常在线程间通信中常常用到，其中wait方法和sleep方法虽然都能够让线程“停下来”，但是有很大的区别，另外，耳熟能详的生产者消费者问题也涉及到wait和notify，本篇就简单的整理一下这些问题吧！">
+<meta name="keywords" content="Java,多线程,线程间通信">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线程间通信之wait&#x2F;notify">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;20&#x2F;%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E4%B9%8Bwait%20and%20notify&#x2F;index.html">
+<meta property="og:site_name" content="hqfBlog">
+<meta property="og:description" content="前言wait和notify这两个方法通常在线程间通信中常常用到，其中wait方法和sleep方法虽然都能够让线程“停下来”，但是有很大的区别，另外，耳熟能详的生产者消费者问题也涉及到wait和notify，本篇就简单的整理一下这些问题吧！">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-10-21T05:44:30.452Z">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/10/20/线程间通信之wait and notify/"/>
+
+
+
+
+
+  <title>线程间通信之wait/notify | hqfBlog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<!--<a href="https://github.com/hqf1996" target="_blank" rel="noopener"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>-->
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">hqfBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/20/%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E4%B9%8Bwait%20and%20notify/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="hqf1996">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hqfBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">线程间通信之wait/notify</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-20T19:23:02+08:00">
+                2019-10-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index">
+                    <span itemprop="name">Java并发编程</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>wait和notify这两个方法通常在线程间通信中常常用到，其中wait方法和sleep方法虽然都能够让线程“停下来”，但是有很大的区别，另外，耳熟能详的生产者消费者问题也涉及到wait和notify，本篇就简单的整理一下这些问题吧！</p>
+<a id="more"></a>
+
+<h1 id="一、wait-notify-的简单使用"><a href="#一、wait-notify-的简单使用" class="headerlink" title="一、wait()/notify()的简单使用"></a>一、wait()/notify()的简单使用</h1><p>用一个例子来看一下简单的使用：假设有两个线程，一个线程用来判断数组中长度是否达到5，达到的时候通知一下，另一个线程用来往数组中添加元素。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">demo1</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> List&lt;Integer&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">static</span> Object lock = <span class="keyword">new</span> Object();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Thread1</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">                <span class="keyword">if</span> (list.size() != <span class="number">5</span>) &#123;</span><br><span class="line">                    System.out.println(<span class="string">"start..."</span> + Thread.currentThread().getName());</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        lock.wait();</span><br><span class="line">                        System.out.println(<span class="string">"end..."</span> + Thread.currentThread().getName());</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Thread2</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (lock) &#123;</span><br><span class="line">                System.out.println(<span class="string">"start..."</span> + Thread.currentThread().getName());</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; <span class="number">10</span> ; ++i) &#123;</span><br><span class="line">                    list.add(i);</span><br><span class="line">                    System.out.println(<span class="string">"当前list的数量 "</span> + list.size());</span><br><span class="line">                    <span class="keyword">if</span> (list.size() == <span class="number">5</span>) &#123;</span><br><span class="line">                        lock.notify();</span><br><span class="line">                        System.out.println(<span class="string">"释放锁，但是当前线程还需要继续执行下去..."</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(<span class="string">"end..."</span> + Thread.currentThread().getName());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        Thread1 thread1 = <span class="keyword">new</span> Thread1();</span><br><span class="line">        Thread2 thread2 = <span class="keyword">new</span> Thread2();</span><br><span class="line">        thread1.start();</span><br><span class="line">        Thread.sleep(<span class="number">20</span>);</span><br><span class="line">        thread2.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>执行结果</p>
+<p>start…Thread-0<br>start…Thread-1<br>当前list的数量 1<br>当前list的数量 2<br>当前list的数量 3<br>当前list的数量 4<br>当前list的数量 5<br>释放锁，但是当前线程还需要继续执行下去…<br>当前list的数量 6<br>当前list的数量 7<br>当前list的数量 8<br>当前list的数量 9<br>当前list的数量 10<br>end…Thread-1<br>end…Thread-0</p>
+</blockquote>
+<p>从结果可以看出，Thread1是先抢占到锁的，但是由于执行了wait()，立即释放对锁的控制，Thread2抢占到锁，Thread2立即执行，当长度等于5的时候，执行了notify()命令，唤醒Thread1，但不是立即释放掉锁，而是要等Thread2执行完毕后才释放掉锁，所以数组元素一直添加到10后，Thread2释放掉锁，然后Thread1继续执行wait()后面的操作。</p>
+<p>总结起来是这样的，<font color="red">wait()命令会直接释放掉锁，但是notify()要等到执行完notify()方法所在的同步synchronized代码块后才释放锁，注意，这边是执行完synchronized代码块！！！</font></p>
+<p>既然wait()是暂停了线程，那么和sleep()有什么区别？其实wait()是立即释放掉锁，还让出CPU的执行权，进入<strong>等待</strong>，但是sleep()是不释放锁，相当于将当前线程进入<strong>阻塞状态</strong>（BLOCKED），仅仅会让出CPU的执行权。这里最经典的一个问题就是生产者消费者问题。</p>
+<h1 id="二、生产者消费者问题"><a href="#二、生产者消费者问题" class="headerlink" title="二、生产者消费者问题"></a>二、生产者消费者问题</h1><p>简单来说，生产者消费者问题是指在一个系统中，有生产者和消费者两种角色，生产者生产消费者需要的资料，消费者消费生产出来的资料，当生产者生产的资料不够的时候，消费者等待，当生产者生产出资料后，通知消费者来拿资料。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> test.waitAndnotify;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.LinkedList;</span><br><span class="line"><span class="keyword">import</span> java.util.Queue;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Author</span>: hqf</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@description</span>:</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Data</span>: Create in 10:53 2019/10/21</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Modified</span> By:</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProducerConsumer</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> CAPACITY = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 生产者</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Producer</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</span><br><span class="line">        <span class="keyword">private</span> Queue&lt;Integer&gt; queue;</span><br><span class="line">        <span class="keyword">int</span> maxSize;</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">Producer</span><span class="params">(Queue&lt;Integer&gt; queue, <span class="keyword">int</span> maxSize)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.queue = queue;</span><br><span class="line">            <span class="keyword">this</span>.maxSize = maxSize;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (queue) &#123;</span><br><span class="line">                    <span class="keyword">while</span> (queue.size() == maxSize) &#123;</span><br><span class="line">                        <span class="keyword">try</span> &#123;</span><br><span class="line">                            System.out.println(Thread.currentThread().getName() + <span class="string">" 生产者生产数量已满，等待消费者线程消费"</span>);</span><br><span class="line">                            queue.wait();</span><br><span class="line">                        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                            e.printStackTrace();</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                    System.out.println(Thread.currentThread().getName() + <span class="string">" 生产出"</span> + i);</span><br><span class="line">                    queue.add(i);</span><br><span class="line">                    i++;</span><br><span class="line">                    queue.notifyAll(); <span class="comment">//通知所有消费者可以消费，或者其他生产者可以继续生产</span></span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 消费者</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Consumer</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</span><br><span class="line">        <span class="keyword">private</span> Queue&lt;Integer&gt; queue;</span><br><span class="line">        <span class="keyword">int</span> maxSize;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">Consumer</span><span class="params">(Queue&lt;Integer&gt; queue, <span class="keyword">int</span> maxSize)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.queue = queue;</span><br><span class="line">            <span class="keyword">this</span>.maxSize = maxSize;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (queue) &#123;</span><br><span class="line">                    <span class="keyword">while</span> (queue.isEmpty()) &#123;</span><br><span class="line">                        System.out.println(Thread.currentThread().getName() + <span class="string">" 当前生产队列为空，消费者等待生产者生产"</span>);</span><br><span class="line">                        <span class="keyword">try</span> &#123;</span><br><span class="line">                            queue.wait();</span><br><span class="line">                            Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">                        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                            e.printStackTrace();</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">int</span> x = queue.poll();</span><br><span class="line">                    System.out.println(<span class="string">"消费者消费 "</span> + x);</span><br><span class="line">                    queue.notifyAll(); <span class="comment">//通知所有线程可以工作</span></span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Queue&lt;Integer&gt; queue = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">        Producer producer1 = <span class="keyword">new</span> Producer(queue, CAPACITY);</span><br><span class="line">        Consumer consumer1 = <span class="keyword">new</span> Consumer(queue, CAPACITY);</span><br><span class="line">        producer1.start();</span><br><span class="line">        consumer1.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>代码的执行结果</p>
+<p>Thread-0 生产出0<br>Thread-0 生产出1<br>Thread-0 生产出2<br>Thread-0 生产出3<br>消费者消费 0<br>Thread-0 生产出4<br>Thread-0 生产出5<br>Thread-0 生产者生产数量已满，等待消费者线程消费<br>消费者消费 1<br>Thread-0 生产出6<br>Thread-0 生产者生产数量已满，等待消费者线程消费<br>消费者消费 2<br>消费者消费 3<br>消费者消费 4<br>消费者消费 5<br>消费者消费 6<br>Thread-0 生产出7<br>Thread-0 生产出8<br>Thread-0 生产出9</p>
+<p>…………</p>
+</blockquote>
+<p>同样的，也能设置多个生产者消费者</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        Queue&lt;Integer&gt; queue = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">        Producer producer1 = <span class="keyword">new</span> Producer(queue, CAPACITY);</span><br><span class="line">        Producer producer2 = <span class="keyword">new</span> Producer(queue, CAPACITY);</span><br><span class="line">        Consumer consumer1 = <span class="keyword">new</span> Consumer(queue, CAPACITY);</span><br><span class="line">        Consumer consumer2 = <span class="keyword">new</span> Consumer(queue, CAPACITY);</span><br><span class="line">        Consumer consumer3 = <span class="keyword">new</span> Consumer(queue, CAPACITY);</span><br><span class="line">        producer1.start();</span><br><span class="line">        producer2.start();</span><br><span class="line">        consumer1.start();</span><br><span class="line">        consumer2.start();</span><br><span class="line">        consumer3.start();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>代码的执行结果</p>
+<p>Thread-0 生产出0<br>Thread-0 生产出1<br>Thread-0 生产出2<br>Thread-0 生产出3<br>Thread-4 消费者消费 0<br>Thread-4 消费者消费 1<br>Thread-4 消费者消费 2<br>Thread-4 消费者消费 3<br>Thread-4 当前生产队列为空，消费者等待生产者生产<br>Thread-3 当前生产队列为空，消费者等待生产者生产<br>Thread-2 当前生产队列为空，消费者等待生产者生产<br>Thread-1 生产出0<br>Thread-1 生产出1<br>Thread-1 生产出2<br>Thread-1 生产出3<br>Thread-1 生产出4<br>Thread-1 生产者生产数量已满，等待消费者线程消费<br>Thread-2 消费者消费 0<br>Thread-2 消费者消费 1<br>Thread-3 消费者消费 2<br>Thread-3 消费者消费 3<br>Thread-3 消费者消费 4<br>Thread-3 当前生产队列为空，消费者等待生产者生产<br>Thread-4 当前生产队列为空，消费者等待生产者生产<br>Thread-0 生产出4<br>Thread-0 生产出5</p>
+<p>……</p>
+</blockquote>
+<p>但是要注意了，这边同步代码块synchronized中的条件<font color="red">要是while()而不能是if()</font>，这是为什么？我们来将while()改成if()试试，结果如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">Thread-<span class="number">0</span> 生产出<span class="number">0</span></span><br><span class="line">Thread-<span class="number">0</span> 生产出<span class="number">1</span></span><br><span class="line">Thread-<span class="number">0</span> 生产出<span class="number">2</span></span><br><span class="line">Thread-<span class="number">0</span> 生产出<span class="number">3</span></span><br><span class="line">Thread-<span class="number">0</span> 生产出<span class="number">4</span></span><br><span class="line">Thread-<span class="number">0</span> 生产者生产数量已满，等待消费者线程消费</span><br><span class="line">Thread-<span class="number">4</span> 消费者消费 <span class="number">0</span></span><br><span class="line">Thread-<span class="number">4</span> 消费者消费 <span class="number">1</span></span><br><span class="line">Thread-<span class="number">4</span> 消费者消费 <span class="number">2</span></span><br><span class="line">Thread-<span class="number">4</span> 消费者消费 <span class="number">3</span></span><br><span class="line">Thread-<span class="number">4</span> 消费者消费 <span class="number">4</span></span><br><span class="line">Thread-<span class="number">4</span> 当前生产队列为空，消费者等待生产者生产</span><br><span class="line">Thread-<span class="number">3</span> 当前生产队列为空，消费者等待生产者生产</span><br><span class="line">Thread-<span class="number">2</span> 当前生产队列为空，消费者等待生产者生产</span><br><span class="line">Thread-<span class="number">1</span> 生产出<span class="number">0</span></span><br><span class="line">Thread-<span class="number">1</span> 生产出<span class="number">1</span></span><br><span class="line">Thread-<span class="number">2</span> 消费者消费 <span class="number">0</span></span><br><span class="line">Thread-<span class="number">2</span> 消费者消费 <span class="number">1</span></span><br><span class="line">Exception in thread <span class="string">"Thread-3"</span> java.lang.NullPointerException</span><br><span class="line">	at test.waitAndnotify.ProducerConsumer$Consumer.run(ProducerConsumer.java:<span class="number">79</span>)</span><br><span class="line">Thread-<span class="number">0</span> 生产出<span class="number">5</span></span><br><span class="line">Exception in thread <span class="string">"Thread-4"</span> java.lang.NullPointerException</span><br><span class="line">	at test.waitAndnotify.ProducerConsumer$Consumer.run(ProducerConsumer.java:<span class="number">79</span>)</span><br><span class="line">Thread-<span class="number">0</span> 生产出<span class="number">6</span></span><br><span class="line">Thread-<span class="number">0</span> 生产出<span class="number">7</span></span><br></pre></td></tr></table></figure>
+
+<p>很明显，发生了错误。来分析一下，比如说当前执行到一个生产者生产出了一个数字，此时队列中恰好只有两个数字，接着唤醒了其他的线程，所以三个消费者线程都被唤醒，要进行消费，但是当消费者线程1和消费者线程2都消费完后，消费者线程3要进行消费了，由于他们都是从wait()后面开始执行的，消费者线程1和2是没有问题的，因为队列中有两个数字可供消费，但是当消费者线程3开始执行后，由于是从wait()后面开始执行的，就直接跳出if()判断，进行消费，而此时队列中没有其他数字来供他消费，所以报错。也就是上面报错的原因。</p>
+<p>但是，当改成while()循环的时候，线程3会回到while()这里进行再判断，当队列中没有元素，就继续while()循环，而不是执行下去，这样就不会发生错误。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/" rel="tag"># 多线程</a>
+          
+            <a href="/tags/%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/" rel="tag"># 线程间通信</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/10/17/Java%E4%B8%AD%E7%9A%84%E9%94%81%E6%95%B4%E7%90%86/" rel="next" title="Java中的锁整理">
+                <i class="fa fa-chevron-left"></i> Java中的锁整理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/10/25/%E9%98%9F%E5%88%97%E5%90%8C%E6%AD%A5%E5%99%A8AQS/" rel="prev" title="队列同步器AQS">
+                队列同步器AQS <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png"
+                alt="hqf1996" />
+            
+              <p class="site-author-name" itemprop="name">hqf1996</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、wait-notify-的简单使用"><span class="nav-text">一、wait()/notify()的简单使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、生产者消费者问题"><span class="nav-text">二、生产者消费者问题</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">hqf1996</span>
+
+  
+</div>
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共字 |</span>
+</div>
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

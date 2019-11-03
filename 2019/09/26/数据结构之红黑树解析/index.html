@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/pic_32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/pic_16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="红黑树,算法," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言红黑树（Red Black Tree） 是一种自平衡二叉查找树，是在计算机科学中用到的一种数据结构，典型的用途是实现关联数组。红黑树和AVL树类似，都是在进行插入和删除操作时通过特定操作保持二叉查找树的平衡，从而获得较高的查找性能。它虽然是复杂的，但它的最坏情况运行时间也是非常良好的，并且在实践中是高效的： 它可以在O(log n)时间内做查找，插入和删除，这里的n 是树中元素的数目。第一次接">
+<meta name="keywords" content="红黑树,算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据结构之红黑树解析">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;09&#x2F;26&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;index.html">
+<meta property="og:site_name" content="hqfBlog">
+<meta property="og:description" content="前言红黑树（Red Black Tree） 是一种自平衡二叉查找树，是在计算机科学中用到的一种数据结构，典型的用途是实现关联数组。红黑树和AVL树类似，都是在进行插入和删除操作时通过特定操作保持二叉查找树的平衡，从而获得较高的查找性能。它虽然是复杂的，但它的最坏情况运行时间也是非常良好的，并且在实践中是高效的： 它可以在O(log n)时间内做查找，插入和删除，这里的n 是树中元素的数目。第一次接">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E4%BA%8C%E5%8F%89%E6%9F%A5%E6%89%BE%E6%A0%91.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E4%BA%8C%E5%8F%89%E6%9F%A5%E6%89%BE%E6%A0%91%E5%BE%85%E6%8F%92%E5%85%A5%E7%8A%B6%E6%80%81.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E4%BA%8C%E5%8F%89%E6%9F%A5%E6%89%BE%E6%A0%91%E6%8F%92%E5%85%A5%E7%8A%B6%E6%80%81.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E7%BA%A2%E9%BB%91%E6%A0%91%E7%A4%BA%E4%BE%8B.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%B7%A6%E6%97%8B.webp">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%8F%B3%E6%97%8B.webp">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E6%8F%92%E5%85%A5%E5%9C%BA%E6%99%AF4.webp">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E6%83%85%E6%99%AF4_1.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E6%83%85%E6%99%AF4_2.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E6%83%85%E6%99%AF5_1.webp">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%9C%BA%E6%99%AF%E4%BA%94_2.webp">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%9C%BA%E6%99%AF%E5%85%AD.webp">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%9C%BA%E6%99%AF6_2.webp">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%A0%E9%99%A41.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%A0%E9%99%A42.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%A0%E9%99%A43.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%A0%E9%99%A44.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%A0%E9%99%A45.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%A0%E9%99%A46.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%AA%E9%99%A47.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%A0%E9%99%A48.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%A0%E9%99%A49.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%A0%E9%99%A410.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%A0%E9%99%A411.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%A0%E9%99%A412.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%A0%E9%99%A413.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%A0%E9%99%A414.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%A0%E9%99%A415.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%A0%E9%99%A416.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E5%88%A0%E9%99%A417.png">
+<meta property="og:updated_time" content="2019-09-28T03:54:31.604Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90&#x2F;%E4%BA%8C%E5%8F%89%E6%9F%A5%E6%89%BE%E6%A0%91.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/09/26/数据结构之红黑树解析/"/>
+
+
+
+
+
+  <title>数据结构之红黑树解析 | hqfBlog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<!--<a href="https://github.com/hqf1996" target="_blank" rel="noopener"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>-->
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">hqfBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/26/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="hqf1996">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hqfBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">数据结构之红黑树解析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-26T19:10:10+08:00">
+                2019-09-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>红黑树（Red Black Tree） 是一种自平衡二叉查找树，是在计算机科学中用到的一种数据结构，典型的用途是实现关联数组。红黑树和AVL树类似，都是在进行插入和删除操作时通过特定操作保持二叉查找树的平衡，从而获得较高的查找性能。它虽然是复杂的，但它的最坏情况运行时间也是非常良好的，并且在实践中是高效的： 它可以在O(log n)时间内做查找，插入和删除，这里的n 是树中元素的数目。第一次接触到红黑树是在上数据结构相关课程的时候，但是当时的理解比较片面，当后面看到HashMap源码实现的时候，其中也用到了红黑树的数据结构。至此，打算把红黑树整理一下。</p>
+<a id="more"></a>
+
+<h1 id="一、二叉查找树"><a href="#一、二叉查找树" class="headerlink" title="一、二叉查找树"></a>一、二叉查找树</h1><p>红黑树是一种特殊的二叉查找树，二叉查找树是一种比较简单数据结构，就简单的回顾一下。</p>
+<h2 id="1-二叉查找树的特征"><a href="#1-二叉查找树的特征" class="headerlink" title="1.二叉查找树的特征"></a>1.二叉查找树的特征</h2><ul>
+<li><strong>左</strong>子树上所有结点的值均<strong>小于或等于</strong>它的根结点的值。</li>
+<li><strong>右</strong>子树上所有结点的值均<strong>大于或等于</strong>它的根结点的值。</li>
+<li>左、右子树也分别为二叉排序树。</li>
+</ul>
+<p>比如说这样的一棵树就叫做二叉查找树（二叉排序树）<br><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E4%BA%8C%E5%8F%89%E6%9F%A5%E6%89%BE%E6%A0%91.jpg" alt="二叉查找树"></p>
+<h2 id="2-二叉查找树的不足"><a href="#2-二叉查找树的不足" class="headerlink" title="2.二叉查找树的不足"></a>2.二叉查找树的不足</h2><p>一般的二叉查找树的查找是和二分查找类似的，所以查找的时间复杂度为O(log n)，最坏时间复杂度为O(n)，因为一般的二叉查找树没有做平衡，很容易产生插入的节点在一边的不平衡情况发生，这样会对查找的效率带来很大的影响。比如说有这么一颗二叉查找树</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E4%BA%8C%E5%8F%89%E6%9F%A5%E6%89%BE%E6%A0%91%E5%BE%85%E6%8F%92%E5%85%A5%E7%8A%B6%E6%80%81.jpg" alt="二叉查找树待插入"></p>
+<p>此时，插入5个点:3、4、5、6、7</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E4%BA%8C%E5%8F%89%E6%9F%A5%E6%89%BE%E6%A0%91%E6%8F%92%E5%85%A5%E7%8A%B6%E6%80%81.jpg" alt="插入后的状态"></p>
+<p>此时就造成了这种线性的状态，查找的效率和遍历几乎没有区别。这时候为了解决这个问题，就提出了平衡二叉查找树的概念，也就是红黑树。</p>
+<h1 id="二、红黑树"><a href="#二、红黑树" class="headerlink" title="二、红黑树"></a>二、红黑树</h1><h2 id="1-红黑树的性质与定义"><a href="#1-红黑树的性质与定义" class="headerlink" title="1.红黑树的性质与定义"></a>1.红黑树的性质与定义</h2><ul>
+<li>性质1：每个节点要么是黑色，要么是红色。</li>
+<li>性质2：根节点是黑色。</li>
+<li>性质3：每个叶子节点（NIL）是黑色。</li>
+<li>性质4：每个红色结点的两个子结点一定都是黑色。</li>
+<li><strong>性质5：任意一结点到其每个叶子结点的路径都包含数量相同的黑结点。</strong></li>
+</ul>
+<p>比如说以下这颗二叉树就是红黑树，它除了满足二叉查找树的条件之外，还满足其他的一些条件。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E7%BA%A2%E9%BB%91%E6%A0%91%E7%A4%BA%E4%BE%8B.jpg" alt="红黑树例子"></p>
+<h2 id="2-红黑树自平衡的三种方式"><a href="#2-红黑树自平衡的三种方式" class="headerlink" title="2.红黑树自平衡的三种方式"></a>2.红黑树自平衡的三种方式</h2><p>红黑树有三种自平衡的方式，分别是：左旋、右旋、变色</p>
+<p><strong>左旋：</strong>以某个结点作为支点(旋转结点)，其右子结点变为旋转结点的父结点，右子结点的左子结点变为旋转结点的右子结点，左子结点保持不变。如下图。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%B7%A6%E6%97%8B.webp" alt="左旋"></p>
+<p><strong>右旋：</strong>以某个结点作为支点(旋转结点)，其左子结点变为旋转结点的父结点，左子结点的右子结点变为旋转结点的左子结点，右子结点保持不变。如下图。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%8F%B3%E6%97%8B.webp" alt="右旋"></p>
+<p><strong>变色：</strong>节点的颜色由红变黑或者由黑变红。</p>
+<blockquote>
+<p>总结：可以这么理解，左旋的话是将右子树的节点拿到左子树，右旋的话是将左子树的节点拿到右子树。</p>
+</blockquote>
+<h2 id="3-红黑树的查找"><a href="#3-红黑树的查找" class="headerlink" title="3.红黑树的查找"></a>3.红黑树的查找</h2><p>红黑树的查找和二叉查找树基本类似，所以它的时间复杂度为O(log n)，由于红黑树是平衡二叉查找树，所以它的最坏时间复杂度为O(2log n)。</p>
+<h2 id="4-红黑树的插入"><a href="#4-红黑树的插入" class="headerlink" title="4.红黑树的插入"></a>4.红黑树的插入</h2><p>红黑树的插入和二叉查找树的插入差不多，通过类似于二分查找的方式找到插入的位置。但是在红黑树插入新节点之后需要做一些操作，来保持红黑树性质不被破坏，插入节点的颜色应该为<strong>红色</strong>。下面考虑几种红黑树插入的场景。</p>
+<p><strong>场景一：</strong>红黑树为空树</p>
+<p>这是最简单的场景，只需要把插入节点作为根节点即可，但是由于红黑树的性质决定了根节点的颜色要为黑色，所以插入节点变色为黑色。</p>
+<p><strong>场景二：</strong>插入节点的key值已经存在</p>
+<p>就像在HashMap中一样，插入节点的key已经存在了，只需要找到这个节点并更新节点的value即可。找到这个节点，将待插入节点的颜色设置和这个节点的颜色一致，再把节点的值进行更新，替换点原来的点。这就相当于完成了插入。</p>
+<p><strong>场景三：</strong>插入节点的父节点为黑色节点</p>
+<p>当插入节点的父节点为黑节点不会违反红黑树的任何性质，直接插入即可，不需要做自平衡操作。</p>
+<p><strong>场景四：</strong>插入节点的父节点为红色节点，叔叔结点存在并且为红结点</p>
+<p>从红黑树的性质可以知道，如果父节点为红色节点，那么祖父节点必然是黑节点，因为连续两个节点的颜色是红色的情况是不存在的。那么现在这颗树的情况是黑红红，因为插入的点颜色红色，所以最简单的一种方法是将黑红红改为红黑黑。所以处理总共分为三步，以下图为例</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E6%8F%92%E5%85%A5%E5%9C%BA%E6%99%AF4.webp" alt="插入"></p>
+<p>所以我们将pp节点设置为了红色，此时要考虑这几种情况：1.当pp节点的父节点为黑色，则不需要任何操作。2.如果pp节点的父节点为红色，则把pp节点当做新插入的节点，继续往上层做平衡操作。3.当pp节点已经是根节点的情况，则需要把pp节点再次变为黑色。如下图</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E6%83%85%E6%99%AF4_1.png" alt="插入前"></p>
+<p>插入一个节点后</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E6%83%85%E6%99%AF4_2.png" alt="插入后"></p>
+<p>也就是说，红黑树的更新可以看成是从底向上的更新。这个插入场景是所有插入场景中<strong>唯一一个能增加黑色节点数量</strong>的插入操作。</p>
+<p><strong>场景五：</strong>插入节点的父节点为红色节点，叔叔结点不存在。其中父节点为祖父节点的左节点还是右节点可以分如下情况。</p>
+<ul>
+<li>父节点为祖父节点的左节点，插入节点是其父节点的左子节点</li>
+</ul>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E6%83%85%E6%99%AF5_1.webp" alt="情景五"></p>
+<p>因为两个都是红色节点，所以并不会破坏平衡。其实还有另外一种做法就是将I节点和pp节点都变为黑色，P节点变为红色，但是这样的话还需要继续做平衡操作，因为我们不知道P节点的父节点是什么颜色，若其为红色，则还需要进一步平衡操作，若其为黑色，则不需要继续平衡。所以第一种方法是比较简单的方法。</p>
+<ul>
+<li>父节点为祖父节点的右节点，插入节点是其父节点的右子节点</li>
+</ul>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%9C%BA%E6%99%AF%E4%BA%94_2.webp" alt="场景五2"></p>
+<p>和上述操作相同，只要把右旋改为左旋即可。</p>
+<p>场景六：插入节点的父节点为红色节点，叔叔结点不存在。其中父节点为祖父节点的左节点还是右节点可以分如下情况。</p>
+<ul>
+<li>父节点为祖父节点的左节点，插入节点是其父节点的右子节点</li>
+</ul>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%9C%BA%E6%99%AF%E5%85%AD.webp" alt="场景六"></p>
+<p>注意这种情况要做两次的旋转。</p>
+<ul>
+<li>父节点为祖父节点的右节点，插入节点是其父节点的左子节点</li>
+</ul>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%9C%BA%E6%99%AF6_2.webp" alt="场景六2"></p>
+<p>同样的，仍然需要做两次的旋转。</p>
+<h2 id="5-红黑树的删除"><a href="#5-红黑树的删除" class="headerlink" title="5.红黑树的删除"></a>5.红黑树的删除</h2><p>红黑树的删除操作主要有以下三种：</p>
+<ul>
+<li>若删除结点无子结点，直接删除</li>
+<li>若删除结点只有一个子结点，用子结点替换删除结点</li>
+<li>若删除结点有两个子结点，用后继结点（大于删除结点的最小结点）或者前驱也行，替换删除结点</li>
+</ul>
+<p>下面就分成几种情况来讨论一下</p>
+<h3 id="5-1要删除的节点为红色节点"><a href="#5-1要删除的节点为红色节点" class="headerlink" title="5.1要删除的节点为红色节点"></a>5.1要删除的节点为红色节点</h3><p><strong>情况一</strong>：删除的是红色的叶子节点</p>
+<p>处理方式是直接删除即可，后续不影响红黑树的平衡。</p>
+<p><strong>情况二</strong>：删除的是红色的非叶子节点</p>
+<p>这种情况下只可能存在红色节点的左右子树都存在的情况，并且左右孩子都是黑色节点，否则违反红黑树的性质。这种情况，需要找到删除节点的后继，用它替代掉要删除的节点，最后就转化为情况一，直接删除掉这个替代节点即可。</p>
+<p>比如说这边要删除掉5这个节点</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%A0%E9%99%A41.png" alt="删除1"></p>
+<p>这边替代的节点可以选择它的前驱节点4，用4把5替代掉，最后删除4即可达到平衡。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%A0%E9%99%A42.png" alt="删除2"></p>
+<h3 id="5-2要删除的节点是黑色节点"><a href="#5-2要删除的节点是黑色节点" class="headerlink" title="5.2要删除的节点是黑色节点"></a>5.2要删除的节点是黑色节点</h3><h4 id="5-2-1-删除黑色的叶子节点"><a href="#5-2-1-删除黑色的叶子节点" class="headerlink" title="5.2.1 删除黑色的叶子节点"></a>5.2.1 删除黑色的叶子节点</h4><p>情况一：待删除节点D的兄弟节点S为红色，D是左节点的情况。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%A0%E9%99%A43.png" alt="删除3"></p>
+<p>做法是将父亲节点和兄弟节点的颜色互换，也就是p变成红色，S变成黑色，然后将P树进行左旋操作，结果如下图，这时候，D的兄弟节点变成了黑色，这样就成<strong>后面要讨论的情况。</strong></p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%A0%E9%99%A44.png" alt="删除4"></p>
+<p>情况二：与情况一类似的，待删除节点D的兄弟节点S为红色，D是右节点的情况。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%A0%E9%99%A45.png" alt="删除5"></p>
+<p>类似的，将P与S互换颜色，并且右旋树。也变成了后面要讨论的操作。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%A0%E9%99%A46.png" alt="删除6"></p>
+<p>情况三：兄弟节点为黑色，且远侄子节点为红色。D为左孩子对的情况，这时D的远侄子节点为S的右孩子。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%AA%E9%99%A47.png" alt="刪除7"></p>
+<p>从图上可以看到，删除了D节点之后，左边的黑色节点就少了一个，这样明显是不平衡的，这时候应该通过旋转操作来平衡左边的黑色节点。所以调整过程为，将P和S的颜色对调，然后对P树进行类似AVL树左旋的操作，最后把SR节点变成黑色，并删除D即可。SL节点只能为红色或者是NIL。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%A0%E9%99%A48.png" alt="删除8"></p>
+<p>情况四：类似于情况三，兄弟节点为黑色，且远侄子节点为红色，D为右孩子的情况，此时D的远侄子为S的左孩子。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%A0%E9%99%A49.png" alt="删除9"></p>
+<p>经过旋转和变色之后</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%A0%E9%99%A410.png" alt="删除10"></p>
+<p>情况五：兄弟节点S为黑色，远侄子节点为黑色，近侄子节点为红色，D为左孩子的情况，此时近侄子节点为S的左孩子</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%A0%E9%99%A411.png" alt="删除11"></p>
+<p>做法是，将SL右旋，并将S和SL的颜色互换，这个时候就变成了情况3。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%A0%E9%99%A412.png" alt="删除12"></p>
+<p>相同的，当D在右边，和上述情况类似。</p>
+<p>情况六：父亲节p为红色，兄弟节点和兄弟节点的两个孩子（只能是NULL节点）都为黑色的情况。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%A0%E9%99%A413.png" alt="删除13"></p>
+<p>这种情况下删除D节点，左边的黑色节点数量就少了，那就把P变为黑色，但是P变为黑色以后，右边也会多一个黑色节点，再把右边的S变为红色即可。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%A0%E9%99%A414.png" alt="删除14"></p>
+<p>情况七：父亲节点p，兄弟节点s和兄弟节点的两个孩子（只能为NULL节点）都为黑色的情况</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%A0%E9%99%A415.png" alt="删除15"></p>
+<p>删除了D节点，为了P到左右两边叶子节点的黑色节点数相同，把S变为红色节点即可。但是需要考虑到的一种情况是P不是根节点，此时经过P的黑色节点数量就少了一个，再继续向上层平衡调整即可。</p>
+<h4 id="5-2-2删除黑色的非叶子节点"><a href="#5-2-2删除黑色的非叶子节点" class="headerlink" title="5.2.2删除黑色的非叶子节点"></a>5.2.2删除黑色的非叶子节点</h4><p>情况一：删除的黑色节点左右子树都存在</p>
+<p>首先找到被删除元素D的直接后继，用直接后继的值替换D的值，再对直接后继进行删除。我们可以知道，直接后继是不可能左右子树都存在的，这样就可以将左右子树都存在的情况转化为下面的情况。</p>
+<p>情况二：删除的黑色节点仅有左子树或者仅有右子树。</p>
+<p>即用D的左孩子或者右孩子替换D，并DR的颜色改成黑色即可。如下图：</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%A0%E9%99%A416.png" alt="删除16"></p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/%E5%88%A0%E9%99%A417.png" alt="删除17"></p>
+<p>最后，推荐一个工具，一些操作不清楚的可以用这个<a href="https://www.cs.usfca.edu/~galles/visualization/Algorithms.html" target="_blank" rel="noopener">工具</a>进行模拟。</p>
+<h1 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h1><p><strong>平衡二叉树和红黑树有什么区别呢？</strong></p>
+<p>虽然平衡树解决了二叉查找树退化为近似链表的缺点，能够把查找时间控制在 O(logn)，不过却不是最佳的，因为平衡树要求<strong>每个节点的左子树和右子树的高度差至多等于1</strong>，这个要求实在是太严了，导致每次进行插入/删除节点的时候，几乎都会破坏平衡树的第二个规则，进而我们都需要通过<strong>左旋</strong>和<strong>右旋</strong>来进行调整，使之再次成为一颗符合要求的平衡树。</p>
+<p>显然，如果在那种插入、删除很频繁的场景中，平衡树需要频繁着进行调整，这会使平衡树的性能大打折扣，为了解决这个问题，于是有了<strong>红黑树</strong>。</p>
+<p><strong>一句话总结来说</strong>，如果插入删除不频繁，只是对查找要求较高，那么AVL是较优于红黑树的。如果插入删除较为频繁，红黑树维持平衡的代价要远小于AVL树，红黑树具有优势。</p>
+<p>参考</p>
+<p><a href="https://segmentfault.com/a/1190000012728513?utm_source=tag-newest#articleHeader5" target="_blank" rel="noopener">https://segmentfault.com/a/1190000012728513?utm_source=tag-newest#articleHeader5</a></p>
+<p><a href="https://www.cnblogs.com/qingergege/p/7351659.html" target="_blank" rel="noopener">https://www.cnblogs.com/qingergege/p/7351659.html</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/72505589" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/72505589</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E7%BA%A2%E9%BB%91%E6%A0%91/" rel="tag"># 红黑树</a>
+          
+            <a href="/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/09/11/HashMap%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="next" title="HashMap源码解读">
+                <i class="fa fa-chevron-left"></i> HashMap源码解读
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/10/11/Thread%E7%B1%BB%E4%B9%8B%E5%81%9C%E6%AD%A2%E7%BA%BF%E7%A8%8B/" rel="prev" title="Thread类之停止线程">
+                Thread类之停止线程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png"
+                alt="hqf1996" />
+            
+              <p class="site-author-name" itemprop="name">hqf1996</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、二叉查找树"><span class="nav-text">一、二叉查找树</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-二叉查找树的特征"><span class="nav-text">1.二叉查找树的特征</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-二叉查找树的不足"><span class="nav-text">2.二叉查找树的不足</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、红黑树"><span class="nav-text">二、红黑树</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-红黑树的性质与定义"><span class="nav-text">1.红黑树的性质与定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-红黑树自平衡的三种方式"><span class="nav-text">2.红黑树自平衡的三种方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-红黑树的查找"><span class="nav-text">3.红黑树的查找</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-红黑树的插入"><span class="nav-text">4.红黑树的插入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-红黑树的删除"><span class="nav-text">5.红黑树的删除</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1要删除的节点为红色节点"><span class="nav-text">5.1要删除的节点为红色节点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2要删除的节点是黑色节点"><span class="nav-text">5.2要删除的节点是黑色节点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-1-删除黑色的叶子节点"><span class="nav-text">5.2.1 删除黑色的叶子节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-2删除黑色的非叶子节点"><span class="nav-text">5.2.2删除黑色的非叶子节点</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三、总结"><span class="nav-text">三、总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">hqf1996</span>
+
+  
+</div>
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共字 |</span>
+</div>
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

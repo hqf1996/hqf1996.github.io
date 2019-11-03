@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/pic_32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/pic_16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Neo4j," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言基于实验室爬取的专利数据搭建了一个基于Neo4j图数据库的可视化小应用，本节先叙述数据来源以及数据结构，到图数据库的搭建。">
+<meta name="keywords" content="Neo4j">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于Neo4j搭建图谱可视化应用（一）">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2018&#x2F;12&#x2F;07&#x2F;%E5%9F%BA%E4%BA%8ENeo4j%E6%90%AD%E5%BB%BA%E5%9B%BE%E8%B0%B1%E5%8F%AF%E8%A7%86%E5%8C%96%E5%BA%94%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89&#x2F;index.html">
+<meta property="og:site_name" content="hqfBlog">
+<meta property="og:description" content="前言基于实验室爬取的专利数据搭建了一个基于Neo4j图数据库的可视化小应用，本节先叙述数据来源以及数据结构，到图数据库的搭建。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;1544601282636.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;1544601456159.png">
+<meta property="og:updated_time" content="2019-07-15T13:03:40.687Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;1544601282636.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/12/07/基于Neo4j搭建图谱可视化应用（一）/"/>
+
+
+
+
+
+  <title>基于Neo4j搭建图谱可视化应用（一） | hqfBlog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<!--<a href="https://github.com/hqf1996" target="_blank" rel="noopener"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>-->
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">hqfBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/07/%E5%9F%BA%E4%BA%8ENeo4j%E6%90%AD%E5%BB%BA%E5%9B%BE%E8%B0%B1%E5%8F%AF%E8%A7%86%E5%8C%96%E5%BA%94%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="hqf1996">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hqfBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">基于Neo4j搭建图谱可视化应用（一）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-07T15:37:43+08:00">
+                2018-12-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Neo4j/" itemprop="url" rel="index">
+                    <span itemprop="name">Neo4j</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>基于实验室爬取的专利数据搭建了一个基于Neo4j图数据库的可视化小应用，本节先叙述数据来源以及数据结构，到图数据库的搭建。</p>
+<a id="more"></a>
+
+<h1 id="一、产生初始化数据"><a href="#一、产生初始化数据" class="headerlink" title="一、产生初始化数据"></a>一、产生初始化数据</h1><h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><h3 id="1-节点"><a href="#1-节点" class="headerlink" title="1.节点"></a>1.节点</h3><p>论文：paper_id，authors, name，单位（unit），年份，期刊，关键词，领域，地区</p>
+<p>专利：patent_id, name, 申请人（单位），发明人，申请时间，公布时间，领域，类型，地区</p>
+<p>项目：project_id，authors, name，单位（unit），立项年份，中文关键词，领域，地区（省份代号），类型</p>
+<p>人才：expert_id, 人名，职称，职位，单位，学历，云词，地区，邮箱，电话，毕业院校，领域</p>
+<p>单位：单位id，地区，单位名称，单位类型，企业社会统一信用码，省份，市，区</p>
+<h3 id="2-关系"><a href="#2-关系" class="headerlink" title="2.关系"></a>2.关系</h3><p>​    论文—-&gt;人才（作者）<br>​    人才—-&gt;论文（发表）<br>​    论文—-&gt;单位（归属） </p>
+<p>​    专利—-&gt;人才（发明人）<br>​    人才—-&gt;专利（申请）<br>​    专利—-&gt;单位（申请人）<br>​    单位—-&gt;专利（申请）</p>
+<p>​    项目—-&gt;人才（负责人）<br>​    人才—-&gt;项目（承担）<br>​    单位—-&gt;项目（承担）</p>
+<p>​    人才—-&gt;单位（工作）</p>
+<h3 id="3-总结"><a href="#3-总结" class="headerlink" title="3.总结"></a>3.总结</h3><p>数据结构为5种节点以及11种关系。</p>
+<h2 id="数据格式"><a href="#数据格式" class="headerlink" title="数据格式"></a>数据格式</h2><h3 id="专家表"><a href="#专家表" class="headerlink" title="专家表"></a>专家表</h3><table>
+<thead>
+<tr>
+<th>node_id:        ID</th>
+<th>name</th>
+<th>title</th>
+<th>position</th>
+<th>unit</th>
+<th>degree</th>
+<th>email</th>
+<th>telephone</th>
+<th>school</th>
+<th>research_field</th>
+<th>:LABEL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>757756fe-c2d1-404e-9cb5-7dd987225095</td>
+<td>兰洪亮</td>
+<td></td>
+<td></td>
+<td>国家空域技术重点实验室</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Expert</td>
+</tr>
+<tr>
+<td>75775a62-b236-4068-a22d-a4b74f66d713</td>
+<td>李树栋</td>
+<td></td>
+<td></td>
+<td>国防科技大学</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Expert</td>
+</tr>
+<tr>
+<td>75775c72-ed54-4ae3-828a-0cb981297efd</td>
+<td>曹东</td>
+<td></td>
+<td></td>
+<td>中国大唐集团环境技术有限公司</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>Expert</td>
+</tr>
+</tbody></table>
+<p>其中node_id:ID和:LABEL是很重要的两个标签。</p>
+<p><strong>node_id:ID</strong>表示的是记录的唯一标识，每条记录要求唯一，且在关系表中通过ID来关联节点。</p>
+<p><strong>:LABEL</strong>表示的是表的名称</p>
+<h3 id="论文表"><a href="#论文表" class="headerlink" title="论文表"></a>论文表</h3><table>
+<thead>
+<tr>
+<th>node_id:ID</th>
+<th>name</th>
+<th>authors</th>
+<th>unit</th>
+<th>year</th>
+<th>journal_name</th>
+<th>keywords</th>
+<th>subject_code</th>
+<th>area_code</th>
+<th>:LABEL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0188eaa1-1a28-4154-b904-e00140bf0da5</td>
+<td>高斯贝尔GD-6020数字机顶盒维修</td>
+<td>温海波;张艳;赵文松</td>
+<td>辽宁省灯塔广电中心</td>
+<td>2017</td>
+<td>数码世界</td>
+<td></td>
+<td>电子信息</td>
+<td>21</td>
+<td>Paper</td>
+</tr>
+<tr>
+<td>0188ecee-fabf-11e6-b478-005056b3f30e</td>
+<td>2015—2016财政年度上半年日本主要粉末冶金企业产品销售呈增长态势</td>
+<td>孙世杰</td>
+<td></td>
+<td>2016</td>
+<td>粉末冶金工业</td>
+<td></td>
+<td>机械电子与制造</td>
+<td>99</td>
+<td>Paper</td>
+</tr>
+</tbody></table>
+<h3 id="专利表"><a href="#专利表" class="headerlink" title="专利表"></a>专利表</h3><table>
+<thead>
+<tr>
+<th>node_id:ID</th>
+<th>name</th>
+<th>applicant</th>
+<th>inventors</th>
+<th>application_date</th>
+<th>publication_date</th>
+<th>subject_code</th>
+<th>area_code</th>
+<th>patent_type</th>
+<th>:LABEL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>02a8166e-b7a8-11e6-af90-005056b3f30e</td>
+<td>一种公路警示限高杆</td>
+<td></td>
+<td>不公告发明人</td>
+<td>2013/12/14</td>
+<td>2014/3/26</td>
+<td>机械电子与制造</td>
+<td>37</td>
+<td>发明专利</td>
+<td>Patent</td>
+</tr>
+<tr>
+<td>02a81712-b7aa-11e6-af90-005056b3f30e</td>
+<td>低层建筑外墙的清洗设备</td>
+<td>天津悦辰清洗设备科技有限公司</td>
+<td>杨正海</td>
+<td>2011/9/8</td>
+<td>2012/4/25</td>
+<td>其他</td>
+<td>12</td>
+<td>实用新型</td>
+<td>Patent</td>
+</tr>
+</tbody></table>
+<h3 id="项目表"><a href="#项目表" class="headerlink" title="项目表"></a>项目表</h3><table>
+<thead>
+<tr>
+<th>node_id:ID</th>
+<th>name</th>
+<th>member</th>
+<th>unit</th>
+<th>year</th>
+<th>keywords_ch</th>
+<th>area_code</th>
+<th>project_type</th>
+<th>:LABEL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>00002051-f413-4908-a4a9-87b76519b398</td>
+<td>矢量数学形态学理论及其在高维数据处理中的应用</td>
+<td>雷涛</td>
+<td>兰州交通大学</td>
+<td>2012</td>
+<td>数学形态学；矢量排序；模糊词典编纂顺序；高维数据；对偶性</td>
+<td>62</td>
+<td>国家自然科学基金</td>
+<td>Project</td>
+</tr>
+<tr>
+<td>00007cd8-a4da-40b7-a818-52db17a92e16</td>
+<td>TNF-α诱导PDIP1基因转录的调控机制</td>
+<td>周建林</td>
+<td>湖南师范大学</td>
+<td>2005</td>
+<td>PDIP1;TNF-α;转录调控</td>
+<td></td>
+<td>国家自然科学基金</td>
+<td>Project</td>
+</tr>
+</tbody></table>
+<h3 id="单位表"><a href="#单位表" class="headerlink" title="单位表"></a>单位表</h3><table>
+<thead>
+<tr>
+<th>node_id:ID</th>
+<th>unit</th>
+<th>area_code</th>
+<th>type_code</th>
+<th>CreditCode</th>
+<th>area_level1</th>
+<th>area_level2</th>
+<th>area_level3</th>
+<th>:LABEL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>龙岩学院</td>
+<td>35</td>
+<td>高校</td>
+<td></td>
+<td>福建</td>
+<td></td>
+<td></td>
+<td>Unit</td>
+</tr>
+<tr>
+<td>2</td>
+<td>齐齐哈尔高等师范专科学校</td>
+<td>23</td>
+<td>高校</td>
+<td></td>
+<td>黑龙江</td>
+<td></td>
+<td></td>
+<td>Unit</td>
+</tr>
+</tbody></table>
+<h3 id="专家论文表"><a href="#专家论文表" class="headerlink" title="专家论文表"></a>专家论文表</h3><table>
+<thead>
+<tr>
+<th>:START_ID</th>
+<th>:END_ID</th>
+<th>:TYPE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>c69d90aa-f4f0-4054-bde3-83c6723da0ec</td>
+<td>30257381-fa8a-11e6-b478-005056b3f30e</td>
+<td>发表</td>
+</tr>
+<tr>
+<td>739d8e9d-42ed-492f-9002-b64ef35e058e</td>
+<td>30257381-fa8a-11e6-b478-005056b3f30e</td>
+<td>发表</td>
+</tr>
+</tbody></table>
+<h3 id="专家专利表"><a href="#专家专利表" class="headerlink" title="专家专利表"></a>专家专利表</h3><table>
+<thead>
+<tr>
+<th>:START_ID</th>
+<th>:END_ID</th>
+<th>:TYPE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>000000ef-6d13-4eaf-8361-9ff1a0c40f53</td>
+<td>7fccd160-b7aa-11e6-af90-005056b3f30e</td>
+<td>申请</td>
+</tr>
+<tr>
+<td>00000884-a9f3-4993-8365-f892d43daa8b</td>
+<td>12aa4838-b7ab-11e6-af90-005056b3f30e</td>
+<td>申请</td>
+</tr>
+</tbody></table>
+<h3 id="专家项目表"><a href="#专家项目表" class="headerlink" title="专家项目表"></a>专家项目表</h3><table>
+<thead>
+<tr>
+<th>:START_ID</th>
+<th>:END_ID</th>
+<th>:TYPE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>bfdae5fe-0e63-4a8f-890b-c258aa1cfb1f</td>
+<td>944b8083-829a-42c8-87ef-07946de274bc</td>
+<td>承担</td>
+</tr>
+<tr>
+<td>bfdae5fe-0e63-4a8f-890b-c258aa1cfb1f</td>
+<td>e3959c3a-fb37-47c2-b8a6-8aff716d6e04</td>
+<td>承担</td>
+</tr>
+</tbody></table>
+<h3 id="专家单位表"><a href="#专家单位表" class="headerlink" title="专家单位表"></a>专家单位表</h3><table>
+<thead>
+<tr>
+<th>:START_ID</th>
+<th>:END_ID</th>
+<th>:TYPE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>757756fe-c2d1-404e-9cb5-7dd987225095</td>
+<td>58816</td>
+<td>工作</td>
+</tr>
+<tr>
+<td>75775a62-b236-4068-a22d-a4b74f66d713</td>
+<td>33504</td>
+<td>工作</td>
+</tr>
+</tbody></table>
+<h3 id="论文专家表"><a href="#论文专家表" class="headerlink" title="论文专家表"></a>论文专家表</h3><table>
+<thead>
+<tr>
+<th>:START_ID</th>
+<th>:END_ID</th>
+<th>:TYPE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>30257381-fa8a-11e6-b478-005056b3f30e</td>
+<td>c69d90aa-f4f0-4054-bde3-83c6723da0ec</td>
+<td>作者</td>
+</tr>
+<tr>
+<td>30257381-fa8a-11e6-b478-005056b3f30e</td>
+<td>739d8e9d-42ed-492f-9002-b64ef35e058e</td>
+<td>作者</td>
+</tr>
+</tbody></table>
+<h3 id="论文单位表"><a href="#论文单位表" class="headerlink" title="论文单位表"></a>论文单位表</h3><table>
+<thead>
+<tr>
+<th>:START_ID</th>
+<th>:END_ID</th>
+<th>:TYPE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0188f08e-0ca3-11e7-b478-005056b3f30e</td>
+<td>5145</td>
+<td>归属</td>
+</tr>
+<tr>
+<td>0188f2b5-9868-4261-a28f-04c20bdf27e6</td>
+<td>2487</td>
+<td>归属</td>
+</tr>
+</tbody></table>
+<h3 id="专利专家表"><a href="#专利专家表" class="headerlink" title="专利专家表"></a>专利专家表</h3><table>
+<thead>
+<tr>
+<th>:START_ID</th>
+<th>:END_ID</th>
+<th>:TYPE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>7fccd160-b7aa-11e6-af90-005056b3f30e</td>
+<td>000000ef-6d13-4eaf-8361-9ff1a0c40f53</td>
+<td>发明人</td>
+</tr>
+<tr>
+<td>12aa4838-b7ab-11e6-af90-005056b3f30e</td>
+<td>00000884-a9f3-4993-8365-f892d43daa8b</td>
+<td>发明人</td>
+</tr>
+</tbody></table>
+<h3 id="专利单位表"><a href="#专利单位表" class="headerlink" title="专利单位表"></a>专利单位表</h3><table>
+<thead>
+<tr>
+<th>:START_ID</th>
+<th>:END_ID</th>
+<th>:TYPE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>02a81712-b7aa-11e6-af90-005056b3f30e</td>
+<td>109130</td>
+<td>申请人</td>
+</tr>
+<tr>
+<td>02a8193e-b7aa-11e6-af90-005056b3f30e</td>
+<td>109131</td>
+<td>申请人</td>
+</tr>
+</tbody></table>
+<h3 id="项目专家表"><a href="#项目专家表" class="headerlink" title="项目专家表"></a>项目专家表</h3><table>
+<thead>
+<tr>
+<th>:START_ID</th>
+<th>:END_ID</th>
+<th>:TYPE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>944b8083-829a-42c8-87ef-07946de274bc</td>
+<td>bfdae5fe-0e63-4a8f-890b-c258aa1cfb1f</td>
+<td>负责人</td>
+</tr>
+<tr>
+<td>e3959c3a-fb37-47c2-b8a6-8aff716d6e04</td>
+<td>bfdae5fe-0e63-4a8f-890b-c258aa1cfb1f</td>
+<td>负责人</td>
+</tr>
+</tbody></table>
+<h3 id="单位专利表"><a href="#单位专利表" class="headerlink" title="单位专利表"></a>单位专利表</h3><table>
+<thead>
+<tr>
+<th>:START_ID</th>
+<th>:END_ID</th>
+<th>:TYPE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>109130</td>
+<td>02a81712-b7aa-11e6-af90-005056b3f30e</td>
+<td>申请</td>
+</tr>
+<tr>
+<td>109131</td>
+<td>02a8193e-b7aa-11e6-af90-005056b3f30e</td>
+<td>申请</td>
+</tr>
+</tbody></table>
+<h3 id="单位项目表"><a href="#单位项目表" class="headerlink" title="单位项目表"></a>单位项目表</h3><table>
+<thead>
+<tr>
+<th>:START_ID</th>
+<th>:END_ID</th>
+<th>:TYPE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2559</td>
+<td>00002051-f413-4908-a4a9-87b76519b398</td>
+<td>承担</td>
+</tr>
+<tr>
+<td>862</td>
+<td>00007cd8-a4da-40b7-a818-52db17a92e16</td>
+<td>承担</td>
+</tr>
+</tbody></table>
+<p>好了，终于列举完了所有的节点表以及关系表。</p>
+<p>导入Neo4j数据库中的数据格式为csv格式的文件，这边我通过python对数据进行处理。主要用到了python中的两个包。一个是MySQLdb，另外一个是csv。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> MySQLdb</span><br><span class="line"><span class="keyword">import</span> csv</span><br></pre></td></tr></table></figure>
+
+<h1 id="二、数据入库"><a href="#二、数据入库" class="headerlink" title="二、数据入库"></a>二、数据入库</h1><p>我这边是将Neo4j安装在linux服务器下，Neo4j的版本为3.3.3版本，可以访问我的github进行下载。安装完neo4j后，进入到neo4j的bin目录，输入如下命令。其中，neo4j_data_new为存放数据的文件夹目录。 </p>
+<p>GitHub地址： <a href="https://github.com/hqf1996/Neo4j3.3.3-.git" target="_blank" rel="noopener">https://github.com/hqf1996/Neo4j3.3.3-.git</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@amdnode8 bin]<span class="comment"># ./neo4j-admin import --database=graph.db --nodes /neo4j_data_new/paper.csv --nodes /neo4j_data_new/patent.csv --nodes /neo4j_data_new/project.csv --nodes /neo4j_data_new/unit.csv --nodes /neo4j_data_new/expert.csv --relationships /neo4j_data_new/UnitToPatent2.csv --relationships /neo4j_data_new/ExpertToUnit2.csv --relationships /neo4j_data_new/PatentToUnit2.csv --relationships /neo4j_data_new/UnitToProject2.csv --relationships /neo4j_data_new/ExpertToProject2.csv --relationships /neo4j_data_new/ProjectToExpert2.csv --relationships /neo4j_data_new/ExpertToPatent2.csv --relationships /neo4j_data_new/PatentToExpert2.csv --relationships /neo4j_data_new/PaperToUnit2.csv --relationships /neo4j_data_new/ExpertToPaper2.csv --relationships /neo4j_data_new/PaperToExpert2.csv</span></span><br></pre></td></tr></table></figure>
+
+<p>执行一段时间后，会生成graph.db的数据库文件。此时，重启数据库即可</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./neo4j restart</span><br></pre></td></tr></table></figure>
+
+<p>此时，访问7474端口就可以查看新创建的图数据库了。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/1544601282636.png" alt=""></p>
+<p>我们试着去写一条查询语句访问一下</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/1544601456159.png" alt=""></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Neo4j/" rel="tag"># Neo4j</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/12/13/%E5%9F%BA%E4%BA%8ENeo4j%E6%90%AD%E5%BB%BA%E5%9B%BE%E8%B0%B1%E5%8F%AF%E8%A7%86%E5%8C%96%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="prev" title="基于Neo4j搭建图谱可视化应用（二）">
+                基于Neo4j搭建图谱可视化应用（二） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png"
+                alt="hqf1996" />
+            
+              <p class="site-author-name" itemprop="name">hqf1996</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、产生初始化数据"><span class="nav-text">一、产生初始化数据</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据结构"><span class="nav-text">数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-节点"><span class="nav-text">1.节点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-关系"><span class="nav-text">2.关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-总结"><span class="nav-text">3.总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据格式"><span class="nav-text">数据格式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#专家表"><span class="nav-text">专家表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#论文表"><span class="nav-text">论文表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#专利表"><span class="nav-text">专利表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#项目表"><span class="nav-text">项目表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#单位表"><span class="nav-text">单位表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#专家论文表"><span class="nav-text">专家论文表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#专家专利表"><span class="nav-text">专家专利表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#专家项目表"><span class="nav-text">专家项目表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#专家单位表"><span class="nav-text">专家单位表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#论文专家表"><span class="nav-text">论文专家表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#论文单位表"><span class="nav-text">论文单位表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#专利专家表"><span class="nav-text">专利专家表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#专利单位表"><span class="nav-text">专利单位表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#项目专家表"><span class="nav-text">项目专家表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#单位专利表"><span class="nav-text">单位专利表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#单位项目表"><span class="nav-text">单位项目表</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、数据入库"><span class="nav-text">二、数据入库</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">hqf1996</span>
+
+  
+</div>
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共字 |</span>
+</div>
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

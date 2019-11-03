@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/pic_32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/pic_16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="RPC," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言在不同服务部署在不同的机器上的前提下，服务器之间存在大量的网络通信，这时候就需要写大量的网络通信的代码，十分不方便。如果能够让服务器调用远程方法就像是调用本地方法一样，将会大大减少工作量，这种方法的实现其实就是RPC。">
+<meta name="keywords" content="RPC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="实现一个自己的RPC框架2.0">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;08&#x2F;11&#x2F;%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B62-0&#x2F;index.html">
+<meta property="og:site_name" content="hqfBlog">
+<meta property="og:description" content="前言在不同服务部署在不同的机器上的前提下，服务器之间存在大量的网络通信，这时候就需要写大量的网络通信的代码，十分不方便。如果能够让服务器调用远程方法就像是调用本地方法一样，将会大大减少工作量，这种方法的实现其实就是RPC。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RPC%E6%A1%86%E6%9E%B61.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%9C%8D%E5%8A%A1%E7%AB%AF%E7%9B%91%E5%90%AC%E7%AB%AF%E5%8F%A3.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%90%91%E7%AB%AF%E5%8F%A3%E5%8F%91%E9%80%81%E8%AF%B7%E6%B1%82%E5%B9%B6%E8%8E%B7%E5%BE%97%E8%BF%94%E5%9B%9E.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%8E%A5%E5%8F%97%E8%AF%B7%E6%B1%82%E5%B9%B6%E5%A4%84%E7%90%86%E8%BF%94%E5%9B%9E.png">
+<meta property="og:updated_time" content="2019-08-13T11:09:17.753Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RPC%E6%A1%86%E6%9E%B61.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/08/11/实现一个自己的RPC框架2-0/"/>
+
+
+
+
+
+  <title>实现一个自己的RPC框架2.0 | hqfBlog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<!--<a href="https://github.com/hqf1996" target="_blank" rel="noopener"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>-->
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">hqfBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B62-0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="hqf1996">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hqfBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">实现一个自己的RPC框架2.0</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-11T19:39:11+08:00">
+                2019-08-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/RPC/" itemprop="url" rel="index">
+                    <span itemprop="name">RPC</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在不同服务部署在不同的机器上的前提下，服务器之间存在大量的网络通信，这时候就需要写大量的网络通信的代码，十分不方便。如果能够让服务器调用远程方法就像是调用本地方法一样，将会大大减少工作量，这种方法的实现其实就是RPC。</p>
+<a id="more"></a>
+
+<p>大致的实现应该如下图一样。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/RPC%E6%A1%86%E6%9E%B61.png" alt="RPC框架"></p>
+<p>其中客户端发送过去的是方法的方法名、参数类型以及具体参数，这时候应该要想到用JDK动态代理来实现客户端的这一部分。因为当客户端传输的方法有很多的时候，如果不用JDK动态代理的话，就需要手动处理每一个方法的发送，解析出方法的方法名、参数类型、具体参数，这显然是很麻烦的。所以当我们用JDK动态代理的时候，用一个类就能实现所有方法的处理，客户端在调用某个方法的时候其实调用的是一个增强的方法，这个增强方法中实现了发送Socket请求之前对方法的解析，发送RPC请求以及服务器返回值之后的响应。</p>
+<p>下面我具体介绍客户端和服务端的实现。</p>
+<h1 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h1><p>定义服务的接口类HelloService</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">HelloService</span> </span>&#123;</span><br><span class="line">    <span class="function">String <span class="title">hello</span><span class="params">(String name)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>用JDK动态代理实现向服务端发送RPC请求和解析服务端的响应，需要实现InvocationHandler接口，并重写invoke方法，这边重写的invoke就是增强的hello方法，能与服务端进行交互。myInvocationHandler类其中的主要部分是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">    <span class="comment">// 与服务器端创建连接</span></span><br><span class="line">    System.out.println(<span class="string">"创建与服务器端的的连接..."</span>);</span><br><span class="line">    Socket socket = <span class="keyword">new</span> Socket(host, port);</span><br><span class="line">    <span class="comment">// 客户端向服务端发送请求</span></span><br><span class="line">    System.out.println(<span class="string">"向客户端发送请求..."</span>);</span><br><span class="line">    ObjectOutputStream output = <span class="keyword">new</span> ObjectOutputStream(socket.getOutputStream());</span><br><span class="line">    <span class="comment">// 方法名</span></span><br><span class="line">    <span class="comment">//output.writeUTF(method.getName());</span></span><br><span class="line">    output.writeObject(method.getName());</span><br><span class="line">    System.out.println(<span class="string">"methodName:"</span> + method.getName());</span><br><span class="line">    <span class="comment">// 参数类型列表</span></span><br><span class="line">    output.writeObject(method.getParameterTypes());</span><br><span class="line">    System.out.println(<span class="string">"parameterTypes:"</span> + Arrays.toString(method.getParameterTypes()));</span><br><span class="line">    <span class="comment">// 参数值列表</span></span><br><span class="line">    output.writeObject(args);</span><br><span class="line">    System.out.println(<span class="string">"args:"</span> + Arrays.toString(args));</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**客户端读取服务端的返回*/</span></span><br><span class="line">    System.out.println(<span class="string">"\n客户端读取服务端的返回..."</span>);</span><br><span class="line">    ObjectInputStream input = <span class="keyword">new</span> ObjectInputStream(socket.getInputStream());</span><br><span class="line">    Object returnResult = input.readObject();</span><br><span class="line">    System.out.println(returnResult);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 关闭资源</span></span><br><span class="line">    socket.close();</span><br><span class="line">    input.close();</span><br><span class="line">    output.close();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> returnResult;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>模拟一个消费者发送请求。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 重写 InvocationHandler</span></span><br><span class="line">    myInvocationHandler handler = <span class="keyword">new</span> myInvocationHandler(<span class="string">"127.0.0.1"</span>, <span class="number">1234</span>);</span><br><span class="line">    <span class="comment">// JDK动态代理生成HelloService的代理类proxy，相当于是对目标方法的增强类，这边用它来发送RPC请求和接受服务器端返回值</span></span><br><span class="line">    HelloService proxy = (HelloService) Proxy.newProxyInstance(HelloService<span class="class">.<span class="keyword">class</span>.<span class="title">getClassLoader</span>(),</span></span><br><span class="line">                                                               new Class&lt;?&gt;[] &#123;HelloService.class&#125;,</span><br><span class="line">                                                               handler);</span><br><span class="line">    proxy.hello(<span class="string">"World"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h1><p>在服务端同样也要有接口类HelloService，与客户端的相同。另外需要有HelloService的实现类HelloServiceImpl，提供服务器端需要暴露的接口，客户端的远程调用也就是调用该类对应的方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">hello</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"你好"</span> + name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在程序中需要暴露相应的服务端口，这边将HelloServiceImpl类和端口号进行初始化。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    HelloService helloService = <span class="keyword">new</span> HelloServiceImpl();</span><br><span class="line">    ExportService.exportHelloService(helloService, <span class="number">1234</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中ExportService.exportHelloService(helloService, 1234);方法的实现是这样子的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">exportHelloService</span><span class="params">(<span class="keyword">final</span> Object service, <span class="keyword">int</span> port)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="comment">// 建立Socket服务端请求</span></span><br><span class="line">    System.out.println(<span class="string">"建立Socket请求, port = "</span> + port);</span><br><span class="line">    ServerSocket serverSocket = <span class="keyword">new</span> ServerSocket(port);</span><br><span class="line">    <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</span><br><span class="line">        <span class="comment">//监听是否有来自客户端的socket请求</span></span><br><span class="line">        <span class="keyword">final</span> Socket socket = serverSocket.accept();</span><br><span class="line">        <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    <span class="comment">/**解析请求*/</span></span><br><span class="line">                    ObjectInputStream input = <span class="keyword">new</span> ObjectInputStream(socket.getInputStream());</span><br><span class="line">                    <span class="comment">//                        String methodName = input.readUTF();</span></span><br><span class="line">                    String methodName = (String) input.readObject();</span><br><span class="line">                    System.out.println(<span class="string">"methodName:"</span> + methodName);</span><br><span class="line">                    Class&lt;?&gt;[] parameterTypes = (Class&lt;?&gt;[])input.readObject();</span><br><span class="line">                    System.out.println(<span class="string">"ParameterTypes:"</span> + Arrays.toString(parameterTypes));</span><br><span class="line">                    Object[] args = (Object [])input.readObject();</span><br><span class="line">                    System.out.println(Arrays.toString(args));</span><br><span class="line"></span><br><span class="line">                    <span class="comment">/**处理请求，输出结果*/</span></span><br><span class="line">                    ObjectOutputStream output = <span class="keyword">new</span> ObjectOutputStream(socket.getOutputStream());</span><br><span class="line">                    <span class="comment">// 反射调用，处理请求</span></span><br><span class="line">                    Method method = service.getClass().getMethod(methodName, parameterTypes);</span><br><span class="line">                    Object result = method.invoke(service, args);</span><br><span class="line">                    System.out.println(<span class="string">"服务器端处理完并返回响应："</span> + result);</span><br><span class="line">                    output.writeObject(result);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (NoSuchMethodException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>客户端的主要逻辑是监听来自客户端的请求。当有请求发起的时候，服务器解析来自客户端的请求并且用反射的方法处理请求。主要方法是下面的两行</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Method method = service.getClass().getMethod(methodName, parameterTypes);</span><br><span class="line">Object result = method.invoke(service, args);</span><br></pre></td></tr></table></figure>
+
+<p>其中method方法其实就是我们客户端请求的HelloServiceImpl的hello方法，这边是用反射来获得的，注意两个参数<strong>methodName</strong> 和 <strong>parameterTypes</strong>。第一个参数是方法名，第二个参数是参数类型，通过这两个参数就能确定method是类中的哪个方法。最后<strong>invoke</strong>方法相当于传入相应的参数并调用该方法。</p>
+<p><strong>运行截图</strong></p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E7%9B%91%E5%90%AC%E7%AB%AF%E5%8F%A3.png" alt="服务端监听端口"></p>
+<center>服务端监听端口</center>
+
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%90%91%E7%AB%AF%E5%8F%A3%E5%8F%91%E9%80%81%E8%AF%B7%E6%B1%82%E5%B9%B6%E8%8E%B7%E5%BE%97%E8%BF%94%E5%9B%9E.png" alt="客户端向端口发送请求并获得返回"></p>
+<center>客户端向端口发送请求并获得返回</center>
+
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%8E%A5%E5%8F%97%E8%AF%B7%E6%B1%82%E5%B9%B6%E5%A4%84%E7%90%86%E8%BF%94%E5%9B%9E.png" alt="服务端接受请求并处理返回"></p>
+<center>服务端接受请求并处理返回</center>
+
+<p>到此为止，一个简单的RPC框架就实现了，虽然能简单实现但是有很多方面的不足，后面考虑以下的优化。</p>
+<p>由于Socket是采用BIO的通信，在发送请求之后需要等待Socket服务端的处理，并返回响应的结果。基于BIO的通信就会发生阻塞，即在accept到一个请求的时候就要进行处理，此时当有其他的请求过来的时候就会被阻塞。服务端和客户端的线程可以看成是1:1的关系，当有一台客户端发送请求，服务端就要创建一个新的线程来处理它，试想，当同时有大量的客户端请求的时候，服务器并不能满足这种高并发接入的场景。还有Java原生的序列化机制占内存太多，运行效率也不高。可以考虑从下面几种方法改进。</p>
+<ul>
+<li>可以采用线程池或者消息队列的方式来实现一种伪异步，将客户端发送过来的请求“管理起来”，由于线程池和消息队列是有界的，所以不会产生内存溢出或者线程数量不够用的问题；</li>
+<li>可以使用NIO或直接使用Netty替代BIO实现；</li>
+<li>使用开源的序列化机制，如Hadoop Avro、Google protobuf、protostuff等，后面可能会用protostuff来实现序列化与反序列化；</li>
+<li>服务注册可以使用Zookeeper进行管理，能够让应用更加稳定。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/RPC/" rel="tag"># RPC</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B61-0%E2%80%94%E2%80%94%E7%9F%A5%E8%AF%86%E5%82%A8%E5%A4%87/" rel="next" title="实现一个自己的RPC框架1.0——知识储备">
+                <i class="fa fa-chevron-left"></i> 实现一个自己的RPC框架1.0——知识储备
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/08/12/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E7%B1%BB%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/" rel="prev" title="JVM笔记——类文件结构">
+                JVM笔记——类文件结构 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png"
+                alt="hqf1996" />
+            
+              <p class="site-author-name" itemprop="name">hqf1996</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#客户端"><span class="nav-text">客户端</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#服务端"><span class="nav-text">服务端</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">hqf1996</span>
+
+  
+</div>
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共字 |</span>
+</div>
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

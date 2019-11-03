@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/pic_32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/pic_16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="JVM,类文件结构," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言JVM上不仅仅能够运行Java语言，还能运行其他多种语言，比如说Clojure、Groovy、JRuby、Scala等等。其实Java虚拟机不和包括Java在内的任何语言绑定，它只与“Class文件”这种特定的二进制文件格式所关联。正如下图所示">
+<meta name="keywords" content="JVM,类文件结构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM笔记——类文件结构">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;08&#x2F;12&#x2F;JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E7%B1%BB%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84&#x2F;index.html">
+<meta property="og:site_name" content="hqfBlog">
+<meta property="og:description" content="前言JVM上不仅仅能够运行Java语言，还能运行其他多种语言，比如说Clojure、Groovy、JRuby、Scala等等。其实Java虚拟机不和包括Java在内的任何语言绑定，它只与“Class文件”这种特定的二进制文件格式所关联。正如下图所示">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;JVM%E8%AF%AD%E8%A8%80%E6%97%A0%E5%85%B3%E6%80%A7.jpg">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Helloworld%E7%9A%84%E5%8D%81%E5%85%AD%E8%BF%9B%E5%88%B6%E7%BC%96%E7%A0%81.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E9%AD%94%E6%95%B0.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Class%E6%96%87%E4%BB%B6%E7%9A%84%E7%89%88%E6%9C%AC%E5%8F%B7.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E5%B8%B8%E9%87%8F%E6%B1%A0%E7%9A%84%E9%A1%B9%E7%9B%AE%E7%B1%BB%E5%9E%8B.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E5%B8%B8%E9%87%8F%E6%B1%A0%E5%88%86%E6%9E%90.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E5%B8%B8%E9%87%8F%E9%A1%B9%E7%BB%93%E6%9E%841.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E5%B8%B8%E9%87%8F%E9%A1%B9%E7%BB%93%E6%9E%842.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E5%88%86%E6%9E%90%E5%B8%B8%E9%87%8F%E7%9A%84%E7%B1%BB%E5%9E%8B.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E8%AE%BF%E9%97%AE%E6%A0%87%E5%BF%97.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E8%AE%BF%E9%97%AE%E6%A0%87%E5%BF%97%E4%BD%8D%E4%BE%8B%E5%AD%90.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E7%B1%BB%E7%B4%A2%E5%BC%95%E7%88%B6%E7%B1%BB%E7%B4%A2%E5%BC%95%E6%8E%A5%E5%8F%A3%E7%B4%A2%E5%BC%95.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E5%AD%97%E6%AE%B5%E8%A1%A8%E6%A0%BC%E5%BC%8F.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;access_flags%E5%8F%AF%E4%BB%A5%E8%AE%BE%E7%BD%AE%E7%9A%84%E6%A0%87%E5%BF%97%E4%BD%8D%E5%92%8C%E5%90%AB%E4%B9%89.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%8F%8F%E8%BF%B0%E7%AC%A6%E6%A0%87%E8%AF%86%E5%AD%97%E7%AC%A6%E5%90%AB%E4%B9%89.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E5%AD%97%E6%AE%B5%E8%A1%A8%E5%88%86%E6%9E%90.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E5%AD%97%E6%AE%B5%E8%A1%A8%E6%A0%BC%E5%BC%8F.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%96%B9%E6%B3%95%E8%AE%BF%E9%97%AE%E6%A0%87%E5%BF%97.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%96%B9%E6%B3%95%E8%A1%A8%E5%88%86%E6%9E%90%E4%BE%8B%E5%AD%90.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E7%AC%AC%E4%B8%80%E4%B8%AA%E6%96%B9%E6%B3%95%E7%9A%84%E5%8C%BA%E5%9F%9F.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E7%AC%AC%E4%BA%8C%E4%B8%AA%E6%96%B9%E6%B3%95%E8%A1%A8%E4%BE%8B%E5%AD%90.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Code%E5%B1%9E%E6%80%A7%E7%BB%93%E6%9E%84.png">
+<meta property="og:updated_time" content="2019-08-13T07:28:23.517Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;JVM%E8%AF%AD%E8%A8%80%E6%97%A0%E5%85%B3%E6%80%A7.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/08/12/JVM笔记——类文件结构/"/>
+
+
+
+
+
+  <title>JVM笔记——类文件结构 | hqfBlog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<!--<a href="https://github.com/hqf1996" target="_blank" rel="noopener"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>-->
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">hqfBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/%20" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/12/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E7%B1%BB%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="hqf1996">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hqfBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JVM笔记——类文件结构</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-12T19:42:29+08:00">
+                2019-08-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>JVM上不仅仅能够运行Java语言，还能运行其他多种语言，比如说Clojure、Groovy、JRuby、Scala等等。其实Java虚拟机不和包括Java在内的任何语言绑定，它只与“Class文件”这种特定的二进制文件格式所关联。正如下图所示</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/JVM%E8%AF%AD%E8%A8%80%E6%97%A0%E5%85%B3%E6%80%A7.jpg" alt="JVM语言无关性"></p>
+<a id="more"></a>
+
+<h1 id="Class类文件的结构"><a href="#Class类文件的结构" class="headerlink" title="Class类文件的结构"></a>Class类文件的结构</h1><p>简述：Class文件是一组以8位字节为基础单位的二进制流，Class文件格式采用一种类似于C语言结构体的伪结构来存储数据，这种微结构中只有两种数据类型：无符号数和表。</p>
+<blockquote>
+<ul>
+<li>无符号数属于基本的数据类型，以u1、u2、u4、u8来分别代表1个字节、2个字节、4个字节、8个字节的无符号数，无符号数可以用来描述数字、索引引用、数量值或者按照UTF-8编码构成字符串值。</li>
+<li>表是由多个无符号数或者其他表作为数据项构成的复合数据类型，所有表都习惯性地以“_info”结尾。</li>
+</ul>
+</blockquote>
+<p>直接讲Class类的文件结构感觉有些抽象，这边我是用一个自己写的Java小程序来帮助逐步理解。用WinHex对编译好的Class文件进行分析。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloWorld</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> a;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"HelloWorld"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>将编译好的Class文件放入WinHex中</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/Helloworld%E7%9A%84%E5%8D%81%E5%85%AD%E8%BF%9B%E5%88%B6%E7%BC%96%E7%A0%81.png" alt="HelloWorld的十六进制编码"></p>
+<h2 id="魔数与Class文件的版本"><a href="#魔数与Class文件的版本" class="headerlink" title="魔数与Class文件的版本"></a>魔数与Class文件的版本</h2><blockquote>
+<p>魔数：每个Class文件的头四个字节称为魔数（Magic Number），它的唯一作用是确定这个文件是否为一个能被虚拟机接受的Class文件。它的值为0xCAFEBABY（咖啡宝贝）。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E9%AD%94%E6%95%B0.png" alt="魔数"></p>
+<p>Class文件的版本：紧接着魔数的四个字节。其中第五第六个字节是次版本号，第七第八个字节是主版本号。这边是0x00000034，次版本号为0，主版本号为十进制的52，也就是JDK1.8对应的版本号，能向低版本兼容。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/Class%E6%96%87%E4%BB%B6%E7%9A%84%E7%89%88%E6%9C%AC%E5%8F%B7.png" alt="Class文件的版本"></p>
+</blockquote>
+<h2 id="常量池"><a href="#常量池" class="headerlink" title="常量池"></a>常量池</h2><blockquote>
+<p>​        紧接着Class版本号的就是常量池，常量池可以理解为Class文件之中的资源仓库。它是Class文件结构中与其他项目关联最多的数据类型，也是占用Class文件空间最大的数据项目之一，同时它还是在Class文件中第一个出现的表类型数据项目。</p>
+<p>​        由于常量池的常量数据是不确定的，所以在常量之前需要放置一项u2类型的数据，代表常量池容量计数值，注意，它的计数是从1开始的而不是0。这边是0x0024，也就是有35个常量。</p>
+<p>常量池中主要存放两大类常量：字面量和符号引用。<br>①字面量：接近于Java语言层面的常量概念，如文本字符串、声明为final的常量值等。<br>②符号引用：属于编译原理方面的概念，主要包括：类和接口的全限定名、字段的名称和描述符、方法的名称和描述符。</p>
+<p>​        Java代码在经过javac命令编译之后，生成的Class文件中并不会保存各个方法、字段的最终内存布局信息，必须等到虚拟机运行时，从常量池中获得对应的符号引用，再通过这些符号引用经过类创建或运行时解析、翻译等才能得到具体的内存地址。</p>
+<p><strong>常量池中共有14中类型的常量</strong>，每一个常量（项）都有自己的表结构，但这14种表的有一个共同特点：表开始的第一位是一个u1类型的标志位tag，代表这个常量属于哪种常量类型。常量池中的常量类型见下表。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E5%B8%B8%E9%87%8F%E6%B1%A0%E7%9A%84%E9%A1%B9%E7%9B%AE%E7%B1%BB%E5%9E%8B.png" alt="常量池的数据类型"></p>
+<p>手动的去一个一个分析常量池中的每一个常量非常麻烦，这边我就分析第一个当个例子。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E5%B8%B8%E9%87%8F%E6%B1%A0%E5%88%86%E6%9E%90.png" alt="常量池分析"></p>
+<p>这边的第9和10位代表常量池容量，换算成十进制是36，由于下标是从1开始，所以就只有1-35共35个常量。接下去的0x0A通过查<strong>常量池的数据类型表</strong>可以得知代表了类方法的符号引用，也就是CONSTANT_Methodref_info，通过查结构总表查看它的结构。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E5%B8%B8%E9%87%8F%E9%A1%B9%E7%BB%93%E6%9E%841.png" alt="常量项结构1"></p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E5%B8%B8%E9%87%8F%E9%A1%B9%E7%BB%93%E6%9E%842.png" alt="常量项结构2"></p>
+<p>很清楚的看到它的结构为一个u1类型的tag和两个u2类型，两个u2用十六进制代表了0x0006和0x0016，分别代表了指向常量表中其他常量的两个索引，分别是第6个常量和第22个常量。</p>
+<p>其实Java给了一个解析常量池的工具<font color="red">javap</font>，和之前的性能分析工具一样，放在JDK的bin目录下，可以通过<font color="red">javap -verbose class文件名</font>来访问。访问结果如下，可以清楚的看到35个常量的情况。其中第一个常量分别指向6和22个常量，和我们之前分析的一样。另外，还出现了a I <init>这种常量，这个在后面的字段表、方法表、属性表中会用到。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">&gt;$ javap -verbose /c/Users/hqf/Desktop/HelloWorld<span class="class">.<span class="keyword">class</span></span></span><br><span class="line">&gt;Classfile /C:/Users/hqf/Desktop/HelloWorld.class</span><br><span class="line"> Last modified <span class="number">2019</span>-<span class="number">8</span>-<span class="number">12</span>; size <span class="number">572</span> bytes</span><br><span class="line"> MD5 checksum <span class="number">85882996f</span>632cd60591fe0bf0fc8cad3</span><br><span class="line"> Compiled from <span class="string">"HelloWorld.java"</span></span><br><span class="line">&gt;<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">com</span>.<span class="title">JVMTest</span>.<span class="title">HelloWorld</span></span></span><br><span class="line"> minor version: 0</span><br><span class="line"> major version: <span class="number">52</span></span><br><span class="line"> flags: ACC_PUBLIC, ACC_SUPER</span><br><span class="line">&gt;Constant pool:</span><br><span class="line">  #1 = Methodref          #6.#22         // java/lang/Object."&lt;init&gt;":()V</span><br><span class="line">  #2 = Fieldref           #23.#24        // java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">  #3 = String             #25            // HelloWorld</span><br><span class="line">  #4 = Methodref          #26.#27        // java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">  #5 = Class              #28            // com/JVMTest/HelloWorld</span><br><span class="line">  #6 = Class              #29            // java/lang/Object</span><br><span class="line">  #7 = Utf8               a</span><br><span class="line">  #8 = Utf8               I</span><br><span class="line">  #9 = Utf8               &lt;init&gt;</span><br><span class="line"> #10 = Utf8               ()V</span><br><span class="line"> #11 = Utf8               Code</span><br><span class="line"> #12 = Utf8               LineNumberTable</span><br><span class="line"> #13 = Utf8               LocalVariableTable</span><br><span class="line"> #14 = Utf8               this</span><br><span class="line"> #15 = Utf8               Lcom/JVMTest/HelloWorld;</span><br><span class="line"> #16 = Utf8               main</span><br><span class="line"> #17 = Utf8               ([Ljava/lang/String;)V</span><br><span class="line"> #18 = Utf8               args</span><br><span class="line"> #19 = Utf8               [Ljava/lang/String;</span><br><span class="line"> #20 = Utf8               SourceFile</span><br><span class="line"> #21 = Utf8               HelloWorld.java</span><br><span class="line"> #22 = NameAndType        #9:#10         // "&lt;init&gt;":()V</span><br><span class="line"> #23 = Class              #30            // java/lang/System</span><br><span class="line"> #24 = NameAndType        #31:#32        // out:Ljava/io/PrintStream;</span><br><span class="line"> #25 = Utf8               HelloWorld</span><br><span class="line"> #26 = Class              #33            // java/io/PrintStream</span><br><span class="line"> #27 = NameAndType        #34:#35        // println:(Ljava/lang/String;)V</span><br><span class="line"> #28 = Utf8               com/JVMTest/HelloWorld</span><br><span class="line"> #29 = Utf8               java/lang/Object</span><br><span class="line"> #30 = Utf8               java/lang/System</span><br><span class="line"> #31 = Utf8               out</span><br><span class="line"> #32 = Utf8               Ljava/io/PrintStream;</span><br><span class="line"> #33 = Utf8               java/io/PrintStream</span><br><span class="line"> #34 = Utf8               println</span><br><span class="line"> #35 = Utf8               (Ljava/lang/String;)V</span><br><span class="line">&gt;&#123;</span><br><span class="line"> <span class="keyword">public</span> com.JVMTest.HelloWorld();</span><br><span class="line">   descriptor: ()V</span><br><span class="line">   flags: ACC_PUBLIC</span><br><span class="line">   Code:</span><br><span class="line">     stack=<span class="number">1</span>, locals=<span class="number">1</span>, args_size=<span class="number">1</span></span><br><span class="line">        <span class="number">0</span>: aload_0</span><br><span class="line">        1: invokespecial #1                  // Method java/lang/Object."&lt;init&gt;":()V</span><br><span class="line">        <span class="number">4</span>: <span class="keyword">return</span></span><br><span class="line">     LineNumberTable:</span><br><span class="line">       line <span class="number">3</span>: <span class="number">0</span></span><br><span class="line">     LocalVariableTable:</span><br><span class="line">       Start  Length  Slot  Name   Signature</span><br><span class="line">           <span class="number">0</span>       <span class="number">5</span>     <span class="number">0</span>  <span class="keyword">this</span>   Lcom/JVMTest/HelloWorld;</span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(java.lang.String[])</span></span>;</span><br><span class="line">   descriptor: ([Ljava/lang/String;)V</span><br><span class="line">   flags: ACC_PUBLIC, ACC_STATIC</span><br><span class="line">   Code:</span><br><span class="line">     stack=<span class="number">2</span>, locals=<span class="number">1</span>, args_size=<span class="number">1</span></span><br><span class="line">        0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">        3: ldc           #3                  // String HelloWorld</span><br><span class="line">        5: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">        <span class="number">8</span>: <span class="keyword">return</span></span><br><span class="line">     LineNumberTable:</span><br><span class="line">       line <span class="number">6</span>: <span class="number">0</span></span><br><span class="line">       line <span class="number">7</span>: <span class="number">8</span></span><br><span class="line">     LocalVariableTable:</span><br><span class="line">       Start  Length  Slot  Name   Signature</span><br><span class="line">           <span class="number">0</span>       <span class="number">9</span>     <span class="number">0</span>  args   [Ljava/lang/String;</span><br><span class="line">&gt;&#125;</span><br><span class="line">&gt;SourceFile: <span class="string">"HelloWorld.java"</span></span><br></pre></td></tr></table></figure>
+
+<p>这边再随意分析一个常见的常量类型，字符串类型。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E5%88%86%E6%9E%90%E5%B8%B8%E9%87%8F%E7%9A%84%E7%B1%BB%E5%9E%8B.png" alt="常见的常量类型"></p>
+<p>这边的tag为01，代表CONSTANT_Utf8_info这个常量，其中0x0013代表字符串的长度，也就是16，我们向后数16个字节，刚好到蓝色最后端的位置，换算过来的字符串为<strong>java/io/PrintStream</strong></p>
+</blockquote>
+<h2 id="访问标志"><a href="#访问标志" class="headerlink" title="访问标志"></a>访问标志</h2><blockquote>
+<p>常量池结束后紧接着的两个字节代表访问标志，用来标识一些类或接口的访问信息，包括：这个Class是类还是接口；是否定义为public；是否定义为abstract；如果是类的话，是否被声明为final等。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E8%AE%BF%E9%97%AE%E6%A0%87%E5%BF%97.png" alt="访问标志"></p>
+<p>在我们这个Class为0x0021这两位，查表得是0x0001和0x0020运算的结果(0x0001|0x0020=0x0021)。所以访问标志位为ACC_PUBLIC和ACC_SUPER两个为真，其余标志位为假。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E8%AE%BF%E9%97%AE%E6%A0%87%E5%BF%97%E4%BD%8D%E4%BE%8B%E5%AD%90.png" alt="访问标志位例子"></p>
+</blockquote>
+<h2 id="类索引、父索引与接口索引集合"><a href="#类索引、父索引与接口索引集合" class="headerlink" title="类索引、父索引与接口索引集合"></a>类索引、父索引与接口索引集合</h2><blockquote>
+<p>​        在访问标志access_flags后接下来就是类索引（this_class）和父类索引（super_class），这两个数据都是u2类型的，而接下来的接口索引集合是一个u2类型的集合，class文件由这三个数据项来确定类的继承关系。由于Java中是单继承，所以父类索引只有一个；但Java类可以实现多个接口，所以接口索引是一个集合。</p>
+<p>​        类索引用来确定这个类的全限定名，这个全限定名就是说一个类的类名包含所有的包名，然后使用”/”代替”.”。比如Object的全限定名是java.lang.Object。父类索引确定这个类的父类的全限定名，除了Object之外，所有的类都有父类，所以除了Object之外所有类的父类索引都不为0。接口索引集合存储了implements语句后面按照从左到右的顺序的接口。</p>
+<p>具体来说就是</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E7%B1%BB%E7%B4%A2%E5%BC%95%E7%88%B6%E7%B1%BB%E7%B4%A2%E5%BC%95%E6%8E%A5%E5%8F%A3%E7%B4%A2%E5%BC%95.png" alt="类索引父类索引接口索引例子"></p>
+<p>其类索引、父类索引、接口索引分别是0x0005、0x0006、0x0000，代表了类索引为5，父类索引为6，接口索引的集合大小为0。其中类索引和父类索引指向的是CONSTANT_Class_info的类描述常量符，再通过这个常量的索引值可以找到定义在CONSTANT_Utf8_info类型的常量中的全限定名字符串。我们再把用javap获得的常量表拿下来分析一下。</p>
+<p>类索引为5，也就是指向的类名为<strong>com/JVMTest/HelloWorld</strong>，其中的“.”用”/“代替了。</p>
+<p>父类索引为6，也就是<strong>java/lang/Object</strong>，也就是Object这个父类。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"> #1 = Methodref          #6.#22         // java/lang/Object."&lt;init&gt;":()V</span><br><span class="line"> #2 = Fieldref           #23.#24        // java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line"> #3 = String             #25            // HelloWorld</span><br><span class="line"> #4 = Methodref          #26.#27        // java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line"> #5 = Class              #28            // com/JVMTest/HelloWorld</span><br><span class="line"> #6 = Class              #29            // java/lang/Object</span><br><span class="line"> #7 = Utf8               a</span><br><span class="line"> #8 = Utf8               I</span><br><span class="line"> #9 = Utf8               &lt;init&gt;</span><br><span class="line">#10 = Utf8               ()V</span><br><span class="line">#11 = Utf8               Code</span><br><span class="line">#12 = Utf8               LineNumberTable</span><br><span class="line">#13 = Utf8               LocalVariableTable</span><br><span class="line">#14 = Utf8               this</span><br><span class="line">#15 = Utf8               Lcom/JVMTest/HelloWorld;</span><br><span class="line">#16 = Utf8               main</span><br><span class="line">#17 = Utf8               ([Ljava/lang/String;)V</span><br><span class="line">#18 = Utf8               args</span><br><span class="line">#19 = Utf8               [Ljava/lang/String;</span><br><span class="line">#20 = Utf8               SourceFile</span><br><span class="line">#21 = Utf8               HelloWorld.java</span><br><span class="line">#22 = NameAndType        #9:#10         // "&lt;init&gt;":()V</span><br><span class="line">#23 = Class              #30            // java/lang/System</span><br><span class="line">#24 = NameAndType        #31:#32        // out:Ljava/io/PrintStream;</span><br><span class="line">#25 = Utf8               HelloWorld</span><br><span class="line">#26 = Class              #33            // java/io/PrintStream</span><br><span class="line">#27 = NameAndType        #34:#35        // println:(Ljava/lang/String;)V</span><br><span class="line">#28 = Utf8               com/JVMTest/HelloWorld</span><br><span class="line">#29 = Utf8               java/lang/Object</span><br><span class="line">#30 = Utf8               java/lang/System</span><br><span class="line">#31 = Utf8               out</span><br><span class="line">#32 = Utf8               Ljava/io/PrintStream;</span><br><span class="line">#33 = Utf8               java/io/PrintStream</span><br><span class="line">#34 = Utf8               println</span><br><span class="line">#35 = Utf8               (Ljava/lang/String;)V</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="字段表集合"><a href="#字段表集合" class="headerlink" title="字段表集合"></a>字段表集合</h2><blockquote>
+<p>​        字段表用于描述接口或类中声明的变量。字段又分为类字段（静态属性）和实例字段（对象属性）。保存一个字段需要保存的信息有以下这些：</p>
+<p>字段的作用域（public、private和protected修饰符）、是实例变量还是类变量（static修饰符）、可变性（final修饰符）、并发可见性（volatile修饰符）、是否可被序列化（transient修饰符）、字段的数据类型（基本类型、对象、数组）以及字段名称。</p>
+<p>​        这些信息中，各个修饰符可以用布尔值表示。而字段叫什么名字、字段被定义为什么类型数据都是无法固定的，只能用常量池中的常量来表示。字段表格式是这样子的</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E5%AD%97%E6%AE%B5%E8%A1%A8%E6%A0%BC%E5%BC%8F.png" alt="字段表格式"></p>
+<p>​        其中字段修饰符放在access_flags中，它与类中的access_flags项目是非常类似的，都是一个u2的数据类型，其中可以设置的标志位和含义如下</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/access_flags%E5%8F%AF%E4%BB%A5%E8%AE%BE%E7%BD%AE%E7%9A%84%E6%A0%87%E5%BF%97%E4%BD%8D%E5%92%8C%E5%90%AB%E4%B9%89.png" alt="access_flags标志位的含义"></p>
+<p>access_flags后面<strong>name_index</strong>和<strong>descriptor_index</strong>，前者是字段的简单名称的常量池索引，后者是字段和方法的描述符的常量池索引。</p>
+<ul>
+<li><p>字段的简单名称：是指没有类型和参数修饰的方法或者字段名称。比如说代码中的”a”、“main”。</p>
+</li>
+<li><p>字段和方法的描述符：</p>
+<blockquote>
+<p><font color="red">字段的描述符：</font>用来描述字段的数据类型、方法的参数列表（包括数量、类型以及顺序）和返回值。基本数据类型以及代表无返回值的Void类型都用一个大写的字符来表示。如下所示</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%8F%8F%E8%BF%B0%E7%AC%A6%E6%A0%87%E8%AF%86%E5%AD%97%E7%AC%A6%E5%90%AB%E4%B9%89.png" alt="描述符标识字符含义"></p>
+<p>另外，对于数组类型，每一维将使用一个前置的“[”字符来描述，如定义一个java.lang.String[][]类型的二维数组，将记录为[[Ljava/lang/String，一个double数组double[]将标记为[D。</p>
+<p><font color="red">方法的描述符：</font>按照先参数列表，后返回值的顺序描述。参数列表按照参数的严格顺序放在一组小括号”()”之内，比如方法void inc()的描述符为”()V”</p>
+</blockquote>
+<p>下面就对之前的那个例子进行分析</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E5%AD%97%E6%AE%B5%E8%A1%A8%E5%88%86%E6%9E%90.png" alt="字段表字段的分析"></p>
+<p>首先第一个u2代表容量计数器fields_count，值为0x0001代表字段表中有一个字段。第二个u2代表access_flags，值为0x0002，查询相应的表得到ACC_PRIVATE，字段是private类型的。第三个u2代表name_index，值为0x0007，查询该索引对应的内容为a，表示字段名称为a。第四个u2代表descriptor_index，值为0x0008，查询内容为I，是一个int类型的数据。所以综合得到字段：<font color="red">private int a;</font></p>
+</li>
+</ul>
+</blockquote>
+<h2 id="方法表集合"><a href="#方法表集合" class="headerlink" title="方法表集合"></a>方法表集合</h2><blockquote>
+<p>方法表集合和字段表集合比较类似，方法表的结构与字段表格式相同</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E5%AD%97%E6%AE%B5%E8%A1%A8%E6%A0%BC%E5%BC%8F.png" alt="字段表格式"></p>
+<p>其中方法访问标志位如下</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%96%B9%E6%B3%95%E8%AE%BF%E9%97%AE%E6%A0%87%E5%BF%97.png" alt="方法访问标志位"></p>
+<p>对Class文件进行分析</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E6%96%B9%E6%B3%95%E8%A1%A8%E5%88%86%E6%9E%90%E4%BE%8B%E5%AD%90.png" alt="方法表例子"></p>
+<p>其中第一位u2表示methods_count，也就是方法的数量，其值为2，也就是有两个方法，一个是编译器添加的实例构造器<init>和源码中的main()方法。</p>
+<blockquote>
+<p><strong>第一个方法：</strong>第二位u2表示access_flags，也就是访问标志位，值为0x0001，代表是public方法。第三位表示名称索引，值为0x0009，值为9，对应的常量为“<init>”。第四位表示描述符索引，值为0x000A，查找得到“()V”。第五位表示属性表计数器，为0x0001，表示有一个属性，其索引的值为第六个u2，也就是0x000B，属性的值为Code。</p>
+<p>整个第一个方法区域为，后面多出来的一长串就是方法体。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E7%AC%AC%E4%B8%80%E4%B8%AA%E6%96%B9%E6%B3%95%E7%9A%84%E5%8C%BA%E5%9F%9F.png" alt="第一个方法区域"></p>
+<p>所以第一个方法是 <strong>public <init> ()V</strong></p>
+<p><strong>第二个方法：</strong>先给出第二个方法的前面几位</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%E7%AC%AC%E4%BA%8C%E4%B8%AA%E6%96%B9%E6%B3%95%E8%A1%A8%E4%BE%8B%E5%AD%90.png" alt="第二个方法前几位"></p>
+<p>分析一下，0x0009表示(0x0001|0x0008)=0x0009，也就是标志位是public和static，0x0010代表方法名索引，值为16，找到”main”。接下去0x0011表示描述符索引，值为17，找到“([Ljava/lang/String;)V”，后面的位数与之前第一个方法的类似。</p>
+<p>所以第二个方法是<strong>public static main ([Ljava/lang/String;)V</strong></p>
+</blockquote>
+</blockquote>
+<h2 id="属性表集合"><a href="#属性表集合" class="headerlink" title="属性表集合"></a>属性表集合</h2><blockquote>
+<p>属性表在之前已经出现过了多次，之前出现的Code就是一个比较常见的属性，下面主要介绍Code属性。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/Code%E5%B1%9E%E6%80%A7%E7%BB%93%E6%9E%84.png" alt="Code属性结构"></p>
+<p>其中attribute_name_index和attribute_length前面已经介绍过了。</p>
+<p>max_stack代表了操作数栈的最大深度。在方法执行的任意时刻，操作数栈都不会超过这个深度。虚拟机执行时需要根据这个值来分配栈帧中的操作栈深度。</p>
+<p>max_locals代表了局部变量表所需要的存储空间。在这里，max_locals的单位是slot。方法参数（包括隐式参数this）、显式异常处理器的参数（try-catch块中catch块中定义的异常）以及方法体中定义的局部变量都需要局部变量表来存放。需要注意的是，由于局部变量表中的slot可以重用，所以并不是所有的局部变量的总slot就是max_locals。编译器会根据变量的作用域来分配slot给各个变量使用，然后计算max_locals的大小。</p>
+<p>code_length和code用来存储字节码指令。Java的字节码指令的长度都是一个字节，即最多可以有256个指令，实际上一共有大约200条指令。对于字节码指令这里不过多介绍。</p>
+<p>exception_table_length和exception_table分别是指异常表长度，和异常表集合。</p>
+<p>attributes_count和 attributes是Code属性中的属性表集合。</p>
+</blockquote>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
+          
+            <a href="/tags/%E7%B1%BB%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/" rel="tag"># 类文件结构</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B62-0/" rel="next" title="实现一个自己的RPC框架2.0">
+                <i class="fa fa-chevron-left"></i> 实现一个自己的RPC框架2.0
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/08/14/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B63-0/" rel="prev" title="实现一个自己的RPC框架3.0">
+                实现一个自己的RPC框架3.0 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png"
+                alt="hqf1996" />
+            
+              <p class="site-author-name" itemprop="name">hqf1996</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%20%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">34</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Class类文件的结构"><span class="nav-text">Class类文件的结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#魔数与Class文件的版本"><span class="nav-text">魔数与Class文件的版本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常量池"><span class="nav-text">常量池</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#访问标志"><span class="nav-text">访问标志</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类索引、父索引与接口索引集合"><span class="nav-text">类索引、父索引与接口索引集合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#字段表集合"><span class="nav-text">字段表集合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#方法表集合"><span class="nav-text">方法表集合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#属性表集合"><span class="nav-text">属性表集合</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">hqf1996</span>
+
+  
+</div>
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共字 |</span>
+</div>
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

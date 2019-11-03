@@ -81,7 +81,7 @@
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="hqfBlog">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;index.html">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;page&#x2F;2&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
 <meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
@@ -114,7 +114,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/"/>
+  <link rel="canonical" href="http://yoursite.com/page/2/"/>
 
 
 
@@ -258,7 +258,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/27/Java%E5%B9%B6%E5%8F%91%E5%AE%B9%E5%99%A8/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/05/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="hqf1996">
@@ -277,7 +277,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/10/27/Java%E5%B9%B6%E5%8F%91%E5%AE%B9%E5%99%A8/" itemprop="url">Java并发容器</a></h1>
+                <a class="post-title-link" href="/2019/09/05/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/" itemprop="url">任务调度</a></h1>
         
 
         <div class="post-meta">
@@ -289,8 +289,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-27T17:31:08+08:00">
-                2019-10-27
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-05T20:37:05+08:00">
+                2019-09-05
               </time>
             
 
@@ -312,8 +312,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index">
-                    <span itemprop="name">Java基础</span>
+                  <a href="/categories/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/" itemprop="url" rel="index">
+                    <span itemprop="name">任务调度</span>
                   </a>
                 </span>
 
@@ -350,10 +350,10 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在之前的博客中，我介绍了HashMap的具体实现以及一些值得注意的地方。HashMap是线程不安全的，换句话说，当我们在并发的情况下使用HashMap的时候，会造成数据的错误。所以在并发的情况下，通常使用HashTable和ConcurrentHashMap这种线程安全的并发容器来代替HashMap这种线程不安全的集合。本篇主要介绍HashTable和ConcurrentHashMap是如何在并发的情况下实现线程安全的。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在实现实验的算法的时候，要想在一个固定间隔时间对代码中某些变量有一个监控或者固定间隔时间处理一些事务逻辑，必不可少的就是定时的任务调度了。同样的，在做项目的过程中，这种定时的任务调度就更加广泛了，比如说间隔一定的时间给用户发送消息，定时清理掉一些数据的任务等等。这边就介绍一下之前用到的三种任务调度方式Timer、ScheduledExecutorService以及Quartz。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/10/27/Java%E5%B9%B6%E5%8F%91%E5%AE%B9%E5%99%A8/#more" rel="contents">
+            <a class="btn" href="/2019/09/05/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -404,7 +404,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/25/%E9%98%9F%E5%88%97%E5%90%8C%E6%AD%A5%E5%99%A8AQS/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/29/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B64-0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="hqf1996">
@@ -423,7 +423,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/10/25/%E9%98%9F%E5%88%97%E5%90%8C%E6%AD%A5%E5%99%A8AQS/" itemprop="url">队列同步器AQS</a></h1>
+                <a class="post-title-link" href="/2019/08/29/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B64-0/" itemprop="url">实现一个自己的RPC框架4.0</a></h1>
         
 
         <div class="post-meta">
@@ -435,8 +435,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-25T16:02:47+08:00">
-                2019-10-25
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-29T11:06:18+08:00">
+                2019-08-29
               </time>
             
 
@@ -458,8 +458,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index">
-                    <span itemprop="name">Java并发编程</span>
+                  <a href="/categories/RPC/" itemprop="url" rel="index">
+                    <span itemprop="name">RPC</span>
                   </a>
                 </span>
 
@@ -496,10 +496,10 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>我们知道，Lock接口的实现基本都是通过聚合了一个同步器的子类来完成线程的访问控制的。队列同步器<code>AbstractQueuedSynchronizer</code>是用来构建锁或者其他同步组件的基础框架，以下简称<code>AQS</code>。网上关于AQS的总结已经很到位了，这边主要记录一下自己的学习过程。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>此版本的RPC采用NIO来实现。NIO最大的特点有这几个：第一，NIO是面向缓冲区的，和普通面向流的IO不同。面向流的IO方式每次都是从流中读取一个或多个字节，没有缓存在任何的地方。而面向缓冲区则可以在缓冲区中对我缓冲的数据进行操作，增加了处理的灵活性。第二，NIO是非阻塞的，这就意味着一个线程能管理多个输入输出通道，解决了之前我们使用BIO时候阻塞的问题。第三，为了一个线程能管理多个通道，引入了Selector，多个通道都能注册在同一个选择器上，因此Selector也能被称为多路复用器。在使用的时候，Selector会不断地轮询注册在其上面的通道，如果通道发生读或者写的事件，这个通道就会处于就绪的状态，从而被Selector轮询出来，再进行后面的操作。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/10/25/%E9%98%9F%E5%88%97%E5%90%8C%E6%AD%A5%E5%99%A8AQS/#more" rel="contents">
+            <a class="btn" href="/2019/08/29/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B64-0/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -550,7 +550,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/20/%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E4%B9%8Bwait%20and%20notify/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/19/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="hqf1996">
@@ -569,7 +569,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/10/20/%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E4%B9%8Bwait%20and%20notify/" itemprop="url">线程间通信之wait/notify</a></h1>
+                <a class="post-title-link" href="/2019/08/19/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" itemprop="url">JVM笔记——虚拟机类加载机制</a></h1>
         
 
         <div class="post-meta">
@@ -581,8 +581,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-20T19:23:02+08:00">
-                2019-10-20
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-19T15:43:31+08:00">
+                2019-08-19
               </time>
             
 
@@ -604,8 +604,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index">
-                    <span itemprop="name">Java并发编程</span>
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
                   </a>
                 </span>
 
@@ -642,10 +642,10 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>wait和notify这两个方法通常在线程间通信中常常用到，其中wait方法和sleep方法虽然都能够让线程“停下来”，但是有很大的区别，另外，耳熟能详的生产者消费者问题也涉及到wait和notify，本篇就简单的整理一下这些问题吧！</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>之前总结的是Class文件存储格式的具体细节，在Class文件中描述的各种信息，最终都要加载到虚拟机中之后才能运行和使用。那么虚拟机是如何加载这些Class文件的，Class文件中的信息进入到虚拟机后会发生什么变化，这些将会在本篇进行总结。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/10/20/%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E4%B9%8Bwait%20and%20notify/#more" rel="contents">
+            <a class="btn" href="/2019/08/19/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -696,7 +696,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/17/Java%E4%B8%AD%E7%9A%84%E9%94%81%E6%95%B4%E7%90%86/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/14/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B63-0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="hqf1996">
@@ -715,7 +715,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/10/17/Java%E4%B8%AD%E7%9A%84%E9%94%81%E6%95%B4%E7%90%86/" itemprop="url">Java中的锁整理</a></h1>
+                <a class="post-title-link" href="/2019/08/14/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B63-0/" itemprop="url">实现一个自己的RPC框架3.0</a></h1>
         
 
         <div class="post-meta">
@@ -727,8 +727,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-17T20:15:23+08:00">
-                2019-10-17
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-14T09:58:46+08:00">
+                2019-08-14
               </time>
             
 
@@ -750,8 +750,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index">
-                    <span itemprop="name">Java并发编程</span>
+                  <a href="/categories/RPC/" itemprop="url" rel="index">
+                    <span itemprop="name">RPC</span>
                   </a>
                 </span>
 
@@ -788,10 +788,10 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><center>在并发的学习中碰到过各种的锁，感觉有些混乱，这边简单的整理一下。</center>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>上一种方法是采用最简单的线程的方式，当客户端发起一个请求的时候，服务端就要相应的生成一个线程来处理这个请求，并且在处理一个请求的时候，其他请求都会被阻塞。试想一下，当在同一时间有大量的请求访问服务端时，服务端能够创建的线程数量是有一定的限制的，并不能无限地创建，这样一来就会产生服务端内存溢出或者线程不够用的错误，在该版本中我引入了线程池来管理客户端发送过来的请求，这样就不会产生这类问题。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/10/17/Java%E4%B8%AD%E7%9A%84%E9%94%81%E6%95%B4%E7%90%86/#more" rel="contents">
+            <a class="btn" href="/2019/08/14/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B63-0/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -842,7 +842,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/16/volatile%E5%85%B3%E9%94%AE%E5%AD%97/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/12/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E7%B1%BB%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="hqf1996">
@@ -861,7 +861,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/10/16/volatile%E5%85%B3%E9%94%AE%E5%AD%97/" itemprop="url">volatile关键字</a></h1>
+                <a class="post-title-link" href="/2019/08/12/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E7%B1%BB%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/" itemprop="url">JVM笔记——类文件结构</a></h1>
         
 
         <div class="post-meta">
@@ -873,8 +873,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-16T20:47:18+08:00">
-                2019-10-16
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-12T19:42:29+08:00">
+                2019-08-12
               </time>
             
 
@@ -896,8 +896,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index">
-                    <span itemprop="name">Java并发编程</span>
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
                   </a>
                 </span>
 
@@ -934,10 +934,11 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>volatile关键字在平常的使用中似乎很少用到，但是其原理值得我们研究，因为它与Java的内存模型相关，并且能保证数据的可见性，但是保证不了原子性。简单来说，线程A对一个volatile变量的修改，对于其它线程来说是可见的，即线程每次获取volatile变量的值都是最新的。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>JVM上不仅仅能够运行Java语言，还能运行其他多种语言，比如说Clojure、Groovy、JRuby、Scala等等。其实Java虚拟机不和包括Java在内的任何语言绑定，它只与“Class文件”这种特定的二进制文件格式所关联。正如下图所示</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/JVM%E8%AF%AD%E8%A8%80%E6%97%A0%E5%85%B3%E6%80%A7.jpg" alt="JVM语言无关性"></p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/10/16/volatile%E5%85%B3%E9%94%AE%E5%AD%97/#more" rel="contents">
+            <a class="btn" href="/2019/08/12/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E7%B1%BB%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -988,7 +989,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/16/Linux%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%95%B4%E7%90%86/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B62-0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="hqf1996">
@@ -1007,7 +1008,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/10/16/Linux%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%95%B4%E7%90%86/" itemprop="url">Linux常用命令整理</a></h1>
+                <a class="post-title-link" href="/2019/08/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B62-0/" itemprop="url">实现一个自己的RPC框架2.0</a></h1>
         
 
         <div class="post-meta">
@@ -1019,8 +1020,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-16T13:56:56+08:00">
-                2019-10-16
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-11T19:39:11+08:00">
+                2019-08-11
               </time>
             
 
@@ -1042,8 +1043,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux/" itemprop="url" rel="index">
-                    <span itemprop="name">Linux</span>
+                  <a href="/categories/RPC/" itemprop="url" rel="index">
+                    <span itemprop="name">RPC</span>
                   </a>
                 </span>
 
@@ -1080,10 +1081,10 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><center>日常记录Linux常用命令</center>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在不同服务部署在不同的机器上的前提下，服务器之间存在大量的网络通信，这时候就需要写大量的网络通信的代码，十分不方便。如果能够让服务器调用远程方法就像是调用本地方法一样，将会大大减少工作量，这种方法的实现其实就是RPC。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/10/16/Linux%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%95%B4%E7%90%86/#more" rel="contents">
+            <a class="btn" href="/2019/08/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B62-0/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1134,7 +1135,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/12/synchronized%E5%85%B3%E9%94%AE%E5%AD%97/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B61-0%E2%80%94%E2%80%94%E7%9F%A5%E8%AF%86%E5%82%A8%E5%A4%87/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="hqf1996">
@@ -1153,7 +1154,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/10/12/synchronized%E5%85%B3%E9%94%AE%E5%AD%97/" itemprop="url">synchronized关键字</a></h1>
+                <a class="post-title-link" href="/2019/08/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B61-0%E2%80%94%E2%80%94%E7%9F%A5%E8%AF%86%E5%82%A8%E5%A4%87/" itemprop="url">实现一个自己的RPC框架1.0——知识储备</a></h1>
         
 
         <div class="post-meta">
@@ -1165,8 +1166,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-12T19:38:32+08:00">
-                2019-10-12
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-11T18:58:16+08:00">
+                2019-08-11
               </time>
             
 
@@ -1188,8 +1189,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index">
-                    <span itemprop="name">Java并发编程</span>
+                  <a href="/categories/RPC/" itemprop="url" rel="index">
+                    <span itemprop="name">RPC</span>
                   </a>
                 </span>
 
@@ -1226,10 +1227,10 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在并发中一个常见的关键字就是synchronized，但是在jdk1.5（包含jdk1.5）之前synchronized是一个重量级锁，就显得十分笨重，所以慢慢地摒弃了它，但是在jdk1.6之后，对synchronized进行了各种优化， 它就显得不那么笨重，下面一起来探讨一下synchronized的基本使用方法，底层原理实现等等知识。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在实现一个自己的RPC框架之前，需要先了解动态代理和反射，反射可以参考这篇文章 <a href="https://blog.csdn.net/lwl20140904/article/details/80163880" target="_blank" rel="noopener">java反射</a>。动态代理和反射可以说是RPC的精髓所在，正是通过它们，才能使远程调用“本地化”。代理模式是基本的设计模式之一，其中动态代理更为重要。代理模式的目的就是为其他对象提供一个代理以控制对某个对象的访问。代理类负责为委托类预处理消息，过滤消息并转发消息，以及进行消息被委托类执行后的后续处理。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/10/12/synchronized%E5%85%B3%E9%94%AE%E5%AD%97/#more" rel="contents">
+            <a class="btn" href="/2019/08/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B61-0%E2%80%94%E2%80%94%E7%9F%A5%E8%AF%86%E5%82%A8%E5%A4%87/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1280,7 +1281,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/11/Thread%E7%B1%BB%E4%B9%8B%E5%81%9C%E6%AD%A2%E7%BA%BF%E7%A8%8B/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/09/Arthas%E5%88%9D%E8%AF%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="hqf1996">
@@ -1299,7 +1300,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/10/11/Thread%E7%B1%BB%E4%B9%8B%E5%81%9C%E6%AD%A2%E7%BA%BF%E7%A8%8B/" itemprop="url">Thread类之停止线程</a></h1>
+                <a class="post-title-link" href="/2019/08/09/Arthas%E5%88%9D%E8%AF%86/" itemprop="url">Arthas初识</a></h1>
         
 
         <div class="post-meta">
@@ -1311,8 +1312,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-11T16:04:41+08:00">
-                2019-10-11
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-09T16:40:10+08:00">
+                2019-08-09
               </time>
             
 
@@ -1334,8 +1335,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index">
-                    <span itemprop="name">Java并发编程</span>
+                  <a href="/categories/Arthas/" itemprop="url" rel="index">
+                    <span itemprop="name">Arthas</span>
                   </a>
                 </span>
 
@@ -1372,10 +1373,23 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>想到让线程停止的方法，可能第一个冒出来的是stop()方法，但是这个方法已经停止使用，是一个废弃的方法，因为由它会造成很多的问题，比如数据的不一致等问题。现在一般会使用另外的方法对线程进行停止，本篇主要对Thread类中interrupt()、interrupted()和isInterrupted()方法进行详解。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在看JVM性能调优和故障处理工具的时候JDK提供了一些比较好用的工具，比如说jps是一个用来监控虚拟机的进程状况的工具，jstat是一个虚拟机统计信息监视的工具，jinfo是一个Java配置信息工具，jmap是一个Java内存映像工具，jstack是一个堆栈跟踪工具等等，这些工具都十分小巧实用。但是最近发现一个阿里开源的Java在线诊断工具Arthas（阿尔萨斯），可堪称诊断利器。官方文档是这么介绍的：</p>
+<blockquote>
+<p>当你遇到以下类似问题而束手无策时，<code>Arthas</code>可以帮助你解决：</p>
+<ol>
+<li>这个类从哪个 jar 包加载的？为什么会报各种类相关的 Exception？</li>
+<li>我改的代码为什么没有执行到？难道是我没 commit？分支搞错了？</li>
+<li>遇到问题无法在线上 debug，难道只能通过加日志再重新发布吗？</li>
+<li>线上遇到某个用户的数据处理有问题，但线上同样无法 debug，线下无法重现！</li>
+<li>是否有一个全局视角来查看系统的运行状况？</li>
+<li>有什么办法可以监控到JVM的实时运行状态？</li>
+</ol>
+</blockquote>
+<p>这么强大的功能，看起来就十分吸引人，赶紧学起来。</p>
+<p>先放上官方的链接 <a href="https://alibaba.github.io/arthas/" target="_blank" rel="noopener">Arthas用户文档</a></p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/10/11/Thread%E7%B1%BB%E4%B9%8B%E5%81%9C%E6%AD%A2%E7%BA%BF%E7%A8%8B/#more" rel="contents">
+            <a class="btn" href="/2019/08/09/Arthas%E5%88%9D%E8%AF%86/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1426,7 +1440,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/26/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/08/04/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E4%B8%8E%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="hqf1996">
@@ -1445,7 +1459,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/09/26/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/" itemprop="url">数据结构之红黑树解析</a></h1>
+                <a class="post-title-link" href="/2019/08/04/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E4%B8%8E%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/" itemprop="url">JVM笔记——垃圾收集与内存分配</a></h1>
         
 
         <div class="post-meta">
@@ -1457,8 +1471,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-26T19:10:10+08:00">
-                2019-09-26
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-08-04T11:38:55+08:00">
+                2019-08-04
               </time>
             
 
@@ -1480,8 +1494,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%AE%97%E6%B3%95/" itemprop="url" rel="index">
-                    <span itemprop="name">算法</span>
+                  <a href="/categories/JVM/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM</span>
                   </a>
                 </span>
 
@@ -1518,10 +1532,10 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>红黑树（Red Black Tree） 是一种自平衡二叉查找树，是在计算机科学中用到的一种数据结构，典型的用途是实现关联数组。红黑树和AVL树类似，都是在进行插入和删除操作时通过特定操作保持二叉查找树的平衡，从而获得较高的查找性能。它虽然是复杂的，但它的最坏情况运行时间也是非常良好的，并且在实践中是高效的： 它可以在O(log n)时间内做查找，插入和删除，这里的n 是树中元素的数目。第一次接触到红黑树是在上数据结构相关课程的时候，但是当时的理解比较片面，当后面看到HashMap源码实现的时候，其中也用到了红黑树的数据结构。至此，打算把红黑树整理一下。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>垃圾收集(GC)与内存动态分配，是JVM中很重要的一块内容，与C++语言不同的是，Java语言能够自己对内存进行回收以及动态分配，但是仍然可能产生内存的溢出或者内存泄漏的问题，所以了解垃圾收集与内存分配的原理是必须的。从JVM的内存划分区域来看，栈区（由于是以HotSpot虚拟机为例，将Java虚拟机栈以及本地方法区栈统称为栈区）、程序计数器是线程私有的，随着线程的消亡而消失，这几个区域的内存分配与回收都存在确定性，所以这几个区域就不必去过多考虑回收的问题。但是，堆和方法区就不一样，一个接口中的多个实现类需要的内存可能不一样，一个方法中多个分支需要的内存可能也不一样，我们只有在程序运行的过程中才会知道创建哪些对象，这部分的内存分配和回收是动态的，所以这两个区域是垃圾回收和内存分配所重点关注的区域。其中Java堆区是垃圾收集器主要管理的区域。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/09/26/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B9%8B%E7%BA%A2%E9%BB%91%E6%A0%91%E8%A7%A3%E6%9E%90/#more" rel="contents">
+            <a class="btn" href="/2019/08/04/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E4%B8%8E%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1572,7 +1586,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/11/HashMap%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/22/Redis%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E5%AF%B9%E8%B1%A1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="hqf1996">
@@ -1591,7 +1605,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/09/11/HashMap%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" itemprop="url">HashMap源码解读</a></h1>
+                <a class="post-title-link" href="/2019/07/22/Redis%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E5%AF%B9%E8%B1%A1/" itemprop="url">Redis笔记——基本数据结构与对象</a></h1>
         
 
         <div class="post-meta">
@@ -1603,8 +1617,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-09-11T20:07:31+08:00">
-                2019-09-11
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-22T10:53:16+08:00">
+                2019-07-22
               </time>
             
 
@@ -1626,8 +1640,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index">
-                    <span itemprop="name">Java基础</span>
+                  <a href="/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
                   </a>
                 </span>
 
@@ -1664,10 +1678,10 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>HashMap是Java中最为常见的一个数据结构，它是一种基于哈希表(散列表)，实现Map接口的集合，在JDK1.7中其主要是由<strong>数组+链表</strong>构成，而到了JDK1.8的时候就由<strong>数组+链表+红黑树</strong>构成。其实HashMap中还是有许多地方值得我们注意的地方。比如说HashMap在JDK1.7和JDK1.8中有较大的不同，那么都有哪些不同？HashMap在什么条件下会进行扩容，如何扩容？HashMap的get/put过程是如何实现的？HashMap如何解决并发问题？HashMap的key如何设置？下面将对HashMap进行一次比较系统的整理与学习。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>Redis是一个开源的使用 ANSI C 语言编写、遵守 BSD 协议、支持网络、可基于内存亦可持久化的日志型、Key-Value 数据库，并提供多种语言的 API的非关系型数据库。传统数据库遵循 ACID 规则。而 Nosql（Not Only SQL 的缩写，是对不同于传统的关系型数据库的数据库管理系统的统称），一般为分布式而分布式一般遵循 CAP 定理。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/09/11/HashMap%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/#more" rel="contents">
+            <a class="btn" href="/2019/07/22/Redis%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E5%AF%B9%E8%B1%A1/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1709,7 +1723,7 @@
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">&lt;i class=&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
+    <a class="extend prev" rel="prev" href="/">&lt;i class=&quot;fa fa-angle-left&quot;&gt;&lt;&#x2F;i&gt;</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">&lt;i class=&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
   </nav>
 
 
