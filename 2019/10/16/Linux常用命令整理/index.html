@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="hqfBlog">
 <meta property="og:description" content="前言日常记录Linux常用命令">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-19T11:06:06.992Z">
+<meta property="og:updated_time" content="2019-11-18T05:46:32.510Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -443,6 +443,31 @@
 
 <p><strong>搜索文件</strong></p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">find &lt;指定目录&gt; &lt;指定条件&gt; &lt;指定动作&gt;</span><br><span class="line">find / -name "string*"</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>查看内存占用等信息</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">free -h</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 可以每隔3s显示一次</span></span><br><span class="line">free -h -s 3</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>清除缓存</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">echo 1 &gt; /proc/sys/vm/drop_caches</span><br><span class="line">echo 2 &gt; /proc/sys/vm/drop_caches</span><br><span class="line">echo 3 &gt; /proc/sys/vm/drop_caches</span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>程序后台运行</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup python -u jobs.py &gt; logs/recommServer.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
 
 
 
