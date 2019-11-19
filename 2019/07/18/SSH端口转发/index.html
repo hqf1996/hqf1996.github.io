@@ -79,16 +79,18 @@
 
 
 
-<meta name="description" content="前言SSH是Secure Shell protocal的缩写，它是一种网络协议，用于计算机之间的加密登录。SSH命令也是一个非常常用且有用的命令，一般会用于远程登录。 最简单的，如果你想以用户名root登录远程主机host，只需要执行如下命令 1ssh root@host">
+<meta name="description" content="前言SSH是Secure Shell protocal的缩写，它是一种网络协议，用于计算机之间的加密登录。SSH命令也是一个非常常用且有用的命令，一般会用于远程登录。 最简单的，如果你想以用户名root登录远程主机host，只需要执行如下命令中的任意一条，第一条是常用的。 12ssh root@hostssh -l root host">
 <meta name="keywords" content="SSH,端口转发">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SSH端口转发">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;07&#x2F;18&#x2F;SSH%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言SSH是Secure Shell protocal的缩写，它是一种网络协议，用于计算机之间的加密登录。SSH命令也是一个非常常用且有用的命令，一般会用于远程登录。 最简单的，如果你想以用户名root登录远程主机host，只需要执行如下命令 1ssh root@host">
+<meta property="og:description" content="前言SSH是Secure Shell protocal的缩写，它是一种网络协议，用于计算机之间的加密登录。SSH命令也是一个非常常用且有用的命令，一般会用于远程登录。 最简单的，如果你想以用户名root登录远程主机host，只需要执行如下命令中的任意一条，第一条是常用的。 12ssh root@hostssh -l root host">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-07-18T05:08:03.416Z">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;SSH%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91&#x2F;ssh%E8%B0%83%E8%AF%95.png">
+<meta property="og:updated_time" content="2019-11-19T02:15:34.460Z">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;SSH%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91&#x2F;ssh%E8%B0%83%E8%AF%95.png">
 
 
 
@@ -351,8 +353,8 @@
 
       
         <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>SSH是Secure Shell protocal的缩写，它是一种网络协议，用于计算机之间的加密登录。SSH命令也是一个非常常用且有用的命令，一般会用于远程登录。</p>
-<p>最简单的，如果你想以用户名root登录远程主机host，只需要执行如下命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh root@host</span><br></pre></td></tr></table></figure>
+<p>最简单的，如果你想以用户名root登录远程主机host，只需要执行如下命令中的任意一条，第一条是常用的。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh root@host</span><br><span class="line">ssh -l root host</span><br></pre></td></tr></table></figure>
 
 <a id="more"></a>
 
@@ -384,6 +386,23 @@
 <p>与前面的例子类似的，也能加上-f -N的参数。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -f -N -R 1234:host2:22 root@host1</span><br></pre></td></tr></table></figure>
 
+<hr>
+<p>更新 2019年11月19日</p>
+<h2 id="ssh命令完善"><a href="#ssh命令完善" class="headerlink" title="ssh命令完善"></a>ssh命令完善</h2><h3 id="1、端口"><a href="#1、端口" class="headerlink" title="1、端口"></a>1、端口</h3><p>SSH默认使用的端口号是22，大多Linux系统的22端口都是开放的，像是之前直接访问没有加端口号的情况就是默认访问22端口，如果不想通过22端口进行访问，我们就可以用<code>-p</code>参数来指定端口号。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 通过1234端口进行访问</span></span><br><span class="line">ssh root@10.1.13.111 -p 1234</span><br></pre></td></tr></table></figure>
+
+<h3 id="2、打开调试模式"><a href="#2、打开调试模式" class="headerlink" title="2、打开调试模式"></a>2、打开调试模式</h3><p>在ssh命令中添加上<code>-v</code>就行了</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -v root@10.1.13.111</span><br></pre></td></tr></table></figure>
+
+<p>会在窗口中打出连接的过程</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/SSH%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/ssh%E8%B0%83%E8%AF%95.png" alt="ssh调试"></p>
+<h3 id="3、挂载远程文件系统"><a href="#3、挂载远程文件系统" class="headerlink" title="3、挂载远程文件系统"></a>3、挂载远程文件系统</h3><p>另外一个很赞的基于 SSH 的工具叫 <code>sshfs</code>。 sshfs 可以让你在本地直接挂载远程主机的文件系统。它的使用格式如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sshfs -o idmap=user user@hostname:/home/user ~/Remote</span><br></pre></td></tr></table></figure>
+
+<p>比如</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sshfs -o idmap=user pi@192.168.0.116:/home/pi ~/Pi</span><br></pre></td></tr></table></figure>
+
+<p>这个命令可以将远程主机 pi 用户的主目录挂载到本地主目录下的 Pi 文件夹。</p>
 
       
     </div>
@@ -564,7 +583,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#本地端口转发"><span class="nav-text">本地端口转发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#远程端口转发"><span class="nav-text">远程端口转发</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#本地端口转发"><span class="nav-text">本地端口转发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#远程端口转发"><span class="nav-text">远程端口转发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ssh命令完善"><span class="nav-text">ssh命令完善</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、端口"><span class="nav-text">1、端口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、打开调试模式"><span class="nav-text">2、打开调试模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、挂载远程文件系统"><span class="nav-text">3、挂载远程文件系统</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>
