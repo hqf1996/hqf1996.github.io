@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="hqfBlog">
 <meta property="og:description" content="前言日常记录Linux常用命令">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-11-18T05:46:32.510Z">
+<meta property="og:updated_time" content="2019-11-19T02:26:53.966Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -460,6 +460,11 @@
 
 <p><strong>程序后台运行</strong></p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup python -u jobs.py &gt; logs/recommServer.log 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+
+<p>nohup就是不挂起的意思(no hang up)，也就是当我们关闭终端后，程序仍然在后台运行而不终止。</p>
+<p>2&gt;&amp;1是指将标准错误重定向到标准输出，于是标准错误和标准输出都重定向到指定的logs/recommServer.log文件中，从此终端彻底清静了。</p>
+<p>那么要找到刚刚在后台运行的程序，可以有两种方法，一种是之前提到的<code>ps -ef|grep jobs.py</code>命令，还有一个是jobs命令，都能显示出任务的PID。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jobs -l</span><br></pre></td></tr></table></figure>
 
 
 
