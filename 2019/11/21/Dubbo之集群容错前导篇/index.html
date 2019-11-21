@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/pic_32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/pic_16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Dubbo," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言在Dubbo集群容错分析之前，要先有一个宏观的了解，集群容错源码分别是服务目录 Directory、服务路由 Router、集群 Cluster和负载均衡LoadBalance四个部分，这个在官网的博客中有简单的介绍，本篇就结合官网的介绍来简单介绍一下服务目录 Directory部分。">
+<meta name="keywords" content="Dubbo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dubbo之集群容错前导篇(上)">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;11&#x2F;21&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87&#x2F;index.html">
+<meta property="og:site_name" content="hqfBlog">
+<meta property="og:description" content="前言在Dubbo集群容错分析之前，要先有一个宏观的了解，集群容错源码分别是服务目录 Directory、服务路由 Router、集群 Cluster和负载均衡LoadBalance四个部分，这个在官网的博客中有简单的介绍，本篇就结合官网的介绍来简单介绍一下服务目录 Directory部分。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87&#x2F;%E6%9C%8D%E5%8A%A1%E7%9B%AE%E5%BD%95%E7%BB%A7%E6%89%BF%E4%BD%93%E7%B3%BB.png">
+<meta property="og:updated_time" content="2019-11-21T12:30:48.731Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87&#x2F;%E6%9C%8D%E5%8A%A1%E7%9B%AE%E5%BD%95%E7%BB%A7%E6%89%BF%E4%BD%93%E7%B3%BB.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/11/21/Dubbo之集群容错前导篇/"/>
+
+
+
+
+
+  <title>Dubbo之集群容错前导篇(上) | hqfBlog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<!--<a href="https://github.com/hqf1996" target="_blank" rel="noopener"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>-->
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">hqfBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/21/Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="hqf1996">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hqfBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Dubbo之集群容错前导篇(上)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-21T15:28:32+08:00">
+                2019-11-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">Dubbo</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在Dubbo集群容错分析之前，要先有一个宏观的了解，集群容错源码分别是服务目录 <code>Directory</code>、服务路由 <code>Router</code>、集群 <code>Cluster</code>和负载均衡<code>LoadBalance</code>四个部分，这个在<a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/directory.html" target="_blank" rel="noopener">官网的博客</a>中有简单的介绍，本篇就结合官网的介绍来简单介绍一下服务目录 <code>Directory</code>部分。</p>
+<a id="more"></a>
+
+<h1 id="Directory"><a href="#Directory" class="headerlink" title="Directory"></a>Directory</h1><h2 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h2><p>Directory也成为服务目录，我们知道，在服务消费者发送请求之前，我们需要知道它要往哪些服务提供者上发送请求，通过服务目录，服务消费者就能够获取到服务提供者的信息，就能够通过Netty进行相关函数的远程调用，所以也可以说，服务目录的功能和注册中心的功能是类似的，只不过它是将注册中心的每条服务提供者的信息封装成了一个Invoker对象， 在服务提供者发生变化的时候，服务目录也会随着注册中心动态更新。</p>
+<p>官网上有这么一句话，<strong>Directory 代表多个 Invoker，可以把它看成 List<Invoker> ,但与 List 不同的是，它的值可能是动态变化的，比如注册中心推送变更</strong>。注意，这边说的是可能是动态变化的，为什么呢？因为Directory有两种，一种是静态服务目录[<code>StaticDirectory</code>]，它是静态的，也就是不会动态变化的。另一个是<code>RegistryDirectory</code>，它是一个动态的服务目录。这边给出一张官网的继承体系图。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87/%E6%9C%8D%E5%8A%A1%E7%9B%AE%E5%BD%95%E7%BB%A7%E6%89%BF%E4%BD%93%E7%B3%BB.png" alt="服务目录继承体系图"></p>
+<p>好像用的比较多的是<code>RegistryDirectory</code>，<code>StaticDirectory</code>用得比较少,主要用在服务对多注册中心的引用。</p>
+<h2 id="2、源码分析"><a href="#2、源码分析" class="headerlink" title="2、源码分析"></a>2、源码分析</h2><h3 id="AbstractDirectory源码分析"><a href="#AbstractDirectory源码分析" class="headerlink" title="AbstractDirectory源码分析"></a><code>AbstractDirectory</code>源码分析</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> List&lt;Invoker&lt;T&gt;&gt; list(Invocation invocation) <span class="keyword">throws</span> RpcException &#123;</span><br><span class="line">    <span class="keyword">if</span> (destroyed) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RpcException(<span class="string">"Directory already destroyed .url: "</span> + getUrl());</span><br><span class="line">    &#125;</span><br><span class="line">    List&lt;Invoker&lt;T&gt;&gt; invokers = doList(invocation);</span><br><span class="line">    List&lt;Router&gt; localRouters = <span class="keyword">this</span>.routers; <span class="comment">// local reference</span></span><br><span class="line">    <span class="keyword">if</span> (localRouters != <span class="keyword">null</span> &amp;&amp; !localRouters.isEmpty()) &#123;</span><br><span class="line">        <span class="keyword">for</span> (Router router : localRouters) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (router.getUrl() == <span class="keyword">null</span> || router.getUrl().getParameter(Constants.RUNTIME_KEY, <span class="keyword">false</span>)) &#123;</span><br><span class="line">                    invokers = router.route(invokers, getConsumerUrl(), invocation);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">                logger.error(<span class="string">"Failed to execute router: "</span> + getUrl() + <span class="string">", cause: "</span> + t.getMessage(), t);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> invokers;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>AbstractDirectory</code>里面最重要的一个函数就是list函数，返回的是一个List&lt;Invoker<T>&gt;对象，也就是返回服务目录。那么它是如何得到的呢，主要是通过两个主要方法</p>
+<blockquote>
+<p>1.<code>doList(invocation);</code>方法：主要用来获得Invoker列表，它是由具体的子类实现的。</p>
+<p>2.<code>router.route(invokers, getConsumerUrl(), invocation);</code>：进行服务路由。</p>
+</blockquote>
+<p>好了，简单说完了<code>AbstractDirectory</code>，就来说说它的两个子类的实现。第一个<code>StaticDirectory</code></p>
+<h3 id="StaticDirectory源码分析"><a href="#StaticDirectory源码分析" class="headerlink" title="StaticDirectory源码分析"></a><code>StaticDirectory</code>源码分析</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">StaticDirectory</span><span class="params">(List&lt;Invoker&lt;T&gt;&gt; invokers)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(<span class="keyword">null</span>, invokers, <span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">StaticDirectory</span><span class="params">(List&lt;Invoker&lt;T&gt;&gt; invokers, List&lt;Router&gt; routers)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(<span class="keyword">null</span>, invokers, routers);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">StaticDirectory</span><span class="params">(URL url, List&lt;Invoker&lt;T&gt;&gt; invokers)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(url, invokers, <span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">StaticDirectory</span><span class="params">(URL url, List&lt;Invoker&lt;T&gt;&gt; invokers, List&lt;Router&gt; routers)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>(url == <span class="keyword">null</span> &amp;&amp; invokers != <span class="keyword">null</span> &amp;&amp; !invokers.isEmpty() ? invokers.get(<span class="number">0</span>).getUrl() : url, routers);</span><br><span class="line">    <span class="keyword">if</span> (invokers == <span class="keyword">null</span> || invokers.isEmpty())</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"invokers == null"</span>);</span><br><span class="line">    <span class="keyword">this</span>.invokers = invokers;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> List&lt;Invoker&lt;T&gt;&gt; doList(Invocation invocation) <span class="keyword">throws</span> RpcException &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> invokers;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>StaticDirectory</code>的实现很简单，因为是静态的服务目录，所以在构造函数中就把invokers对象传进去了，后面也不能做动态的变化。<code>doList()</code>函数也就是很简单的把<code>invokers</code>对象返回出去。</p>
+<h3 id="RegistryDirectory源码分析"><a href="#RegistryDirectory源码分析" class="headerlink" title="RegistryDirectory源码分析"></a><code>RegistryDirectory</code>源码分析</h3><p>首先它实现了<code>NotifyListener</code>接口。当注册中心服务配置发生变化后，<code>RegistryDirectory</code>可收到与当前服务相关的变化，也就是它之所以能根据注册中心动态变化的根源所在。收到变更通知后，<code>RegistryDirectory</code> 可根据配置变更信息刷新 Invoker 列表。<code>RegistryDirectory</code> 中有几个比较重要的逻辑，第一是 Invoker 的列举逻辑，第二是接收服务配置变更的逻辑，第三是 Invoker 列表的刷新逻辑。接下来按顺序对这三块逻辑。</p>
+<h4 id="doList-方法"><a href="#doList-方法" class="headerlink" title="doList()方法"></a><code>doList()方法</code></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> List&lt;Invoker&lt;T&gt;&gt; doList(Invocation invocation) &#123;</span><br><span class="line">    <span class="keyword">if</span> (forbidden) &#123;</span><br><span class="line">        <span class="comment">// 1. No service provider 2. Service providers are disabled</span></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RpcException(RpcException.FORBIDDEN_EXCEPTION,</span><br><span class="line">                               <span class="string">"No provider available from registry "</span> + getUrl().getAddress() + <span class="string">" for service "</span> + getConsumerUrl().getServiceKey() + <span class="string">" on consumer "</span> +  NetUtils.getLocalHost()</span><br><span class="line">                               + <span class="string">" use dubbo version "</span> + Version.getVersion() + <span class="string">", please check status of providers(disabled, not registered or in blacklist)."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    List&lt;Invoker&lt;T&gt;&gt; invokers = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">// methodInvokerMap对象，是类中的一个成员变量，也就是Invoker的本地缓存，后面的List&lt;Invoker&lt;T&gt;&gt;也就是从这里读出来的</span></span><br><span class="line">    Map&lt;String, List&lt;Invoker&lt;T&gt;&gt;&gt; localMethodInvokerMap = <span class="keyword">this</span>.methodInvokerMap; <span class="comment">// local reference</span></span><br><span class="line">    <span class="keyword">if</span> (localMethodInvokerMap != <span class="keyword">null</span> &amp;&amp; localMethodInvokerMap.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        String methodName = RpcUtils.getMethodName(invocation);</span><br><span class="line">        Object[] args = RpcUtils.getArguments(invocation);</span><br><span class="line">        <span class="keyword">if</span> (args != <span class="keyword">null</span> &amp;&amp; args.length &gt; <span class="number">0</span> &amp;&amp; args[<span class="number">0</span>] != <span class="keyword">null</span></span><br><span class="line">            &amp;&amp; (args[<span class="number">0</span>] <span class="keyword">instanceof</span> String || args[<span class="number">0</span>].getClass().isEnum())) &#123;</span><br><span class="line">            <span class="comment">// 通过 方法名 + 第一个参数名称 查询 Invoker 列表</span></span><br><span class="line">            invokers = localMethodInvokerMap.get(methodName + <span class="string">"."</span> + args[<span class="number">0</span>]); <span class="comment">// The routing can be enumerated according to the first parameter</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (invokers == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 通过方法名获取 Invoker 列表</span></span><br><span class="line">            invokers = localMethodInvokerMap.get(methodName);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (invokers == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 通过星号 * 获取 Invoker 列表</span></span><br><span class="line">            invokers = localMethodInvokerMap.get(Constants.ANY_VALUE);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 冗余逻辑，pull request #2861 移除了下面的 if 分支代码</span></span><br><span class="line">        <span class="keyword">if</span> (invokers == <span class="keyword">null</span>) &#123;</span><br><span class="line">            Iterator&lt;List&lt;Invoker&lt;T&gt;&gt;&gt; iterator = localMethodInvokerMap.values().iterator();</span><br><span class="line">            <span class="keyword">if</span> (iterator.hasNext()) &#123;</span><br><span class="line">                invokers = iterator.next();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> invokers == <span class="keyword">null</span> ? <span class="keyword">new</span> ArrayList&lt;Invoker&lt;T&gt;&gt;(<span class="number">0</span>) : invokers;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>和静态服务目录的<code>doList()</code>方法不同，<code>RegistryDirectory</code>中的<code>doList()</code>方法就复杂多了。主要获取逻辑就是从<code>methodInvokerMap</code>对象中把Invoker读取出来就行了，读取逻辑是根据<strong>key = 方法名+参数的各种组合</strong>进行map的映射，也就是<code>methodName</code>和<code>args</code>对象。至于<code>methodInvokerMap</code>是啥，后面再分析一下，这边我猜测应该是所有在注册中心注册服务的服务提供者的方法和对应的List&lt;Invoker<T>&gt;，所以服务消费者只要根据key就能把List映射下来。</p>
+<h4 id="notify-方法"><a href="#notify-方法" class="headerlink" title="notify()方法"></a><code>notify()方法</code></h4><p>上面提到了它实现了<code>NotifyListener</code>接口，它是为了获取注册中心的变更通知，这边看一下它的具体实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">notify</span><span class="params">(List&lt;URL&gt; urls)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 定义三个集合，分别用于存放服务提供者 url，路由 url，配置器 url</span></span><br><span class="line">    List&lt;URL&gt; invokerUrls = <span class="keyword">new</span> ArrayList&lt;URL&gt;();    <span class="comment">// 服务提供者 url，后面刷新也是刷新的这个</span></span><br><span class="line">    List&lt;URL&gt; routerUrls = <span class="keyword">new</span> ArrayList&lt;URL&gt;();</span><br><span class="line">    List&lt;URL&gt; configuratorUrls = <span class="keyword">new</span> ArrayList&lt;URL&gt;();</span><br><span class="line">    <span class="keyword">for</span> (URL url : urls) &#123;</span><br><span class="line">        String protocol = url.getProtocol();</span><br><span class="line">        String category = url.getParameter(Constants.CATEGORY_KEY, Constants.DEFAULT_CATEGORY);</span><br><span class="line">        <span class="keyword">if</span> (Constants.ROUTERS_CATEGORY.equals(category)</span><br><span class="line">            || Constants.ROUTE_PROTOCOL.equals(protocol)) &#123;</span><br><span class="line">            routerUrls.add(url);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (Constants.CONFIGURATORS_CATEGORY.equals(category)</span><br><span class="line">                   || Constants.OVERRIDE_PROTOCOL.equals(protocol)) &#123;</span><br><span class="line">            configuratorUrls.add(url);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (Constants.PROVIDERS_CATEGORY.equals(category)) &#123;</span><br><span class="line">            invokerUrls.add(url);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            logger.warn(<span class="string">"Unsupported category "</span> + category + <span class="string">" in notified url: "</span> + url + <span class="string">" from registry "</span> + getUrl().getAddress() + <span class="string">" to consumer "</span> + NetUtils.getLocalHost());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// configurators</span></span><br><span class="line">    <span class="keyword">if</span> (configuratorUrls != <span class="keyword">null</span> &amp;&amp; !configuratorUrls.isEmpty()) &#123;</span><br><span class="line">        <span class="keyword">this</span>.configurators = toConfigurators(configuratorUrls);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// routers</span></span><br><span class="line">    <span class="keyword">if</span> (routerUrls != <span class="keyword">null</span> &amp;&amp; !routerUrls.isEmpty()) &#123;</span><br><span class="line">        List&lt;Router&gt; routers = toRouters(routerUrls);</span><br><span class="line">        <span class="keyword">if</span> (routers != <span class="keyword">null</span>) &#123; <span class="comment">// null - do nothing</span></span><br><span class="line">            setRouters(routers);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    List&lt;Configurator&gt; localConfigurators = <span class="keyword">this</span>.configurators; <span class="comment">// local reference</span></span><br><span class="line">    <span class="comment">// merge override parameters</span></span><br><span class="line">    <span class="keyword">this</span>.overrideDirectoryUrl = directoryUrl;</span><br><span class="line">    <span class="keyword">if</span> (localConfigurators != <span class="keyword">null</span> &amp;&amp; !localConfigurators.isEmpty()) &#123;</span><br><span class="line">        <span class="keyword">for</span> (Configurator configurator : localConfigurators) &#123;</span><br><span class="line">            <span class="keyword">this</span>.overrideDirectoryUrl = configurator.configure(overrideDirectoryUrl);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// providers</span></span><br><span class="line">    refreshInvoker(invokerUrls);   <span class="comment">// 刷新服务提供者 url</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面来看刷新函数</p>
+<h4 id="refreshInvoker-invokerUrls"><a href="#refreshInvoker-invokerUrls" class="headerlink" title="refreshInvoker(invokerUrls)"></a><code>refreshInvoker(invokerUrls)</code></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">refreshInvoker</span><span class="params">(List&lt;URL&gt; invokerUrls)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 禁用服务，关闭所有Invoker</span></span><br><span class="line">    <span class="keyword">if</span> (invokerUrls != <span class="keyword">null</span> &amp;&amp; invokerUrls.size() == <span class="number">1</span> &amp;&amp; invokerUrls.get(<span class="number">0</span>) != <span class="keyword">null</span></span><br><span class="line">        &amp;&amp; Constants.EMPTY_PROTOCOL.equals(invokerUrls.get(<span class="number">0</span>).getProtocol())) &#123;</span><br><span class="line">        <span class="keyword">this</span>.forbidden = <span class="keyword">true</span>; <span class="comment">// Forbid to access 禁止访问</span></span><br><span class="line">        <span class="keyword">this</span>.methodInvokerMap = <span class="keyword">null</span>; <span class="comment">// Set the method invoker map to null </span></span><br><span class="line">        destroyAllInvokers(); <span class="comment">// Close all invokers   关闭所有Invoker</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.forbidden = <span class="keyword">false</span>; <span class="comment">// Allow to access</span></span><br><span class="line">        Map&lt;String, Invoker&lt;T&gt;&gt; oldUrlInvokerMap = <span class="keyword">this</span>.urlInvokerMap; <span class="comment">// local reference</span></span><br><span class="line">        <span class="keyword">if</span> (invokerUrls.isEmpty() &amp;&amp; <span class="keyword">this</span>.cachedInvokerUrls != <span class="keyword">null</span>) &#123;</span><br><span class="line">            invokerUrls.addAll(<span class="keyword">this</span>.cachedInvokerUrls);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">this</span>.cachedInvokerUrls = <span class="keyword">new</span> HashSet&lt;URL&gt;();</span><br><span class="line">            <span class="keyword">this</span>.cachedInvokerUrls.addAll(invokerUrls);<span class="comment">//Cached invoker urls, convenient for comparison</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (invokerUrls.isEmpty()) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 将 url列表转成 Invoker列表。这边最后得到的是&lt;url, Invoker&gt; 映射关系表</span></span><br><span class="line">        Map&lt;String, Invoker&lt;T&gt;&gt; newUrlInvokerMap = toInvokers(invokerUrls);<span class="comment">// Translate url list to Invoker map</span></span><br><span class="line">        <span class="comment">// 将 newUrlInvokerMap 转成方法名到 Invoker 列表的映射。这边得到的是方法名到 Invoker 列表的映射关系</span></span><br><span class="line">        Map&lt;String, List&lt;Invoker&lt;T&gt;&gt;&gt; newMethodInvokerMap = toMethodInvokers(newUrlInvokerMap); <span class="comment">// Change method name to map Invoker Map</span></span><br><span class="line">        <span class="comment">// state change</span></span><br><span class="line">        <span class="comment">// If the calculation is wrong, it is not processed.</span></span><br><span class="line">        <span class="keyword">if</span> (newUrlInvokerMap == <span class="keyword">null</span> || newUrlInvokerMap.size() == <span class="number">0</span>) &#123;</span><br><span class="line">            logger.error(<span class="keyword">new</span> IllegalStateException(<span class="string">"urls to invokers error .invokerUrls.size :"</span> + invokerUrls.size() + <span class="string">", invoker.size :0. urls :"</span> + invokerUrls.toString()));</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 合并多个组的 Invoker</span></span><br><span class="line">        <span class="keyword">this</span>.methodInvokerMap = multiGroup ? toMergeMethodInvokerMap(newMethodInvokerMap) : newMethodInvokerMap;</span><br><span class="line">        <span class="keyword">this</span>.urlInvokerMap = newUrlInvokerMap;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 销毁无用的Invoker</span></span><br><span class="line">            destroyUnusedInvokers(oldUrlInvokerMap, newUrlInvokerMap); <span class="comment">// Close the unused Invoker</span></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            logger.warn(<span class="string">"destroyUnusedInvokers error. "</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当注册中心有变化的时候，更新两个值，一个是<code>methodInvokerMap</code>，另一个是<code>urlInvokerMap</code>。上面在<code>doList()</code>中有对<code>methodInvokerMap</code>对象读的操作，这边是对<code>methodInvokerMap</code>对象写的操作。</p>
+<p>这边涉及到的三个比较主要的函数这边就不分析了，具体的分析官方文档给出了详细的说明，我的理解是</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 返回值对应&lt;url, Invoker&gt;</span></span><br><span class="line">Map&lt;String, Invoker&lt;T&gt;&gt; newUrlInvokerMap = toInvokers(invokerUrls);  </span><br><span class="line"><span class="comment">// 返回值对应&lt;方法名, List&lt;Invoker&lt;T&gt;&gt;&gt;</span></span><br><span class="line">Map&lt;String, List&lt;Invoker&lt;T&gt;&gt;&gt; newMethodInvokerMap = toMethodInvokers(newUrlInvokerMap);</span><br><span class="line"><span class="comment">// 返回值对应&lt;方法名, List&lt;Invoker&lt;T&gt;&gt;&gt;，但是这边是对group进行了分组</span></span><br><span class="line">toMergeMethodInvokerMap(newMethodInvokerMap)`;</span><br><span class="line"><span class="comment">// 最后销毁无用Invoker</span></span><br><span class="line">destroyUnusedInvokers(oldUrlInvokerMap, newUrlInvokerMap);</span><br></pre></td></tr></table></figure>
+
+<p>这四步是紧密关联的，最终动态改变成员变量<code>methodInvokerMap</code>。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Dubbo/" rel="tag"># Dubbo</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/11/10/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B65-0/" rel="next" title="实现一个自己的RPC框架5.0">
+                <i class="fa fa-chevron-left"></i> 实现一个自己的RPC框架5.0
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png"
+                alt="hqf1996" />
+            
+              <p class="site-author-name" itemprop="name">hqf1996</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">29</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Directory"><span class="nav-text">Directory</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、简介"><span class="nav-text">1、简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、源码分析"><span class="nav-text">2、源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AbstractDirectory源码分析"><span class="nav-text">AbstractDirectory源码分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#StaticDirectory源码分析"><span class="nav-text">StaticDirectory源码分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RegistryDirectory源码分析"><span class="nav-text">RegistryDirectory源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#doList-方法"><span class="nav-text">doList()方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#notify-方法"><span class="nav-text">notify()方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#refreshInvoker-invokerUrls"><span class="nav-text">refreshInvoker(invokerUrls)</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">hqf1996</span>
+
+  
+</div>
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共字 |</span>
+</div>
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
