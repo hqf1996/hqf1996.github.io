@@ -351,6 +351,7 @@
       
         
           <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在Dubbo集群容错分析之前，要先有一个宏观的了解，集群容错源码分别是服务目录 <code>Directory</code>、服务路由 <code>Router</code>、集群 <code>Cluster</code>和负载均衡<code>LoadBalance</code>四个部分，这个在<a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/directory.html" target="_blank" rel="noopener">官网的博客</a>中有简单的介绍，本篇就结合官网的介绍来简单介绍一下服务目录 <code>Directory</code>部分。</p>
+<p><code>ps:以下所有的源码分析都是基于Dubbo2.6.6版本</code></p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/11/21/Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87(%E4%B8%8A)/#more" rel="contents">

@@ -79,16 +79,16 @@
 
 
 
-<meta name="description" content="前言在Dubbo集群容错分析之前，要先有一个宏观的了解，集群容错源码分别是服务目录 Directory、服务路由 Router、集群 Cluster和负载均衡LoadBalance四个部分，这个在官网的博客中有简单的介绍，本篇就结合官网的介绍来简单介绍一下服务目录 Directory部分。">
+<meta name="description" content="前言在Dubbo集群容错分析之前，要先有一个宏观的了解，集群容错源码分别是服务目录 Directory、服务路由 Router、集群 Cluster和负载均衡LoadBalance四个部分，这个在官网的博客中有简单的介绍，本篇就结合官网的介绍来简单介绍一下服务目录 Directory部分。 ps:以下所有的源码分析都是基于Dubbo2.6.6版本">
 <meta name="keywords" content="Dubbo">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Dubbo之集群容错前导篇(上)">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;11&#x2F;21&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87(%E4%B8%8A)&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言在Dubbo集群容错分析之前，要先有一个宏观的了解，集群容错源码分别是服务目录 Directory、服务路由 Router、集群 Cluster和负载均衡LoadBalance四个部分，这个在官网的博客中有简单的介绍，本篇就结合官网的介绍来简单介绍一下服务目录 Directory部分。">
+<meta property="og:description" content="前言在Dubbo集群容错分析之前，要先有一个宏观的了解，集群容错源码分别是服务目录 Directory、服务路由 Router、集群 Cluster和负载均衡LoadBalance四个部分，这个在官网的博客中有简单的介绍，本篇就结合官网的介绍来简单介绍一下服务目录 Directory部分。 ps:以下所有的源码分析都是基于Dubbo2.6.6版本">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87&#x2F;%E6%9C%8D%E5%8A%A1%E7%9B%AE%E5%BD%95%E7%BB%A7%E6%89%BF%E4%BD%93%E7%B3%BB.png">
-<meta property="og:updated_time" content="2019-11-21T12:30:48.731Z">
+<meta property="og:updated_time" content="2019-11-22T02:04:46.139Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87&#x2F;%E6%9C%8D%E5%8A%A1%E7%9B%AE%E5%BD%95%E7%BB%A7%E6%89%BF%E4%BD%93%E7%B3%BB.png">
 
@@ -353,6 +353,7 @@
 
       
         <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在Dubbo集群容错分析之前，要先有一个宏观的了解，集群容错源码分别是服务目录 <code>Directory</code>、服务路由 <code>Router</code>、集群 <code>Cluster</code>和负载均衡<code>LoadBalance</code>四个部分，这个在<a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/directory.html" target="_blank" rel="noopener">官网的博客</a>中有简单的介绍，本篇就结合官网的介绍来简单介绍一下服务目录 <code>Directory</code>部分。</p>
+<p><code>ps:以下所有的源码分析都是基于Dubbo2.6.6版本</code></p>
 <a id="more"></a>
 
 <h1 id="Directory"><a href="#Directory" class="headerlink" title="Directory"></a>Directory</h1><h2 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h2><p>Directory也成为服务目录，我们知道，在服务消费者发送请求之前，我们需要知道它要往哪些服务提供者上发送请求，通过服务目录，服务消费者就能够获取到服务提供者的信息，就能够通过Netty进行相关函数的远程调用，所以也可以说，服务目录的功能和注册中心的功能是类似的，只不过它是将注册中心的每条服务提供者的信息封装成了一个Invoker对象， 在服务提供者发生变化的时候，服务目录也会随着注册中心动态更新。</p>
