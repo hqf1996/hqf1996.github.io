@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/pic_32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/pic_16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Dubbo," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言上一篇主要介绍了服务目录 Directory的相关部分，本篇就主要结合源码来说说服务路由 Router相关部分，当然了，这边我们主要关注点是它是如何过滤的。具体的源码分析也能参考官方博客。">
+<meta name="keywords" content="Dubbo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dubbo之集群容错前导篇(中)">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;11&#x2F;22&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87(%E4%B8%AD)&#x2F;index.html">
+<meta property="og:site_name" content="hqfBlog">
+<meta property="og:description" content="前言上一篇主要介绍了服务目录 Directory的相关部分，本篇就主要结合源码来说说服务路由 Router相关部分，当然了，这边我们主要关注点是它是如何过滤的。具体的源码分析也能参考官方博客。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-11-22T07:53:41.453Z">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/11/22/Dubbo之集群容错前导篇(中)/"/>
+
+
+
+
+
+  <title>Dubbo之集群容错前导篇(中) | hqfBlog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<!--<a href="https://github.com/hqf1996" target="_blank" rel="noopener"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>-->
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">hqfBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/11/22/Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87(%E4%B8%AD)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="hqf1996">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hqfBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Dubbo之集群容错前导篇(中)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-22T14:08:59+08:00">
+                2019-11-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">Dubbo</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>上一篇主要介绍了服务目录 <code>Directory</code>的相关部分，本篇就主要结合源码来说说服务路由 <code>Router</code>相关部分，当然了，这边我们主要关注点是它是如何过滤的。具体的源码分析也能参考<a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/router.html" target="_blank" rel="noopener">官方博客</a>。</p>
+<a id="more"></a>
+
+<h1 id="Router"><a href="#Router" class="headerlink" title="Router"></a>Router</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1.简介"></a>1.简介</h2><p>这边可能要联系到Directory的相关内容，回想一下，在上一篇服务目录中<code>RegistryDirectory</code>类中的刷新操作中，其实也需要多次进行路由，目的也就是筛选出符合条件的<code>Invoker</code>。它整个调用的逻辑是这样的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">notify() ---&gt;  refreshInvoker() ---&gt;  toInvokers() ---&gt; toMethodInvokers()</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>toMethodInvokers()</code>中也涉及到对router的调用。所以，这两个部分是相互穿插的，具体<code>toMethodInvokers</code>是怎么做的看源码实现就行，这边就不给出了。</p>
+<h2 id="2-源码分析"><a href="#2-源码分析" class="headerlink" title="2.源码分析"></a>2.源码分析</h2><p>Router类主要有三个实现类，分别是<code>ConditionRouter</code>,<code>MockInvokersSelector</code>,<code>ScriptRouter</code>。这边主要介绍的是<code>ConditionRouter</code>条件路由。</p>
+<p><code>ConditionRouter</code>构造函数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ConditionRouter</span><span class="params">(URL url)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.url = url;</span><br><span class="line">    <span class="comment">// 获得优先级配置</span></span><br><span class="line">    <span class="keyword">this</span>.priority = url.getParameter(Constants.PRIORITY_KEY, <span class="number">0</span>);</span><br><span class="line">    <span class="comment">// 获得是否强制执行配置</span></span><br><span class="line">    <span class="keyword">this</span>.force = url.getParameter(Constants.FORCE_KEY, <span class="keyword">false</span>);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 获得规则</span></span><br><span class="line">        String rule = url.getParameterAndDecoded(Constants.RULE_KEY);</span><br><span class="line">        <span class="keyword">if</span> (rule == <span class="keyword">null</span> || rule.trim().length() == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Illegal route rule!"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        rule = rule.replace(<span class="string">"consumer."</span>, <span class="string">""</span>).replace(<span class="string">"provider."</span>, <span class="string">""</span>);</span><br><span class="line">        <span class="keyword">int</span> i = rule.indexOf(<span class="string">"=&gt;"</span>);</span><br><span class="line">        <span class="comment">// 分割消费者和提供者规则</span></span><br><span class="line">        String whenRule = i &lt; <span class="number">0</span> ? <span class="keyword">null</span> : rule.substring(<span class="number">0</span>, i).trim();</span><br><span class="line">        String thenRule = i &lt; <span class="number">0</span> ? rule.trim() : rule.substring(i + <span class="number">2</span>).trim();</span><br><span class="line">        <span class="comment">// 解析消费者</span></span><br><span class="line">        Map&lt;String, MatchPair&gt; when = StringUtils.isBlank(whenRule) || <span class="string">"true"</span>.equals(whenRule) ? <span class="keyword">new</span> HashMap&lt;String, MatchPair&gt;() : parseRule(whenRule);</span><br><span class="line">        <span class="comment">// 解析提供者</span></span><br><span class="line">        Map&lt;String, MatchPair&gt; then = StringUtils.isBlank(thenRule) || <span class="string">"false"</span>.equals(thenRule) ? <span class="keyword">null</span> : parseRule(thenRule);</span><br><span class="line">        <span class="comment">// <span class="doctag">NOTE:</span> It should be determined on the business level whether the `When condition` can be empty or not.</span></span><br><span class="line">        <span class="keyword">this</span>.whenCondition = when;</span><br><span class="line">        <span class="keyword">this</span>.thenCondition = then;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (ParseException e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(e.getMessage(), e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里涉及到的一个解析方法<code>parseRule()</code>。方法比较复杂，涉及到用正则表达式去匹配，可以用官网给的例子来说明一下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> Map&lt;String, MatchPair&gt; <span class="title">parseRule</span><span class="params">(String rule)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">throws</span> ParseException </span>&#123;</span><br><span class="line">    <span class="comment">// 定义条件映射集合</span></span><br><span class="line">    Map&lt;String, MatchPair&gt; condition = <span class="keyword">new</span> HashMap&lt;String, MatchPair&gt;();</span><br><span class="line">    <span class="keyword">if</span> (StringUtils.isBlank(rule)) &#123;</span><br><span class="line">        <span class="keyword">return</span> condition;</span><br><span class="line">    &#125;</span><br><span class="line">    MatchPair pair = <span class="keyword">null</span>;</span><br><span class="line">    Set&lt;String&gt; values = <span class="keyword">null</span>;</span><br><span class="line">    <span class="comment">// 通过正则表达式匹配路由规则，ROUTE_PATTERN = ([&amp;!=,]*)\s*([^&amp;!=,\s]+)</span></span><br><span class="line">    <span class="comment">// 这个表达式看起来不是很好理解，第一个括号内的表达式用于匹配"&amp;", "!", "=" 和 "," 等符号。</span></span><br><span class="line">    <span class="comment">// 第二括号内的用于匹配英文字母，数字等字符。举个例子说明一下：</span></span><br><span class="line">    <span class="comment">//    host = 2.2.2.2 &amp; host != 1.1.1.1 &amp; method = hello</span></span><br><span class="line">    <span class="comment">// 匹配结果如下：</span></span><br><span class="line">    <span class="comment">//     括号一      括号二</span></span><br><span class="line">    <span class="comment">// 1.  null       host</span></span><br><span class="line">    <span class="comment">// 2.   =         2.2.2.2</span></span><br><span class="line">    <span class="comment">// 3.   &amp;         host</span></span><br><span class="line">    <span class="comment">// 4.   !=        1.1.1.1 </span></span><br><span class="line">    <span class="comment">// 5.   &amp;         method</span></span><br><span class="line">    <span class="comment">// 6.   =         hello</span></span><br><span class="line">    <span class="keyword">final</span> Matcher matcher = ROUTE_PATTERN.matcher(rule);</span><br><span class="line">    <span class="keyword">while</span> (matcher.find()) &#123;</span><br><span class="line">        <span class="comment">// 获取括号一内的匹配结果</span></span><br><span class="line">        String separator = matcher.group(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">// 获取括号二内的匹配结果</span></span><br><span class="line">        String content = matcher.group(<span class="number">2</span>);</span><br><span class="line">        <span class="comment">// 分隔符为空，表示匹配的是表达式的开始部分</span></span><br><span class="line">        <span class="keyword">if</span> (separator == <span class="keyword">null</span> || separator.length() == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 创建 MatchPair 对象</span></span><br><span class="line">            pair = <span class="keyword">new</span> MatchPair();</span><br><span class="line">            <span class="comment">// 存储 &lt;匹配项, MatchPair&gt; 键值对，比如 &lt;host, MatchPair&gt;</span></span><br><span class="line">            condition.put(content, pair); </span><br><span class="line">        &#125; </span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果分隔符为 &amp;，表明接下来也是一个条件</span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"&amp;"</span>.equals(separator)) &#123;</span><br><span class="line">            <span class="comment">// 尝试从 condition 获取 MatchPair</span></span><br><span class="line">            <span class="keyword">if</span> (condition.get(content) == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">// 未获取到 MatchPair，重新创建一个，并放入 condition 中</span></span><br><span class="line">                pair = <span class="keyword">new</span> MatchPair();</span><br><span class="line">                condition.put(content, pair);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                pair = condition.get(content);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; </span><br><span class="line"></span><br><span class="line">        <span class="comment">// 分隔符为 =</span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"="</span>.equals(separator)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (pair == <span class="keyword">null</span>)</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> ParseException(<span class="string">"Illegal route rule ..."</span>);</span><br><span class="line"></span><br><span class="line">            values = pair.matches;</span><br><span class="line">            <span class="comment">// 将 content 存入到 MatchPair 的 matches 集合中</span></span><br><span class="line">            values.add(content);</span><br><span class="line">        &#125; </span><br><span class="line"></span><br><span class="line">        <span class="comment">//  分隔符为 != </span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">"!="</span>.equals(separator)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (pair == <span class="keyword">null</span>)</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> ParseException(<span class="string">"Illegal route rule ..."</span>);</span><br><span class="line"></span><br><span class="line">            values = pair.mismatches;</span><br><span class="line">            <span class="comment">// 将 content 存入到 MatchPair 的 mismatches 集合中</span></span><br><span class="line">            values.add(content);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 分隔符为 ,</span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">","</span>.equals(separator)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (values == <span class="keyword">null</span> || values.isEmpty())</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> ParseException(<span class="string">"Illegal route rule ..."</span>);</span><br><span class="line">            <span class="comment">// 将 content 存入到上一步获取到的 values 中，可能是 matches，也可能是 mismatches</span></span><br><span class="line">            values.add(content);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ParseException(<span class="string">"Illegal route rule ..."</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> condition;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最终condition中的内容是这样的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">"host"</span>: &#123;</span><br><span class="line">        <span class="string">"matches"</span>: [<span class="string">"2.2.2.2"</span>],</span><br><span class="line">        <span class="string">"mismatches"</span>: [<span class="string">"1.1.1.1"</span>]</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">"method"</span>: &#123;</span><br><span class="line">        <span class="string">"matches"</span>: [<span class="string">"hello"</span>],</span><br><span class="line">        <span class="string">"mismatches"</span>: []</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>route()</code>方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; List&lt;Invoker&lt;T&gt;&gt; route(List&lt;Invoker&lt;T&gt;&gt; invokers, URL url, Invocation invocation)</span><br><span class="line">    <span class="keyword">throws</span> RpcException &#123;</span><br><span class="line">    <span class="comment">// 为空，直接返回空 Invoker 集合</span></span><br><span class="line">    <span class="keyword">if</span> (invokers == <span class="keyword">null</span> || invokers.isEmpty()) &#123;</span><br><span class="line">        <span class="keyword">return</span> invokers;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 如果不匹配 `whenCondition` ，直接返回 `invokers` 集合，因为不需要走 `whenThen` 的匹配</span></span><br><span class="line">        <span class="keyword">if</span> (!matchWhen(url, invocation)) &#123;</span><br><span class="line">            <span class="keyword">return</span> invokers;</span><br><span class="line">        &#125;</span><br><span class="line">        List&lt;Invoker&lt;T&gt;&gt; result = <span class="keyword">new</span> ArrayList&lt;Invoker&lt;T&gt;&gt;();</span><br><span class="line">        <span class="comment">// 如果thenCondition为空，则直接返回空</span></span><br><span class="line">        <span class="keyword">if</span> (thenCondition == <span class="keyword">null</span>) &#123;</span><br><span class="line">            logger.warn(<span class="string">"The current consumer in the service blacklist. consumer: "</span> + NetUtils.getLocalHost() + <span class="string">", service: "</span> + url.getServiceKey());</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 遍历invokers</span></span><br><span class="line">        <span class="keyword">for</span> (Invoker&lt;T&gt; invoker : invokers) &#123;</span><br><span class="line">            <span class="comment">// 如果thenCondition匹配，则加入result</span></span><br><span class="line">            <span class="keyword">if</span> (matchThen(invoker.getUrl(), url)) &#123;</span><br><span class="line">                result.add(invoker);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (!result.isEmpty()) &#123;</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (force) &#123;</span><br><span class="line">            logger.warn(<span class="string">"The route result is empty and force execute. consumer: "</span> + NetUtils.getLocalHost() + <span class="string">", service: "</span> + url.getServiceKey() + <span class="string">", router: "</span> + url.getParameterAndDecoded(Constants.RULE_KEY));</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">        logger.error(<span class="string">"Failed to execute condition router rule: "</span> + getUrl() + <span class="string">", invokers: "</span> + invokers + <span class="string">", cause: "</span> + t.getMessage(), t);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> invokers;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>所以总结来说，当我们配置了禁用的服务提供者后，根据路由信息就不会把它对应的<code>invokers</code>给添加进来，实现了过滤的目的。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Dubbo/" rel="tag"># Dubbo</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/11/21/Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87(%E4%B8%8A)/" rel="next" title="Dubbo之集群容错前导篇(上)">
+                <i class="fa fa-chevron-left"></i> Dubbo之集群容错前导篇(上)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png"
+                alt="hqf1996" />
+            
+              <p class="site-author-name" itemprop="name">hqf1996</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">30</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Router"><span class="nav-text">Router</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-简介"><span class="nav-text">1.简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-源码分析"><span class="nav-text">2.源码分析</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">hqf1996</span>
+
+  
+</div>
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共字 |</span>
+</div>
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
