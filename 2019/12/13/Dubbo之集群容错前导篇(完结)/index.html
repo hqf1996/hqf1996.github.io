@@ -88,7 +88,8 @@
 <meta property="og:description" content="前言前三篇博客已经总结完了集群容错的比较重要的三个部分，本篇是集群容错的最后一个部分，也就是负载均衡LoadBalance。负载均衡在任何分布式的项目中都或多或少的会遇见，解决的方法也大同小异，并且，dubbo中的负载均衡在面试中似乎也是一个经常被问到的点。本篇简单总结Dubbo中的集群容错部分。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87&#x2F;%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%9A%84%E7%B1%BB%E7%BB%A7%E6%89%BF%E5%9B%BE.png">
-<meta property="og:updated_time" content="2019-12-16T07:55:43.283Z">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87&#x2F;%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99.jpg">
+<meta property="og:updated_time" content="2019-12-16T08:51:55.759Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87&#x2F;%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%9A%84%E7%B1%BB%E7%BB%A7%E6%89%BF%E5%9B%BE.png">
 
@@ -439,6 +440,8 @@
 </tbody></table>
 <p>这里A、B、C三个服务提供者的权重分别是5、1、1。分为weight 和 currentWeight，其中weight是固定不变的，也就是5、1、1。而currentWeight是会动态变化的。</p>
 <p>这样子选择出来的结果就是[A、A、B、A、C、A、A]，就不会有之前的让所有A都在一块的情况。</p>
+<h2 id="3、总结"><a href="#3、总结" class="headerlink" title="3、总结"></a>3、总结</h2><p>学习完集群容错的四大块内容，总结起来就是官方的这张图，后面会再结合一个具体的例子debug进去分析一波。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87/%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99.jpg" alt="集群容错流程图"></p>
 
       
     </div>
@@ -613,7 +616,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#LoadBalance"><span class="nav-text">LoadBalance</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、简介"><span class="nav-text">1、简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、源码分析"><span class="nav-text">2、源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AbstractLoadBalance"><span class="nav-text">AbstractLoadBalance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RandomLoadBalance"><span class="nav-text">RandomLoadBalance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LeastActiveLoadBalance"><span class="nav-text">LeastActiveLoadBalance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ConsistentHashLoadBalance"><span class="nav-text">ConsistentHashLoadBalance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RoundRobinLoadBalance"><span class="nav-text">RoundRobinLoadBalance</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#LoadBalance"><span class="nav-text">LoadBalance</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、简介"><span class="nav-text">1、简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、源码分析"><span class="nav-text">2、源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AbstractLoadBalance"><span class="nav-text">AbstractLoadBalance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RandomLoadBalance"><span class="nav-text">RandomLoadBalance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LeastActiveLoadBalance"><span class="nav-text">LeastActiveLoadBalance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ConsistentHashLoadBalance"><span class="nav-text">ConsistentHashLoadBalance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RoundRobinLoadBalance"><span class="nav-text">RoundRobinLoadBalance</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3、总结"><span class="nav-text">3、总结</span></a></li></ol></li></ol></div>
             
 
           </div>
