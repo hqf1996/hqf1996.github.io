@@ -89,7 +89,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E7%B1%BB%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.jpg">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%A8%A1%E5%9E%8B.jpg">
-<meta property="og:updated_time" content="2019-08-26T04:39:50.829Z">
+<meta property="og:updated_time" content="2019-12-19T03:00:48.144Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E7%B1%BB%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F.jpg">
 
@@ -414,6 +414,8 @@
 <p>使用双亲委派模型来组织类加载器之间的关系，有一个显而易见的好处就是Java类随着它的类加载器一起具备了一种带有优先级的层次关系。类 <code>java.lang.Object</code>（存放在<code>rt.jar</code>中）在加载过程中，无论哪一个类加载器要加载这个类，最终需委派给模型顶端的启动类加载器进行加载，因此<code>Object</code>类在程序的各种类加载器环境中都是同一个类。</p>
 <p>若没有使用双亲委派模型（即由各个类加载器自行去加载）、用户编写了一个<code>java.lang.Object</code>的类(放在<code>ClassPath</code>中），那系统中将出现多个不同的<code>Object</code>类，Java体系中最基础的行为就无法保证。</p>
 </blockquote>
+<p>更新    2019年12月19日</p>
+<p>今天在看spi的时候，回过头再看双亲委派机制。为什么说双亲委派机制有缺陷呢？或者说在什么情况下要打破双亲委派机制？我们知道双亲委派机制中加载器的相互调用是有顺序的，只能由下往上调用，也就是从应用程序类加载器往上调用，而不能从上往下进行调用。而如果基础类要调用用户的代码该怎么办呢？也就是由上往下进行调用，这时候双亲委派机制就被破坏了。这种情况其实很多，比如这里的spi，还有jdbc等等。其中jdbc我们知道是一个数据库的连接标准，是一组类和接口，而具体接口的实现就需要每个数据库厂商完成，所以这里就有了自上而下的调用，破坏双亲委派机制。</p>
 
       
     </div>
