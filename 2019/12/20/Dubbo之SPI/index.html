@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="Dubbo," />
 
 
 
@@ -79,11 +79,15 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="hqfBlog">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;archives&#x2F;2019&#x2F;07&#x2F;index.html">
+<meta name="description" content="前言Dubbo中的SPI机制，全称为 Service Provider Interface，是一种服务发现机制。是提供给扩展者使用的一种机制，比较类似于Spring中IoC的思想。关于Spring的IoC的具体分析留到后面学习Spring源码的时候再做分析，这边主要看的是Dubbo中SPI机制的实现。另外，我们知道jdk本身就有SPI，那么Dubbo中对SPI是如何实现的。另外补充一点，SPI是一">
+<meta name="keywords" content="Dubbo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dubbo之SPI">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;20&#x2F;Dubbo%E4%B9%8BSPI&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
+<meta property="og:description" content="前言Dubbo中的SPI机制，全称为 Service Provider Interface，是一种服务发现机制。是提供给扩展者使用的一种机制，比较类似于Spring中IoC的思想。关于Spring的IoC的具体分析留到后面学习Spring源码的时候再做分析，这边主要看的是Dubbo中SPI机制的实现。另外，我们知道jdk本身就有SPI，那么Dubbo中对SPI是如何实现的。另外补充一点，SPI是一">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-12-20T08:36:29.973Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -114,13 +118,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/archives/2019/07/"/>
+  <link rel="canonical" href="http://yoursite.com/2019/12/20/Dubbo之SPI/"/>
 
 
 
 
 
-  <title>归档 | hqfBlog</title>
+  <title>Dubbo之SPI | hqfBlog</title>
   
 
 
@@ -139,7 +143,7 @@
     
   
 
-  <div class="container sidebar-position-left page-archive">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 	<!--<a href="https://github.com/hqf1996" target="_blank" rel="noopener"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>-->
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -243,110 +247,171 @@
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  
+
   
   
   
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
 
-      <span class="archive-page-counter">
-        
-        
-         
-        
-        OK! 目前共计 33 篇日志。 继续努力。
-      </span>
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/20/Dubbo%E4%B9%8BSPI/">
 
-      
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="hqf1996">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hqfBlog">
+    </span>
+
+    
+      <header class="post-header">
 
         
         
+          <h1 class="post-title" itemprop="name headline">Dubbo之SPI</h1>
         
 
-        
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-20T16:24:54+08:00">
+                2019-12-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
           
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2019">2019</h1>
-          </div>
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/07/22/Redis%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E5%AF%B9%E8%B1%A1/" itemprop="url">
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
               
-                <span itemprop="name">Redis笔记——基本数据结构与对象</span>
+                <span class="post-meta-item-text">分类于</span>
               
-            </a>
-        
-      </h2>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">Dubbo</span>
+                  </a>
+                </span>
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2019-07-22T10:53:16+08:00"
-              content="2019-07-22" >
-          07-22
-        </time>
-      </div>
+                
+                
+              
+            </span>
+          
 
-    </header>
-  </article>
+          
+            
+          
 
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>Dubbo中的SPI机制，全称为 Service Provider Interface，是一种服务发现机制。是提供给扩展者使用的一种机制，比较类似于Spring中IoC的思想。关于Spring的IoC的具体分析留到后面学习Spring源码的时候再做分析，这边主要看的是Dubbo中SPI机制的实现。另外，我们知道jdk本身就有SPI，那么Dubbo中对SPI是如何实现的。另外补充一点，SPI是一种破坏双亲委派机制的做法，关于双亲委派机制可以看<a href="https://hqf1996.github.io/2019/08/19/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">本篇</a>第四节的部分。</p>
+<a id="more"></a>
 
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/07/18/SSH%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/" itemprop="url">
-              
-                <span itemprop="name">SSH端口转发</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2019-07-18T10:58:02+08:00"
-              content="2019-07-18" >
-          07-18
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-      
-
     </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Dubbo/" rel="tag"># Dubbo</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/13/Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87(%E5%AE%8C%E7%BB%93)/" rel="next" title="Dubbo之集群容错前导篇(完结)">
+                <i class="fa fa-chevron-left"></i> Dubbo之集群容错前导篇(完结)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -354,6 +419,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -374,8 +443,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -439,6 +517,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -576,6 +670,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
