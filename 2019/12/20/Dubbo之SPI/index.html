@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="hqfBlog">
 <meta property="og:description" content="前言Dubbo中的SPI机制，全称为 Service Provider Interface，是一种服务发现机制。是提供给扩展者使用的一种机制，比较类似于Spring中IoC的思想。关于Spring的IoC的具体分析留到后面学习Spring源码的时候再做分析，这边主要看的是Dubbo中SPI机制的实现。另外，我们知道jdk本身就有SPI，那么Dubbo中对SPI是如何实现的。另外补充一点，SPI是一">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-12-20T08:36:29.973Z">
+<meta property="og:updated_time" content="2019-12-20T08:52:09.440Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -350,9 +350,51 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>Dubbo中的SPI机制，全称为 Service Provider Interface，是一种服务发现机制。是提供给扩展者使用的一种机制，比较类似于Spring中IoC的思想。关于Spring的IoC的具体分析留到后面学习Spring源码的时候再做分析，这边主要看的是Dubbo中SPI机制的实现。另外，我们知道jdk本身就有SPI，那么Dubbo中对SPI是如何实现的。另外补充一点，SPI是一种破坏双亲委派机制的做法，关于双亲委派机制可以看<a href="https://hqf1996.github.io/2019/08/19/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">本篇</a>第四节的部分。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>Dubbo中的SPI机制，全称为 Service Provider Interface，是一种服务发现机制。是提供给扩展者使用的一种机制，比较类似于Spring中IoC的思想。关于Spring的IoC的具体分析留到后面学习Spring源码的时候再做分析，这边主要看的是Dubbo中SPI机制的实现。另外，我们知道jdk本身就有SPI，那么Dubbo中对SPI是如何实现的。另外补充一点，SPI是一种破坏双亲委派机制的做法，关于双亲委派机制可以看<a href="https://hqf1996.github.io/2019/08/19/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">本篇</a>第四节的部分，所以说一种机制的出现肯定有好也有坏，关键看的是在何种情况下的使用。</p>
 <a id="more"></a>
 
+<h1 id="1、两种SPI的简单用法"><a href="#1、两种SPI的简单用法" class="headerlink" title="1、两种SPI的简单用法"></a>1、两种SPI的简单用法</h1><p>先来简单的看一下jdk的spi与dubbo中的spi如何使用，这边引用官方的例子。</p>
+<p><strong>java SPI</strong></p>
+<p>首先是一个接口和俩个实现类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Robot</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">sayHello</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OptimusPrime</span> <span class="keyword">implements</span> <span class="title">Robot</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sayHello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Hello, I am Optimus Prime."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Bumblebee</span> <span class="keyword">implements</span> <span class="title">Robot</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sayHello</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Hello, I am Bumblebee."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来 META-INF/services 文件夹下创建一个文件，名称为 Robot 的全限定名 org.apache.spi.Robot。文件内容为实现类的全限定的类名，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">org.apache.spi.OptimusPrime</span><br><span class="line">org.apache.spi.Bumblebee</span><br></pre></td></tr></table></figure>
+
+<p>测试</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JavaSPITest</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sayHello</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ServiceLoader&lt;Robot&gt; serviceLoader = ServiceLoader.load(Robot<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        System.out.println(<span class="string">"Java SPI"</span>);</span><br><span class="line">        serviceLoader.forEach(Robot::sayHello);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Java SPI</p>
+<p>Hello, I am Optimus Prime.</p>
+<p>Hello, I am Bumblebee.</p>
+</blockquote>
+<p><strong>Dubbo SPI</strong></p>
+<p>同样的，Dubbo SPI 所需的配置文件需放置在 META-INF/dubbo 路径下，配置内容如下，是通过一种键值对的方式进行配置的。另外，在测试 Dubbo SPI 时，需要在 Robot 接口上标注 @SPI 注解。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">optimusPrime = org.apache.spi.OptimusPrime</span><br><span class="line">bumblebee = org.apache.spi.Bumblebee</span><br></pre></td></tr></table></figure>
+
+<p>测试</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DubboSPITest</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sayHello</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        ExtensionLoader&lt;Robot&gt; extensionLoader = </span><br><span class="line">            ExtensionLoader.getExtensionLoader(Robot<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">        Robot optimusPrime = extensionLoader.getExtension(<span class="string">"optimusPrime"</span>);</span><br><span class="line">        optimusPrime.sayHello();</span><br><span class="line">        Robot bumblebee = extensionLoader.getExtension(<span class="string">"bumblebee"</span>);</span><br><span class="line">        bumblebee.sayHello();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Dubbo SPI</p>
+<p>Hello, I am Optimus Prime.</p>
+<p>Hello, I am Bumblebee.</p>
+</blockquote>
+<p>对比两种SPI，给出一个比较官方的对比，Dubbo比jdk的SPI优越之处在于</p>
+<ul>
+<li><p>JDK标准的SPI会一次性实例化扩展点所有实现，如果有扩展实现初始化很耗时，但如果没用上也加载，会很浪费资源。</p>
+</li>
+<li><p>如果扩展点加载失败，连扩展点的名称都拿不到了。比如：JDK标准的ScriptEngine，通过getName();获取脚本类型的名称，但如果RubyScriptEngine因为所依赖的jruby.jar不存在，导致RubyScriptEngine类加载失败，这个失败原因被吃掉了，和ruby对应不起来，当用户执行ruby脚本时，会报不支持ruby，而不是真正失败的原因。</p>
+</li>
+<li><p>增加了对扩展点IoC和AOP的支持，一个扩展点可以直接setter注入其它扩展点。</p>
+</li>
+</ul>
+<p>总结一下就是两点：<font color="red">提高了效率和性能节约资源、增加了功能。</font></p>
+<h1 id="2、从源码层面进行分析"><a href="#2、从源码层面进行分析" class="headerlink" title="2、从源码层面进行分析"></a>2、从源码层面进行分析</h1><p>参考:</p>
+<p><a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/dubbo-spi.html" target="_blank" rel="noopener">http://dubbo.apache.org/zh-cn/docs/source_code_guide/dubbo-spi.html</a></p>
 
       
     </div>
@@ -527,7 +569,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1、两种SPI的简单用法"><span class="nav-text">1、两种SPI的简单用法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2、从源码层面进行分析"><span class="nav-text">2、从源码层面进行分析</span></a></li></ol></div>
             
 
           </div>
