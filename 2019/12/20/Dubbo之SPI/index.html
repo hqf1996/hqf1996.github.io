@@ -79,16 +79,18 @@
 
 
 
-<meta name="description" content="前言Dubbo中的SPI机制，全称为 Service Provider Interface，是一种服务发现机制。是提供给扩展者使用的一种机制，比较类似于Spring中IoC的思想。关于Spring的IoC的具体分析留到后面学习Spring源码的时候再做分析，这边主要看的是Dubbo中SPI机制的实现。另外，我们知道jdk本身就有SPI，那么Dubbo中对SPI是如何实现的。另外补充一点，SPI是一">
+<meta name="description" content="前言Dubbo中的SPI机制，全称为 Service Provider Interface，是一种服务发现机制。是提供给扩展者使用的一种机制，比方说可以载入Dubbo中的各种可配置组件，比如：动态代理方式（ProxyFactory）、负载均衡策略（LoadBalance）、RCP协议（Protocol）、拦截器（Filter）、容器类型（Container）、集群方式（Cluster）和注册中心类">
 <meta name="keywords" content="Dubbo">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Dubbo之SPI">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;20&#x2F;Dubbo%E4%B9%8BSPI&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言Dubbo中的SPI机制，全称为 Service Provider Interface，是一种服务发现机制。是提供给扩展者使用的一种机制，比较类似于Spring中IoC的思想。关于Spring的IoC的具体分析留到后面学习Spring源码的时候再做分析，这边主要看的是Dubbo中SPI机制的实现。另外，我们知道jdk本身就有SPI，那么Dubbo中对SPI是如何实现的。另外补充一点，SPI是一">
+<meta property="og:description" content="前言Dubbo中的SPI机制，全称为 Service Provider Interface，是一种服务发现机制。是提供给扩展者使用的一种机制，比方说可以载入Dubbo中的各种可配置组件，比如：动态代理方式（ProxyFactory）、负载均衡策略（LoadBalance）、RCP协议（Protocol）、拦截器（Filter）、容器类型（Container）、集群方式（Cluster）和注册中心类">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-12-20T08:52:09.440Z">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Dubbo%E4%B9%8BSPI&#x2F;SPI%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E4%BE%8B%E5%AD%90.png">
+<meta property="og:updated_time" content="2019-12-22T09:24:23.756Z">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Dubbo%E4%B9%8BSPI&#x2F;SPI%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E4%BE%8B%E5%AD%90.png">
 
 
 
@@ -350,7 +352,7 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>Dubbo中的SPI机制，全称为 Service Provider Interface，是一种服务发现机制。是提供给扩展者使用的一种机制，比较类似于Spring中IoC的思想。关于Spring的IoC的具体分析留到后面学习Spring源码的时候再做分析，这边主要看的是Dubbo中SPI机制的实现。另外，我们知道jdk本身就有SPI，那么Dubbo中对SPI是如何实现的。另外补充一点，SPI是一种破坏双亲委派机制的做法，关于双亲委派机制可以看<a href="https://hqf1996.github.io/2019/08/19/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">本篇</a>第四节的部分，所以说一种机制的出现肯定有好也有坏，关键看的是在何种情况下的使用。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>Dubbo中的SPI机制，全称为 Service Provider Interface，是一种服务发现机制。是提供给扩展者使用的一种机制，比方说可以载入Dubbo中的各种可配置组件，比如：动态代理方式（ProxyFactory）、负载均衡策略（LoadBalance）、RCP协议（Protocol）、拦截器（Filter）、容器类型（Container）、集群方式（Cluster）和注册中心类型（RegistryFactory）等。比较类似于Spring中IoC的思想。关于Spring的IoC的具体分析留到后面学习Spring源码的时候再做分析，这边主要看的是Dubbo中SPI机制的实现。另外，我们知道jdk本身就有SPI，那么Dubbo中对SPI是如何实现的。另外补充一点，SPI是一种破坏双亲委派机制的做法，关于双亲委派机制可以看<a href="https://hqf1996.github.io/2019/08/19/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">本篇</a>第四节的部分，所以说一种机制的出现肯定有好也有坏，关键看的是在何种情况下的使用。</p>
 <a id="more"></a>
 
 <h1 id="1、两种SPI的简单用法"><a href="#1、两种SPI的简单用法" class="headerlink" title="1、两种SPI的简单用法"></a>1、两种SPI的简单用法</h1><p>先来简单的看一下jdk的spi与dubbo中的spi如何使用，这边引用官方的例子。</p>
@@ -393,8 +395,20 @@
 </li>
 </ul>
 <p>总结一下就是两点：<font color="red">提高了效率和性能节约资源、增加了功能。</font></p>
-<h1 id="2、从源码层面进行分析"><a href="#2、从源码层面进行分析" class="headerlink" title="2、从源码层面进行分析"></a>2、从源码层面进行分析</h1><p>参考:</p>
+<h1 id="2、从源码层面进行分析"><a href="#2、从源码层面进行分析" class="headerlink" title="2、从源码层面进行分析"></a>2、从源码层面进行分析</h1><p><strong>ExtensionLoader</strong>的源码位于 com.alibaba.dubbo.common.extension 包下，详细分析以上测试代码的几句话在源码层面到底干了啥。</p>
+<p>首先，获取ExtensionLoader实例：<code>ExtensionLoader.getExtensionLoader(Robot.class);</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ConcurrentMap&lt;Class&lt;?&gt;, ExtensionLoader&lt;?&gt;&gt; EXTENSION_LOADERS = <span class="keyword">new</span> ConcurrentHashMap&lt;Class&lt;?&gt;, ExtensionLoader&lt;?&gt;&gt;();</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">ExtensionLoader&lt;T&gt; <span class="title">getExtensionLoader</span><span class="params">(Class&lt;T&gt; type)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (type == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Extension type == null"</span>);</span><br><span class="line">    <span class="keyword">if</span> (!type.isInterface()) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Extension type("</span> + type + <span class="string">") is not interface!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 判断是否通过SPI注解定义的可扩展接口，也就是下面的那个函数。若不是则抛出异常。</span></span><br><span class="line">    <span class="keyword">if</span> (!withExtensionAnnotation(type)) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Extension type("</span> + type +</span><br><span class="line">                                           ") is not extension, because WITHOUT @" + SPI.class.getSimpleName() + " Annotation!");</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 先从EXTENSION_LOADERS中，根据传入可扩展类型type查找，也就是可扩展的接口，如Filter、Transporter等。这边EXTENSION_LOADERS是一个map。</span></span><br><span class="line">    ExtensionLoader&lt;T&gt; loader = (ExtensionLoader&lt;T&gt;) EXTENSION_LOADERS.get(type);</span><br><span class="line">    <span class="keyword">if</span> (loader == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 如果没有在EXTENSION_LOADERS中找到的话，new一个ExtensionLoader实例</span></span><br><span class="line">        EXTENSION_LOADERS.putIfAbsent(type, <span class="keyword">new</span> ExtensionLoader&lt;T&gt;(type));</span><br><span class="line">        loader = (ExtensionLoader&lt;T&gt;) EXTENSION_LOADERS.get(type);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> loader;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> &lt;T&gt; <span class="function"><span class="keyword">boolean</span> <span class="title">withExtensionAnnotation</span><span class="params">(Class&lt;T&gt; type)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> type.isAnnotationPresent(SPI<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ExtensionLoader实例的构造函数</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="title">ExtensionLoader</span><span class="params">(Class&lt;?&gt; type)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.type = type;</span><br><span class="line">    objectFactory = (type == ExtensionFactory.class ? null : ExtensionLoader.getExtensionLoader(ExtensionFactory.class).getAdaptiveExtension());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>ExtensionLoader在这边类似于工厂模式，提供了私有的构造器，其入参type为扩展接口类型。Dubbo通过SPI注解定义了可扩展的接口，如Filter、Transporter等。每个类型的扩展对应一个ExtensionLoader。SPI的value参数决定了默认的扩展实现。</p>
+<p>比如，以负载均衡为例。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/Dubbo%E4%B9%8BSPI/SPI%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E4%BE%8B%E5%AD%90.png" alt="SPI负载均衡"></p>
+<p>文件下配置了所有负载均衡的方式，也就是之前博客中提到的几种负载均衡机制。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">random=com.alibaba.dubbo.rpc.cluster.loadbalance.RandomLoadBalance</span><br><span class="line">roundrobin=com.alibaba.dubbo.rpc.cluster.loadbalance.RoundRobinLoadBalance</span><br><span class="line">leastactive=com.alibaba.dubbo.rpc.cluster.loadbalance.LeastActiveLoadBalance</span><br><span class="line">consistenthash=com.alibaba.dubbo.rpc.cluster.loadbalance.ConsistentHashLoadBalance</span><br></pre></td></tr></table></figure>
+
+<p>加载方式也就是 <code>ExtensionLoader.getExtensionLoader(LoadBalance.class)</code></p>
+<p>参考:</p>
 <p><a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/dubbo-spi.html" target="_blank" rel="noopener">http://dubbo.apache.org/zh-cn/docs/source_code_guide/dubbo-spi.html</a></p>
+<p><a href="https://www.jianshu.com/p/7daa38fc9711" target="_blank" rel="noopener">https://www.jianshu.com/p/7daa38fc9711</a></p>
 
       
     </div>
