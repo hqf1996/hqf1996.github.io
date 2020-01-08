@@ -88,7 +88,7 @@
 <meta property="og:description" content="前言Dubbo中的SPI机制，全称为 Service Provider Interface，是一种服务发现机制。是提供给扩展者使用的一种机制，比方说可以载入Dubbo中的各种可配置组件，比如：动态代理方式（ProxyFactory）、负载均衡策略（LoadBalance）、RCP协议（Protocol）、拦截器（Filter）、容器类型（Container）、集群方式（Cluster）和注册中心类">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Dubbo%E4%B9%8BSPI&#x2F;SPI%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E4%BE%8B%E5%AD%90.png">
-<meta property="og:updated_time" content="2020-01-01T08:58:22.553Z">
+<meta property="og:updated_time" content="2020-01-08T08:36:08.681Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Dubbo%E4%B9%8BSPI&#x2F;SPI%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E4%BE%8B%E5%AD%90.png">
 
@@ -462,7 +462,7 @@
 <p>6.3 处理active注解，将扩展名对应active注解存入cachedActivates</p>
 </blockquote>
 <p>至此，就很容易解释为什么dubbo能通过这种key、value的形式获取一个指定实现类的对象，而不像jdk spi那样一次性加载所有类的对象。主要的原因就是它是将所有类加载保存在一个map中，通过指定的key去获取到对应的class，在获取到之后才会对这个key的class进行反射，创建出一个对象，而不是和jdk spi一样，一下子将所有对象都创建出来。</p>
-<p>具体的流程我仿照dubbo spi写了个demo，有利于加深理解，可以访问<a href="https://github.com/hqf1996/hqfSPI" target="_blank" rel="noopener">该地址</a>参考。</p>
+<h1 id="3、仿Dubbo-SPI机制"><a href="#3、仿Dubbo-SPI机制" class="headerlink" title="3、仿Dubbo SPI机制"></a>3、仿Dubbo SPI机制</h1><p><strong>具体的流程我仿照dubbo spi写了个demo，有利于加深理解，可以访问<a href="https://github.com/hqf1996/hqfSPI" target="_blank" rel="noopener">该地址</a>参考。</strong></p>
 <hr>
 <p>参考:</p>
 <p><a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/dubbo-spi.html" target="_blank" rel="noopener">http://dubbo.apache.org/zh-cn/docs/source_code_guide/dubbo-spi.html</a></p>
@@ -645,7 +645,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1、两种SPI的简单用法"><span class="nav-text">1、两种SPI的简单用法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#jdk-SPI"><span class="nav-text">jdk SPI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dubbo-SPI"><span class="nav-text">Dubbo SPI</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2、从源码层面进行分析"><span class="nav-text">2、从源码层面进行分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#jdk-SPI-1"><span class="nav-text">jdk SPI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dubbo-SPI-1"><span class="nav-text">Dubbo SPI</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1、两种SPI的简单用法"><span class="nav-text">1、两种SPI的简单用法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#jdk-SPI"><span class="nav-text">jdk SPI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dubbo-SPI"><span class="nav-text">Dubbo SPI</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2、从源码层面进行分析"><span class="nav-text">2、从源码层面进行分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#jdk-SPI-1"><span class="nav-text">jdk SPI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dubbo-SPI-1"><span class="nav-text">Dubbo SPI</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3、仿Dubbo-SPI机制"><span class="nav-text">3、仿Dubbo SPI机制</span></a></li></ol></div>
             
 
           </div>
