@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/pic_32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/pic_16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="RocketMQ," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言NameServer是RocketMQ中一个十分重要的概念，还记得上一篇中提到启动消息队列的步骤吗，就是先启动NameServer，然后再启动Broker。NameServer是一个简单的路由注册中心，也就是相当于之前dubbo中ZK的地位，在开始本篇之前，先提出几个问题：  NameServer在整个架构中的作用是什么 NameServer中存储了Broker中的哪些信息 NameServe">
+<meta name="keywords" content="RocketMQ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RocketMQ源码学习之NameServer">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;01&#x2F;08&#x2F;RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer&#x2F;index.html">
+<meta property="og:site_name" content="hqfBlog">
+<meta property="og:description" content="前言NameServer是RocketMQ中一个十分重要的概念，还记得上一篇中提到启动消息队列的步骤吗，就是先启动NameServer，然后再启动Broker。NameServer是一个简单的路由注册中心，也就是相当于之前dubbo中ZK的地位，在开始本篇之前，先提出几个问题：  NameServer在整个架构中的作用是什么 NameServer中存储了Broker中的哪些信息 NameServe">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer&#x2F;rocketmq%E4%B9%8Bnameserver%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer&#x2F;NameServer%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E5%9B%BE.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer&#x2F;namesrv%E5%85%B3%E9%94%AE%E7%B1%BB1.png">
+<meta property="og:updated_time" content="2020-01-09T08:13:40.675Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer&#x2F;rocketmq%E4%B9%8Bnameserver%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/01/08/RocketMQ源码学习之NameServer/"/>
+
+
+
+
+
+  <title>RocketMQ源码学习之NameServer | hqfBlog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<!--<a href="https://github.com/hqf1996" target="_blank" rel="noopener"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>-->
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">hqfBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/08/RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="hqf1996">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hqfBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RocketMQ源码学习之NameServer</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-08T19:21:13+08:00">
+                2020-01-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/RocketMQ/" itemprop="url" rel="index">
+                    <span itemprop="name">RocketMQ</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>NameServer是RocketMQ中一个十分重要的概念，还记得<a href="https://hqf1996.github.io/2020/01/08/RocketMQ%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B9%8B%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E4%B8%8E%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/" target="_blank" rel="noopener">上一篇</a>中提到启动消息队列的步骤吗，就是先启动NameServer，然后再启动Broker。NameServer是一个简单的路由注册中心，也就是相当于之前dubbo中ZK的地位，在开始本篇之前，先提出几个问题：</p>
+<ul>
+<li>NameServer在整个架构中的作用是什么</li>
+<li>NameServer中存储了Broker中的哪些信息</li>
+<li>NameServer与Producer以及Consumer之前是什么关系</li>
+</ul>
+<a id="more"></a>
+
+<h1 id="一、基础概念"><a href="#一、基础概念" class="headerlink" title="一、基础概念"></a>一、基础概念</h1><p>官方文档这么介绍NameServer</p>
+<blockquote>
+<p>NameServer是一个非常简单的Topic路由注册中心，其角色类似Dubbo中的zookeeper，支持Broker的动态注册与发现。主要包括两个功能：<strong>Broker管理</strong>，NameServer接受Broker集群的注册信息并且保存下来作为路由信息的基本数据。然后提供心跳检测机制，检查Broker是否还存活；<strong>路由信息管理</strong>，每个NameServer将保存关于Broker集群的整个路由信息和用于客户端查询的队列信息。然后Producer和Conumser通过NameServer就可以知道整个Broker集群的路由信息，从而进行消息的投递和消费。NameServer通常也是集群的方式部署，各实例间相互不进行信息通讯。Broker是向每一台NameServer注册自己的路由信息，所以每一个NameServer实例上面都保存一份完整的路由信息。当某个NameServer因某种原因下线了，Broker仍然可以向其它NameServer同步其路由信息，Producer,Consumer仍然可以动态感知Broker的路由的信息。 </p>
+</blockquote>
+<p>按照我的理解总结一下：NameServer的作用是解耦Broker、Producer、Consumer三者。由Broker提供路由信息表，供生产者提供对应Topic的消息，消费者消费对应Topic的消息。</p>
+<p>写到这边我有一个疑问，为什么rocketMQ不直接使用ZK，而要自己造轮子，单独弄了个NameServer呢？结合找到的一些资料以及自己的理解，总结原因：其实在rocketMQ的早期版本是用到ZK来作为路由注册中心的，但是由于ZK太重了，而rocketMQ中只需要使用到一些简单的功能，比如topic的路由以及一些KV配置的管理，所以才有了这种轻量级的NameServer，也能减少运维成本。</p>
+<h1 id="二、启动过程"><a href="#二、启动过程" class="headerlink" title="二、启动过程"></a>二、启动过程</h1><p>还记得在当时启动消息队列的时候先执行的命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup sh mqnamesrv &amp;</span><br></pre></td></tr></table></figure>
+
+<p>看看里面到底做了什么操作</p>
+<p>发现<code>mqnamesrv</code>中最后一句</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh $&#123;ROCKETMQ_HOME&#125;/bin/runserver.sh org.apache.rocketmq.namesrv.NamesrvStartup $@</span><br></pre></td></tr></table></figure>
+
+<p>很容易发现，这是调用了<code>org.apache.rocketmq.namesrv.NamesrvStartup</code>这个启动类啊，<code>runserver.sh</code>中大多是一些虚拟机配置等等，就不多说了，直接找到<a href="https://rocketmq.apache.org/release_notes/release-notes-4.6.0/" target="_blank" rel="noopener">源码</a>来看一下这个类。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer/rocketmq%E4%B9%8Bnameserver%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B.png" alt="nameserver启动类"></p>
+<h1 id="三、源码分析"><a href="#三、源码分析" class="headerlink" title="三、源码分析"></a>三、源码分析</h1><p>整个NameServer启动涉及到的类并不是很多，先给出一个总的调用框架图</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer/NameServer%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E5%9B%BE.png" alt="NameServer调用框架图"></p>
+<p>先有个宏观的认识，首先创建两个配置类：<code>namesrvConfig</code>和<code>nettyServerConfig</code>，通过都配置文件的方式将配置内容存放在这两个类中，很显然，一个是用来做nameserver的配置，一个用于netty的启动。接着new出一个nameserver的控制器，接下去就是初始化这个控制器，控制器启动，Netty启动。其中主要用到了三个关键的类</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer/namesrv%E5%85%B3%E9%94%AE%E7%B1%BB1.png" alt="namesrv关键类"></p>
+<p><code>NamesrvStartup</code>、<code>NamesrvController</code>和<code>RouteInfoManager</code>分别为启动类、核心控制器类以及存放路由信息的类。</p>
+<h2 id="3-1-NamesrvStartup"><a href="#3-1-NamesrvStartup" class="headerlink" title="3.1 NamesrvStartup"></a>3.1 NamesrvStartup</h2><p><code>NamesrvStartup类</code>，基本的流程见注释。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> NamesrvController <span class="title">main0</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 填充了namesrvConfig和nettyServerConfig两个配置文件，并将其二作为参数创建Nameserver控制器对象</span></span><br><span class="line">        NamesrvController controller = createNamesrvController(args);</span><br><span class="line">        start(controller);</span><br><span class="line">        String tip = <span class="string">"The Name Server boot success. serializeType="</span> + RemotingCommand.getSerializeTypeConfigInThisServer();</span><br><span class="line">        log.info(tip);</span><br><span class="line">        System.out.printf(<span class="string">"%s%n"</span>, tip);</span><br><span class="line">        <span class="keyword">return</span> controller;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">        System.exit(-<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>进到<code>createNamesrvController(args)</code>方法中看一下具体流程</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> NamesrvController <span class="title">createNamesrvController</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException, JoranException </span>&#123;</span><br><span class="line">    System.setProperty(RemotingCommand.REMOTING_VERSION_KEY, Integer.toString(MQVersion.CURRENT_VERSION));</span><br><span class="line">    <span class="comment">//PackageConflictDetect.detectFastjson();</span></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	这段主要是根据运行时传递的参数生成commandLine命令行对象</span></span><br><span class="line"><span class="comment">	*/</span></span><br><span class="line">    Options options = ServerUtil.buildCommandlineOptions(<span class="keyword">new</span> Options());</span><br><span class="line">    commandLine = ServerUtil.parseCmdLine(<span class="string">"mqnamesrv"</span>, args, buildCommandlineOptions(options), <span class="keyword">new</span> PosixParser());</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">null</span> == commandLine) &#123;</span><br><span class="line">        System.exit(-<span class="number">1</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">// 这边创建两个配置的对象，也就是之前提及的namesrvConfig和nettyServerConfig。并通过读取配置文件的方式来初始化这两个对象</span></span><br><span class="line">    <span class="keyword">final</span> NamesrvConfig namesrvConfig = <span class="keyword">new</span> NamesrvConfig();</span><br><span class="line">    <span class="keyword">final</span> NettyServerConfig nettyServerConfig = <span class="keyword">new</span> NettyServerConfig();</span><br><span class="line">    nettyServerConfig.setListenPort(<span class="number">9876</span>);</span><br><span class="line">    <span class="keyword">if</span> (commandLine.hasOption(<span class="string">'c'</span>)) &#123;</span><br><span class="line">        String file = commandLine.getOptionValue(<span class="string">'c'</span>);</span><br><span class="line">        <span class="keyword">if</span> (file != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 输入流读取文件</span></span><br><span class="line">            InputStream in = <span class="keyword">new</span> BufferedInputStream(<span class="keyword">new</span> FileInputStream(file));</span><br><span class="line">            properties = <span class="keyword">new</span> Properties();</span><br><span class="line">            properties.load(in);</span><br><span class="line">            <span class="comment">// 装载配置</span></span><br><span class="line">            MixAll.properties2Object(properties, namesrvConfig);</span><br><span class="line">            MixAll.properties2Object(properties, nettyServerConfig);</span><br><span class="line"></span><br><span class="line">            namesrvConfig.setConfigStorePath(file);</span><br><span class="line"></span><br><span class="line">            System.out.printf(<span class="string">"load config properties file OK, %s%n"</span>, file);</span><br><span class="line">            in.close();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (commandLine.hasOption(<span class="string">'p'</span>)) &#123;</span><br><span class="line">        InternalLogger console = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_CONSOLE_NAME);</span><br><span class="line">        MixAll.printObjectProperties(console, namesrvConfig);</span><br><span class="line">        MixAll.printObjectProperties(console, nettyServerConfig);</span><br><span class="line">        System.exit(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    MixAll.properties2Object(ServerUtil.commandLine2Properties(commandLine), namesrvConfig);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">null</span> == namesrvConfig.getRocketmqHome()) &#123;</span><br><span class="line">        System.out.printf(<span class="string">"Please set the %s variable in your environment to match the location of the RocketMQ installation%n"</span>, MixAll.ROCKETMQ_HOME_ENV);</span><br><span class="line">        System.exit(-<span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">// 配置日志信息</span></span><br><span class="line">    LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();</span><br><span class="line">    JoranConfigurator configurator = <span class="keyword">new</span> JoranConfigurator();</span><br><span class="line">    configurator.setContext(lc);</span><br><span class="line">    lc.reset();</span><br><span class="line">    configurator.doConfigure(namesrvConfig.getRocketmqHome() + <span class="string">"/conf/logback_namesrv.xml"</span>);</span><br><span class="line"></span><br><span class="line">    log = InternalLoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);</span><br><span class="line"></span><br><span class="line">    MixAll.printObjectProperties(log, namesrvConfig);</span><br><span class="line">    MixAll.printObjectProperties(log, nettyServerConfig);</span><br><span class="line">	<span class="comment">// 通过之前初始化的namesrvConfig和nettyServerConfig创建NamesrvController控制器对象</span></span><br><span class="line">    <span class="keyword">final</span> NamesrvController controller = <span class="keyword">new</span> NamesrvController(namesrvConfig, nettyServerConfig);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// remember all configs to prevent discard</span></span><br><span class="line">    controller.getConfiguration().registerConfig(properties);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> controller;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上一段代码是启动namesrv的关键代码部分，细节的地方暂时先不考究，比如利用commandLine命令行工具读取配置文件，如何装配两个配置对象等等，这边我的关注点主要流程，即在此步我们完成了两个配置文件的装配工作以及控制器对象的创建工作，在看源码的过程中再加入一些猜测，其实就可以猜到后面的步骤应该就是初始化控制器，启动控制器并且后面MQ各个部分通信肯定是要通过网络的方式进行的，也就是启动Netty。</p>
+<p>再看接下去的一步<code>start(controller)</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> NamesrvController <span class="title">start</span><span class="params">(<span class="keyword">final</span> NamesrvController controller)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">null</span> == controller) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"NamesrvController is null"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">// 控制器初始化</span></span><br><span class="line">    <span class="keyword">boolean</span> initResult = controller.initialize();</span><br><span class="line">    <span class="keyword">if</span> (!initResult) &#123;</span><br><span class="line">        controller.shutdown();</span><br><span class="line">        System.exit(-<span class="number">3</span>);</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">// 控制器优雅停止</span></span><br><span class="line">    Runtime.getRuntime().addShutdownHook(<span class="keyword">new</span> ShutdownHookThread(log, <span class="keyword">new</span> Callable&lt;Void&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> Void <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">            controller.shutdown();</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;));</span><br><span class="line">	<span class="comment">// 控制器启动</span></span><br><span class="line">    controller.start();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> controller;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>虽然这步的函数名是start，但是里面主要是做了控制器初始化、控制器优雅停止以及控制器启动三步，具体的步骤还要看红色方框中的第二个重要的类<code>NamesrvController</code>。</p>
+<p>到此为止，继续跟踪到<code>NamesrvController</code>中对这三个步骤的具体实现。注意，控制性优雅停止这边使用的是钩子线程，这个不是本篇的重点，暂且可以认为是在JVM关闭时（以下五种场景会被调用 a.程序正常退出使用。b.System.exit()。c.终端使用Ctrl+C触发的中断。d.系统关闭。e.使用Kill pid命令干掉进程。）触发这个线程，来进行一些资源的回收工作，可以参考<a href="https://blog.csdn.net/coslay/article/details/45644929" target="_blank" rel="noopener">这篇博客</a>。</p>
+<h2 id="3-2-NamesrvController"><a href="#3-2-NamesrvController" class="headerlink" title="3.2 NamesrvController"></a>3.2 NamesrvController</h2><p><code>NamesrvController类中的构造函数</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">NamesrvController</span><span class="params">(NamesrvConfig namesrvConfig, NettyServerConfig nettyServerConfig)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// nameserver配置文件，传入的参数</span></span><br><span class="line">    <span class="keyword">this</span>.namesrvConfig = namesrvConfig;</span><br><span class="line">    <span class="comment">// netty配置文件，传入的参数</span></span><br><span class="line">    <span class="keyword">this</span>.nettyServerConfig = nettyServerConfig;</span><br><span class="line">    <span class="comment">// KV配置管理创建，配置文件以json的格式存放，位置是/namesrv/kvConfig.json，</span></span><br><span class="line">    <span class="keyword">this</span>.kvConfigManager = <span class="keyword">new</span> KVConfigManager(<span class="keyword">this</span>);</span><br><span class="line">    <span class="comment">// 路由信息管理创建（下文详细说，比较重要）</span></span><br><span class="line">    <span class="keyword">this</span>.routeInfoManager = <span class="keyword">new</span> RouteInfoManager();</span><br><span class="line">    <span class="comment">// broker连接事件处理服务,处理Broker连接发生变化的服务，判断一个broker是否存活，就像是ZK中的心跳检测</span></span><br><span class="line">    <span class="keyword">this</span>.brokerHousekeepingService = <span class="keyword">new</span> BrokerHousekeepingService(<span class="keyword">this</span>);</span><br><span class="line">    <span class="keyword">this</span>.configuration = <span class="keyword">new</span> Configuration(</span><br><span class="line">        log,</span><br><span class="line">        <span class="keyword">this</span>.namesrvConfig, <span class="keyword">this</span>.nettyServerConfig</span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">this</span>.configuration.setStorePathFromConfig(<span class="keyword">this</span>.namesrvConfig, <span class="string">"configStorePath"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>NamesrvController类中的controller.initialize()方法</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">initialize</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="comment">//  KV配置管理加载</span></span><br><span class="line">    <span class="keyword">this</span>.kvConfigManager.load();</span><br><span class="line">	<span class="comment">// 创建远程服务对象，和netty相关</span></span><br><span class="line">    <span class="keyword">this</span>.remotingServer = <span class="keyword">new</span> NettyRemotingServer(<span class="keyword">this</span>.nettyServerConfig, <span class="keyword">this</span>.brokerHousekeepingService);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.remotingExecutor =</span><br><span class="line">        Executors.newFixedThreadPool(nettyServerConfig.getServerWorkerThreads(), <span class="keyword">new</span> ThreadFactoryImpl(<span class="string">"RemotingExecutorThread_"</span>));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.registerProcessor();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 定时任务创建：从方法名就能看出这步的作用是管理broker的路由信息，扫描不活跃的broker，定期清除。在5s后开始执行，10s执行一次。</span></span><br><span class="line">    <span class="keyword">this</span>.scheduledExecutorService.scheduleAtFixedRate(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            NamesrvController.<span class="keyword">this</span>.routeInfoManager.scanNotActiveBroker();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, <span class="number">5</span>, <span class="number">10</span>, TimeUnit.SECONDS);</span><br><span class="line">	<span class="comment">// 定时任务创建：在1分钟后开始执行，每10分钟打印一次KV配置信息</span></span><br><span class="line">    <span class="keyword">this</span>.scheduledExecutorService.scheduleAtFixedRate(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            NamesrvController.<span class="keyword">this</span>.kvConfigManager.printAllPeriodically();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, <span class="number">1</span>, <span class="number">10</span>, TimeUnit.MINUTES);</span><br><span class="line">	<span class="comment">/**......省略*/</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>总结一下，<code>initialize()</code>方法中主要是KV配置的加载，创建远程调用对象，后续用来调用netty，创建两个定时任务：监控broker路由信息以及KV信息。</p>
+<p><code>shutdown()</code>：主要用于回收线程池、netty连接等资源。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">shutdown</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.remotingServer.shutdown();</span><br><span class="line">    <span class="keyword">this</span>.remotingExecutor.shutdown();</span><br><span class="line">    <span class="keyword">this</span>.scheduledExecutorService.shutdown();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.fileWatchService != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>.fileWatchService.shutdown();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>start()</code>：开启NettyRemotingServer服务，也就是netty服务开启。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.remotingServer.start();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.fileWatchService != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>.fileWatchService.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>至此为止，nameserver启动完毕，整体分析思路都是按照一开始的流程图进行，也很容易理解。</p>
+<h2 id="3-3-RouteInfoManager"><a href="#3-3-RouteInfoManager" class="headerlink" title="3.3 RouteInfoManager"></a>3.3 RouteInfoManager</h2><p>在NamesrvController的构造函数中，其中有一个<code>RouteInfoManager</code>类的创建，用于管理路由信息，也就是broker与nameserver之间的信息，来看看都保存了哪些信息。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**成员变量*/</span></span><br><span class="line"><span class="comment">// topic消息队列路由表信息，用来保存topic对应的broker名称等。</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> HashMap&lt;String<span class="comment">/* topic */</span>, List&lt;QueueData&gt;&gt; topicQueueTable;</span><br><span class="line"><span class="comment">// broker结点信息。</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> HashMap&lt;String<span class="comment">/* brokerName */</span>, BrokerData&gt; brokerAddrTable;</span><br><span class="line"><span class="comment">// Broker集群信息，存储了集群中所有的Brokername。</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> HashMap&lt;String<span class="comment">/* clusterName */</span>, Set&lt;String<span class="comment">/* brokerName */</span>&gt;&gt; clusterAddrTable;</span><br><span class="line"><span class="comment">// Broker状态信息，Nameserver每次收到Broker的心跳包就会更新该信息。</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> HashMap&lt;String<span class="comment">/* brokerAddr */</span>, BrokerLiveInfo&gt; brokerLiveTable;</span><br><span class="line"><span class="comment">// 维护broker地址与Filter列表关系</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> HashMap&lt;String<span class="comment">/* brokerAddr */</span>, List&lt;String&gt;<span class="comment">/* Filter Server */</span>&gt; filterServerTable;</span><br><span class="line"><span class="comment">/**构造函数*/</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">RouteInfoManager</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.topicQueueTable = <span class="keyword">new</span> HashMap&lt;String, List&lt;QueueData&gt;&gt;(<span class="number">1024</span>);</span><br><span class="line">    <span class="keyword">this</span>.brokerAddrTable = <span class="keyword">new</span> HashMap&lt;String, BrokerData&gt;(<span class="number">128</span>);</span><br><span class="line">    <span class="keyword">this</span>.clusterAddrTable = <span class="keyword">new</span> HashMap&lt;String, Set&lt;String&gt;&gt;(<span class="number">32</span>);</span><br><span class="line">    <span class="keyword">this</span>.brokerLiveTable = <span class="keyword">new</span> HashMap&lt;String, BrokerLiveInfo&gt;(<span class="number">256</span>);</span><br><span class="line">    <span class="keyword">this</span>.filterServerTable = <span class="keyword">new</span> HashMap&lt;String, List&lt;String&gt;&gt;(<span class="number">256</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>topicQueueTable</code></p>
+<p>首先要知道的是，一个Topic拥有多个消息队列，如果不指定队列的数量，一个Broker会为每个Topic创建4个读队列和4个写队列。key是topic的名字，value值是List<QueueData>，简单看一下QueueData类包括哪些内容</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> String brokerName;  <span class="comment">//broker名称</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> readQueueNums;  <span class="comment">// 可读的队列数</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> writeQueueNums;  <span class="comment">//可写的队列数</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> perm;  <span class="comment">// 读写权限</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> topicSynFlag;  <span class="comment">// 同步标志</span></span><br></pre></td></tr></table></figure>
+
+<p><code>brokerAddrTable</code></p>
+<p>key是brokerName，value是BrokerData对象，其中包括内容</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> String cluster;  <span class="comment">// 集群名称</span></span><br><span class="line"><span class="keyword">private</span> String brokerName;  <span class="comment">// brokerName</span></span><br><span class="line"><span class="keyword">private</span> HashMap&lt;Long<span class="comment">/* brokerId */</span>, String<span class="comment">/* broker address */</span>&gt; brokerAddrs;  <span class="comment">// 存储同一个brokerName下的所有主从设备的id和地址</span></span><br></pre></td></tr></table></figure>
+
+<p>从上一篇的结构图中可以看出，rocketMQ主从模式允许有一台主服务器，也就是Master，多台从服务器，也就是slavers，其中它们的brokerName是一样的，但是brokerId确实不同的，默认0是主服务器的id，从服务器id从1开始递增即可。</p>
+<p><code>clusterAddrTable</code></p>
+<p>key是集群名，value是brokerName的集合。</p>
+<p><code>brokerLiveTable</code></p>
+<p>key是broker地址，value是BrokerLiveInfo对象，其中包括</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">long</span> lastUpdateTimestamp;  <span class="comment">//最后的更新时间</span></span><br><span class="line"><span class="keyword">private</span> DataVersion dataVersion;</span><br><span class="line"><span class="keyword">private</span> Channel channel;</span><br><span class="line"><span class="keyword">private</span> String haServerAddr;</span><br></pre></td></tr></table></figure>
+
+<p><code>filterServerTable</code></p>
+<p>key是brokerAddr，也就是broker地址，value是过滤的服务，因为一个broker可能会过滤多个服务，所以对应的value是一个集合。</p>
+<p>在了解了RouteInfoManager中保存的一些信息之后，我们知道broker会通过定时任务定时发送心跳包，这块先暂时不分析，本篇简单说一下当之前启动的netty服务监听到心跳包后，如何通过broker发送的心跳包来更新nameserver中的这些信息的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> RegisterBrokerResult <span class="title">registerBroker</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> String clusterName,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> String brokerAddr,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> String brokerName,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> <span class="keyword">long</span> brokerId,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> String haServerAddr,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> TopicConfigSerializeWrapper topicConfigWrapper,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> List&lt;String&gt; filterServerList,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> Channel channel)</span> </span>&#123;</span><br><span class="line">    RegisterBrokerResult result = <span class="keyword">new</span> RegisterBrokerResult();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">this</span>.lock.writeLock().lockInterruptibly();</span><br><span class="line">            <span class="comment">// 获得当前集群下所有的brokerNames</span></span><br><span class="line">            Set&lt;String&gt; brokerNames = <span class="keyword">this</span>.clusterAddrTable.get(clusterName);</span><br><span class="line">            <span class="comment">// 初始化</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">null</span> == brokerNames) &#123;</span><br><span class="line">                brokerNames = <span class="keyword">new</span> HashSet&lt;String&gt;();</span><br><span class="line">                <span class="keyword">this</span>.clusterAddrTable.put(clusterName, brokerNames);</span><br><span class="line">            &#125;</span><br><span class="line">            brokerNames.add(brokerName);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">boolean</span> registerFirst = <span class="keyword">false</span>;</span><br><span class="line">            <span class="comment">// 获取该brokerName下的BrokerData对象</span></span><br><span class="line">            BrokerData brokerData = <span class="keyword">this</span>.brokerAddrTable.get(brokerName);</span><br><span class="line">            <span class="comment">// 初始化</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">null</span> == brokerData) &#123;</span><br><span class="line">                registerFirst = <span class="keyword">true</span>;</span><br><span class="line">                brokerData = <span class="keyword">new</span> BrokerData(clusterName, brokerName, <span class="keyword">new</span> HashMap&lt;Long, String&gt;());</span><br><span class="line">                <span class="keyword">this</span>.brokerAddrTable.put(brokerName, brokerData);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 获得该brokerName下所有机器，也就是主从设备的broker id和对应的机器地址</span></span><br><span class="line">            Map&lt;Long, String&gt; brokerAddrsMap = brokerData.getBrokerAddrs();</span><br><span class="line">            <span class="comment">//Switch slave to master: first remove &lt;1, IP:PORT&gt; in namesrv, then add &lt;0, IP:PORT&gt;</span></span><br><span class="line">            <span class="comment">//The same IP:PORT must only have one record in brokerAddrTable</span></span><br><span class="line">            <span class="comment">// 遍历当前brokerName下的机器</span></span><br><span class="line">            Iterator&lt;Entry&lt;Long, String&gt;&gt; it = brokerAddrsMap.entrySet().iterator();</span><br><span class="line">            <span class="keyword">while</span> (it.hasNext()) &#123;</span><br><span class="line">                Entry&lt;Long, String&gt; item = it.next();</span><br><span class="line">                <span class="comment">// 如果发送心跳包的这台服务器在nameserver的brokerAddrTable中的id发生改变，则移除</span></span><br><span class="line">                <span class="keyword">if</span> (<span class="keyword">null</span> != brokerAddr &amp;&amp; brokerAddr.equals(item.getValue()) &amp;&amp; brokerId != item.getKey()) &#123;</span><br><span class="line">                    it.remove();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 判断是否已经注册过，也可以说是没有发生变化</span></span><br><span class="line">            String oldAddr = brokerData.getBrokerAddrs().put(brokerId, brokerAddr);</span><br><span class="line">            registerFirst = registerFirst || (<span class="keyword">null</span> == oldAddr);</span><br><span class="line">            <span class="comment">// 如果brokerid是0，也就是该服务器是主服务器，则创建topic队列</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">null</span> != topicConfigWrapper</span><br><span class="line">                &amp;&amp; MixAll.MASTER_ID == brokerId) &#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="keyword">this</span>.isBrokerTopicConfigChanged(brokerAddr, topicConfigWrapper.getDataVersion())</span><br><span class="line">                    || registerFirst) &#123;</span><br><span class="line">                    ConcurrentMap&lt;String, TopicConfig&gt; tcTable =</span><br><span class="line">                        topicConfigWrapper.getTopicConfigTable();</span><br><span class="line">                    <span class="keyword">if</span> (tcTable != <span class="keyword">null</span>) &#123;</span><br><span class="line">                        <span class="keyword">for</span> (Map.Entry&lt;String, TopicConfig&gt; entry : tcTable.entrySet()) &#123;</span><br><span class="line">                            <span class="keyword">this</span>.createAndUpdateQueueData(brokerName, entry.getValue());</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 更新brokerLiveTable信息</span></span><br><span class="line">            BrokerLiveInfo prevBrokerLiveInfo = <span class="keyword">this</span>.brokerLiveTable.put(brokerAddr,</span><br><span class="line">                                                                         <span class="keyword">new</span> BrokerLiveInfo(</span><br><span class="line">                                                                             System.currentTimeMillis(),</span><br><span class="line">                                                                             topicConfigWrapper.getDataVersion(),</span><br><span class="line">                                                                             channel,</span><br><span class="line">                                                                             haServerAddr));</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">null</span> == prevBrokerLiveInfo) &#123;</span><br><span class="line">                log.info(<span class="string">"new broker registered, &#123;&#125; HAServer: &#123;&#125;"</span>, brokerAddr, haServerAddr);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 更新filterServerTable信息</span></span><br><span class="line">            <span class="keyword">if</span> (filterServerList != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (filterServerList.isEmpty()) &#123;</span><br><span class="line">                    <span class="keyword">this</span>.filterServerTable.remove(brokerAddr);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">this</span>.filterServerTable.put(brokerAddr, filterServerList);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 当前发送心跳包的broker是从服务器，则保存到result中并返回</span></span><br><span class="line">            <span class="keyword">if</span> (MixAll.MASTER_ID != brokerId) &#123;</span><br><span class="line">                String masterAddr = brokerData.getBrokerAddrs().get(MixAll.MASTER_ID);</span><br><span class="line">                <span class="keyword">if</span> (masterAddr != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    BrokerLiveInfo brokerLiveInfo = <span class="keyword">this</span>.brokerLiveTable.get(masterAddr);</span><br><span class="line">                    <span class="keyword">if</span> (brokerLiveInfo != <span class="keyword">null</span>) &#123;</span><br><span class="line">                        result.setHaServerAddr(brokerLiveInfo.getHaServerAddr());</span><br><span class="line">                        result.setMasterAddr(masterAddr);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">this</span>.lock.writeLock().unlock();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        log.error(<span class="string">"registerBroker Exception"</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>清除不活跃的broker。在3.2节的时候我们就有讲到在NameServer控制器初始化的时候就会通过定时任务删除不活跃的broker，也就是下面的这个函数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">scanNotActiveBroker</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Iterator&lt;Entry&lt;String, BrokerLiveInfo&gt;&gt; it = <span class="keyword">this</span>.brokerLiveTable.entrySet().iterator();</span><br><span class="line">    <span class="keyword">while</span> (it.hasNext()) &#123;</span><br><span class="line">        <span class="comment">// key为broker地址</span></span><br><span class="line">        Entry&lt;String, BrokerLiveInfo&gt; next = it.next();</span><br><span class="line">        <span class="keyword">long</span> last = next.getValue().getLastUpdateTimestamp();</span><br><span class="line">        <span class="keyword">if</span> ((last + BROKER_CHANNEL_EXPIRED_TIME) &lt; System.currentTimeMillis()) &#123;</span><br><span class="line">            RemotingUtil.closeChannel(next.getValue().getChannel());</span><br><span class="line">            it.remove();</span><br><span class="line">            log.warn(<span class="string">"The broker channel expired, &#123;&#125; &#123;&#125;ms"</span>, next.getKey(), BROKER_CHANNEL_EXPIRED_TIME);</span><br><span class="line">            <span class="keyword">this</span>.onChannelDestroy(next.getKey(), next.getValue().getChannel());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>遍历brokerLiveTable，通过最后更新的时间来决定是否清除这个broker</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> BROKER_CHANNEL_EXPIRED_TIME = <span class="number">1000</span> * <span class="number">60</span> * <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
+
+<p>当超过2分钟没有更新，则移除它并执行销毁逻辑，也就是用<code>onChannelDestroy()方法</code>从其他hashmap中移除掉这台服务器。</p>
+<hr>
+<p>参考</p>
+<p><a href="https://cloud.tencent.com/developer/article/1374005" target="_blank" rel="noopener">https://cloud.tencent.com/developer/article/1374005</a></p>
+<p><a href="https://juejin.im/post/5c98c5246fb9a070ee4296fd#heading-1" target="_blank" rel="noopener">https://juejin.im/post/5c98c5246fb9a070ee4296fd#heading-1</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/RocketMQ/" rel="tag"># RocketMQ</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/08/RocketMQ%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B9%8B%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E4%B8%8E%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/" rel="next" title="RocketMQ基础概念之消息生产与消息消费">
+                <i class="fa fa-chevron-left"></i> RocketMQ基础概念之消息生产与消息消费
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png"
+                alt="hqf1996" />
+            
+              <p class="site-author-name" itemprop="name">hqf1996</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">36</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">38</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、基础概念"><span class="nav-text">一、基础概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、启动过程"><span class="nav-text">二、启动过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三、源码分析"><span class="nav-text">三、源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-NamesrvStartup"><span class="nav-text">3.1 NamesrvStartup</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-NamesrvController"><span class="nav-text">3.2 NamesrvController</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-RouteInfoManager"><span class="nav-text">3.3 RouteInfoManager</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">hqf1996</span>
+
+  
+</div>
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共字 |</span>
+</div>
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
