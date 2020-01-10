@@ -89,7 +89,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8&#x2F;%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8&#x2F;%E6%B6%88%E6%81%AF%E5%9C%A8CommitLog%E5%92%8CConsumeQueue%E4%B8%AD%E7%9A%84%E5%AD%98%E5%82%A8.png">
-<meta property="og:updated_time" content="2020-01-10T07:32:42.948Z">
+<meta property="og:updated_time" content="2020-01-10T07:51:34.624Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8&#x2F;%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84.png">
 
@@ -373,9 +373,17 @@
 <p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E6%B6%88%E6%81%AF%E5%9C%A8CommitLog%E5%92%8CConsumeQueue%E4%B8%AD%E7%9A%84%E5%AD%98%E5%82%A8.png" alt="commitLog与ConsumeQueue的对应关系"></p>
 <p>下面介绍一下RocketMQ中的mmap内存映射技术—MappedByteBuffer</p>
 <p>一般来说，一台服务器把本机磁盘文件的内容发送到客户端分为以下几步：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">数据---&gt;内核态---&gt;用户态---&gt;网络驱动内核---&gt;网卡---&gt;数据</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">数据---&gt;内核态（内核IO缓冲区）---&gt;用户态（进程私有空间）---&gt;网络驱动内核---&gt;网卡---&gt;数据</span><br></pre></td></tr></table></figure>
 
-<p>mmap内存映射和普通标准IO操作的本质区别在于它并不需要将文件中的数据先拷贝至OS的内核IO缓冲区，而是可以直接将用户进程私有地址空间中的一块区域与文件对象建立映射关系，这样程序就好像可以直接从内存中完成对文件读/写操作一样。也就是数据能直接从磁盘到用户空间中，看着就像是直接读入到内存中。</p>
+<p>mmap内存映射和普通标准IO操作的本质区别在于它并不需要将文件中的数据先拷贝至OS的内核IO缓冲区，而是可以直接将用户进程私有地址空间中的一块区域与文件对象建立映射关系，这样程序就好像可以直接从内存中完成对文件读/写操作一样。也就是数据能直接从磁盘到用户空间中，看着就像是直接读入到内存中。这种技术也称为“<strong>零拷贝</strong>”技术。</p>
+<p>但是也有一些限制之处</p>
+<blockquote>
+<p><strong>a.Mmap映射的内存空间释放的问题</strong>；由于映射的内存空间本身就不属于JVM的堆内存区（Java Heap），因此其不受JVM GC的控制，卸载这部分内存空间需要通过系统调用 unmap()方法来实现。然而unmap()方法是FileChannelImpl类里实现的私有方法，无法直接显示调用。<strong>RocketMQ中的做法是</strong>，通过Java反射的方式调用“sun.misc”包下的Cleaner类的clean()方法来释放映射占用的内存空间；<br><strong>b.MappedByteBuffer内存映射大小限制</strong>；因为其占用的是虚拟内存（非JVM的堆内存），大小不受JVM的-Xmx参数限制，但其大小也受到OS虚拟内存大小的限制。一般来说，一次只能映射1.5~2G 的文件至用户态的虚拟内存空间，这也是为何RocketMQ默认设置单个CommitLog日志数据文件为1G的原因了；<br><strong>c.使用MappedByteBuffe的其他问题</strong>；会存在内存占用率较高和文件关闭不确定性的问题。</p>
+</blockquote>
+<p><strong>刷盘机制</strong></p>
+<p>同步刷盘：在返回写成功状态时，消息已经被写入磁盘。具体流程是，消息写入内存的PageCache后，立刻通知刷盘线程刷盘， 然后等待刷盘完成，刷盘线程执行完成后唤醒等待的线程，返回消息写成功的状态。</p>
+<p>异步刷盘：在返回写成功状态时，消息可能只是被写入了内存的PageCache，写操作的返回快，吞吐量大；当内存里的消息量积累到一定程度时，统一触发写磁盘动作，快速写入。</p>
+<p>总结以上内容：在消息存储中主要做了存取两方面的优化，在存的方面，让消息存成一个大文件，为了读取的速度考虑，并且可以根据具体的业务场景选择不同的刷盘机制。在取的方面，考虑<code>ConsumeQueue</code>索引文件，也能支持集群模式下多个用户共同消费，并且用了零拷贝技术。</p>
 <hr>
 <p>参考</p>
 <p><a href="https://www.jianshu.com/p/6d0c118c17de" target="_blank" rel="noopener">https://www.jianshu.com/p/6d0c118c17de</a></p>
