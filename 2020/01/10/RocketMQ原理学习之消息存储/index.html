@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="RPC,ZooKeeper," />
+  <meta name="keywords" content="RocketMQ," />
 
 
 
@@ -79,16 +79,19 @@
 
 
 
-<meta name="description" content="前言此版本加入了ZooKeeper作为服务治理的方法。整体的流程很简单，服务者通过Zookeeper注册服务，消费者通过ZooKeeper来获取提供服务的服务者，从而实现对应方法调用。">
-<meta name="keywords" content="RPC,ZooKeeper">
+<meta name="description" content="前言消息存储是消息队列中最为重要的一部分，因为对其有高可靠性的要求，就要求数据进行持久化存储。作为数据的存储介质，无非就是数据库和文件系统两种，比如ActiveMQ就是将数据存储在DB中，而rocketMQ则是将数据存放在文件系统中。本篇主要从保证rocketMQ的读写性能出发，分析其中的原理。">
+<meta name="keywords" content="RocketMQ">
 <meta property="og:type" content="article">
-<meta property="og:title" content="实现一个自己的RPC框架6.0">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;01&#x2F;06&#x2F;%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B66-0&#x2F;index.html">
+<meta property="og:title" content="RocketMQ原理学习之消息存储">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;01&#x2F;10&#x2F;RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言此版本加入了ZooKeeper作为服务治理的方法。整体的流程很简单，服务者通过Zookeeper注册服务，消费者通过ZooKeeper来获取提供服务的服务者，从而实现对应方法调用。">
+<meta property="og:description" content="前言消息存储是消息队列中最为重要的一部分，因为对其有高可靠性的要求，就要求数据进行持久化存储。作为数据的存储介质，无非就是数据库和文件系统两种，比如ActiveMQ就是将数据存储在DB中，而rocketMQ则是将数据存放在文件系统中。本篇主要从保证rocketMQ的读写性能出发，分析其中的原理。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-01-06T09:13:52.884Z">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8&#x2F;%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8&#x2F;%E6%B6%88%E6%81%AF%E5%9C%A8CommitLog%E5%92%8CConsumeQueue%E4%B8%AD%E7%9A%84%E5%AD%98%E5%82%A8.png">
+<meta property="og:updated_time" content="2020-01-10T07:32:42.948Z">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8&#x2F;%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84.png">
 
 
 
@@ -118,13 +121,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2020/01/06/实现一个自己的RPC框架6-0/"/>
+  <link rel="canonical" href="http://yoursite.com/2020/01/10/RocketMQ原理学习之消息存储/"/>
 
 
 
 
 
-  <title>实现一个自己的RPC框架6.0 | hqfBlog</title>
+  <title>RocketMQ原理学习之消息存储 | hqfBlog</title>
   
 
 
@@ -261,7 +264,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/06/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B66-0/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/10/RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="hqf1996">
@@ -278,7 +281,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">实现一个自己的RPC框架6.0</h1>
+          <h1 class="post-title" itemprop="name headline">RocketMQ原理学习之消息存储</h1>
         
 
         <div class="post-meta">
@@ -290,8 +293,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-06T17:00:44+08:00">
-                2020-01-06
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-10T11:10:49+08:00">
+                2020-01-10
               </time>
             
 
@@ -313,8 +316,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/RPC/" itemprop="url" rel="index">
-                    <span itemprop="name">RPC</span>
+                  <a href="/categories/RocketMQ/" itemprop="url" rel="index">
+                    <span itemprop="name">RocketMQ</span>
                   </a>
                 </span>
 
@@ -350,16 +353,32 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>此版本加入了ZooKeeper作为服务治理的方法。整体的流程很简单，服务者通过Zookeeper注册服务，消费者通过ZooKeeper来获取提供服务的服务者，从而实现对应方法调用。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>消息存储是消息队列中最为重要的一部分，因为对其有高可靠性的要求，就要求数据进行持久化存储。作为数据的存储介质，无非就是数据库和文件系统两种，比如ActiveMQ就是将数据存储在DB中，而rocketMQ则是将数据存放在文件系统中。本篇主要从保证rocketMQ的读写性能出发，分析其中的原理。</p>
 <a id="more"></a>
 
-<h1 id="一、ZooKeeper简介"><a href="#一、ZooKeeper简介" class="headerlink" title="一、ZooKeeper简介"></a>一、ZooKeeper简介</h1><p>ZooKeeper是一个为分布式应用提供一致性服务的软件，提供的功能包括：配置维护、域名服务、分布式同步、组服务等。</p>
-<p>这边我用的是ZK的Java客户端实现相关模块的编码，通过代码简单介绍一下相关的方法。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">myTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String connectString = <span class="string">"10.66.104.159:2181"</span>;</span><br><span class="line">    <span class="keyword">private</span> Integer sessionTimeout = <span class="number">2000</span>;</span><br><span class="line">    ZooKeeper zkClient;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 初始化</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> IOException</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        zkClient = <span class="keyword">new</span> ZooKeeper(connectString, sessionTimeout, <span class="keyword">new</span> Watcher() &#123;</span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(WatchedEvent watchedEvent)</span> </span>&#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    getDataAndWatch();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (KeeperException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建结点</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">createNode</span><span class="params">()</span> <span class="keyword">throws</span> KeeperException, InterruptedException </span>&#123;</span><br><span class="line">        String path = zkClient.create(<span class="string">"/myTest"</span>, <span class="string">"hello"</span>.getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);</span><br><span class="line">        System.out.println(path);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取子节点并监控结点的变化</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">getDataAndWatch</span><span class="params">()</span> <span class="keyword">throws</span> KeeperException, InterruptedException </span>&#123;</span><br><span class="line">        List&lt;String&gt; children = zkClient.getChildren(<span class="string">"/"</span>, <span class="keyword">true</span>);</span><br><span class="line">        <span class="keyword">for</span> (String child : children) &#123;</span><br><span class="line">            System.out.println(child);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 判断结点是否存在</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">exist</span><span class="params">()</span> <span class="keyword">throws</span> KeeperException, InterruptedException </span>&#123;</span><br><span class="line">        Stat exists = zkClient.exists(<span class="string">"/myTest"</span>, <span class="keyword">false</span>);</span><br><span class="line">        System.out.println(exists);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="一、数据库和文件系统存储对比"><a href="#一、数据库和文件系统存储对比" class="headerlink" title="一、数据库和文件系统存储对比"></a>一、数据库和文件系统存储对比</h1><p>数据库作为存储介质：我总结有两点不是很好的地方。其一是在单表数据量达到千万级别的情况下，其IO读写性能往往会出现瓶颈。其二是在可靠性方面，如果一旦DB出现故障，则MQ的消息就无法落盘存储会导致线上故障。</p>
+<p>文件系统作为存储介质：将消息存储在文件系统中一种高效率、高可靠性和高性能的数据持久化方式。除非部署MQ机器本身或是本地磁盘挂了，否则一般是不会出现无法持久化的故障问题。</p>
+<h1 id="二、基础概念"><a href="#二、基础概念" class="headerlink" title="二、基础概念"></a>二、基础概念</h1><p>要了解rocketMQ的消息存储之前，先来了解几个基本概念。</p>
+<p>顺序读写与随机读写：顺序读写的速度远远超过随机读写的速度，原因之一是顺序读写和随机读写我们默认它们传输时间是一样的，但是随机读写需要多次寻道和旋转延迟，而这个时间可能是传输时间的许多倍。原因之二是顺序读写会触发预读，而随机读写不会触发预读。何为预读？根据<strong>局部性原理</strong>，当一个数据被用到时，其附近的数据也会马上被使用。当顺序读的时候，磁盘会向后连续读一页或者几页加载到内存中。这两个原因总结来说，就是提高磁盘的IO效率。</p>
+<p>Page cache（页面缓存）与Buffer cache（块缓存）：Page cache是针对文件系统的，是文件的缓存。Buffer cache是针对磁盘块（即扇区）的缓存。page cache本身也会对数据文件进行预读取，对于每个文件的第一个读请求操作，系统在读入所请求页面的同时会读入紧随其后的少数几个页面，这样的目的就是<strong>提高cache的命中率</strong>。</p>
+<p>内核态、用户态：Linux操作系统分为用户态和内核态，文件操作、网络操作需要涉及这两种形态的切换，免不了进行数据复制。<strong>内核态</strong>是<strong>特殊的软件程序</strong>，控制计算机的硬件资源，例如协调CPU资源，分配内存资源，并且提供稳定的环境供应用程序运行。<strong>用户态</strong>就是提供应用程序运行的空间，为了使应用程序访问到内核管理的资源例如CPU，内存，I/O。内核必须提供一组通用的访问接口，这些接口就叫系统调用。</p>
+<p>内存映射mmap：可参考<a href="https://blog.csdn.net/mg0832058/article/details/5890688" target="_blank" rel="noopener">这篇文章</a>。我的理解是，内存映射的好处就是在于将文件直接映射到用户空间，而不需要经过内核空间，减少了文件的拷贝次数。因为常规来说，我们想把文件拷贝到内存中，如果没有内存映射，文件需要先拷贝到内核空间中的一个缓存区中，再拷贝到用户空间。<font color="red">正是有了mmap，建立起了一个硬盘的文件到用户空间的映射，从而能够直接将文件从硬盘拷贝到用户空间中</font>。</p>
+<h1 id="三、Rocket中的消息存储"><a href="#三、Rocket中的消息存储" class="headerlink" title="三、Rocket中的消息存储"></a>三、Rocket中的消息存储</h1><p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84.png" alt="整体架构"></p>
+<p><code>RocketMQ</code>消息的存储是由<code>ConsumeQueue</code>和<code>CommitLog</code>配合完成 的，消息真正的物理存储文件是<code>CommitLog</code>，<code>ConsumeQueue</code>是消息的逻辑队列，类似数据库的索引文件，存储的是指向物理存储的地址。</p>
+<p><code>CommitLog</code>：是一个文件集合，每个文件大小为1G，存储满后存下一个，所有消息的内容都持久化到它的上面。</p>
+<blockquote>
+<p>这边可以引申出一个问题：为什么CommitLog的大小是一个为1G的文件。原因有两个：一个是将所有消息存在一个文件中，便于顺序读写，有利于提高磁盘的IO。另一个原因是由于RocketMQ中用到了mmap，提高拷贝速度，而其实现是基于Java中的<code>MappedByteBuffer</code>实现的，而<code>MappedByteBuffer</code>一次只能映射1.5<del>2G 的文件至用户态的虚拟内存，所以这边选择1G作为文件大小，不宜超过1.5</del>2G的这个范围。</p>
+</blockquote>
+<p><code>ConsumeQueue</code>：注意，一个<code>CommitLog</code>不只能对应一个<code>ConsumeQueue</code>，比如下图，同一个topic的消息的索引能存在于4个ConsumeQueue中。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E6%B6%88%E6%81%AF%E5%9C%A8CommitLog%E5%92%8CConsumeQueue%E4%B8%AD%E7%9A%84%E5%AD%98%E5%82%A8.png" alt="commitLog与ConsumeQueue的对应关系"></p>
+<p>下面介绍一下RocketMQ中的mmap内存映射技术—MappedByteBuffer</p>
+<p>一般来说，一台服务器把本机磁盘文件的内容发送到客户端分为以下几步：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">数据---&gt;内核态---&gt;用户态---&gt;网络驱动内核---&gt;网卡---&gt;数据</span><br></pre></td></tr></table></figure>
 
-<p>所以回到RPC中，服务端只要向ZK中进行服务注册，而客户端当需要调用对应的服务时，进行负载均衡选择一台服务器进行服务的调用。</p>
-<p>二、代码实现</p>
-<p>实现很简单，我已经将相应的版本上传到<a href="https://github.com/hqf1996/myRPC" target="_blank" rel="noopener">github</a>中，这边就不贴实现了。其实在dubbo中，注册中心不仅仅可以使用ZK的方法，还能使用Multicast、Nacos、Redis、Simple等，可访问其官网来查看具体的使用。但是ZK是其默认的注册中心方法。</p>
+<p>mmap内存映射和普通标准IO操作的本质区别在于它并不需要将文件中的数据先拷贝至OS的内核IO缓冲区，而是可以直接将用户进程私有地址空间中的一块区域与文件对象建立映射关系，这样程序就好像可以直接从内存中完成对文件读/写操作一样。也就是数据能直接从磁盘到用户空间中，看着就像是直接读入到内存中。</p>
+<hr>
+<p>参考</p>
+<p><a href="https://www.jianshu.com/p/6d0c118c17de" target="_blank" rel="noopener">https://www.jianshu.com/p/6d0c118c17de</a></p>
 
       
     </div>
@@ -377,9 +396,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/RPC/" rel="tag"># RPC</a>
-          
-            <a href="/tags/ZooKeeper/" rel="tag"># ZooKeeper</a>
+            <a href="/tags/RocketMQ/" rel="tag"># RocketMQ</a>
           
         </div>
       
@@ -392,8 +409,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/12/20/Dubbo%E4%B9%8BSPI/" rel="next" title="Dubbo之SPI">
-                <i class="fa fa-chevron-left"></i> Dubbo之SPI
+              <a href="/2020/01/08/RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer/" rel="next" title="RocketMQ源码学习之NameServer">
+                <i class="fa fa-chevron-left"></i> RocketMQ源码学习之NameServer
               </a>
             
           </div>
@@ -401,10 +418,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2020/01/08/RocketMQ%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B9%8B%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E4%B8%8E%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/" rel="prev" title="RocketMQ基础概念之消息生产与消息消费">
-                RocketMQ基础概念之消息生产与消息消费 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -540,7 +553,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、ZooKeeper简介"><span class="nav-text">一、ZooKeeper简介</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、数据库和文件系统存储对比"><span class="nav-text">一、数据库和文件系统存储对比</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、基础概念"><span class="nav-text">二、基础概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三、Rocket中的消息存储"><span class="nav-text">三、Rocket中的消息存储</span></a></li></ol></div>
             
 
           </div>
