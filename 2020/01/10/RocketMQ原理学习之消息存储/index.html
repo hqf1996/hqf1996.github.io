@@ -89,7 +89,8 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8&#x2F;%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8&#x2F;%E6%B6%88%E6%81%AF%E5%9C%A8CommitLog%E5%92%8CConsumeQueue%E4%B8%AD%E7%9A%84%E5%AD%98%E5%82%A8.png">
-<meta property="og:updated_time" content="2020-01-10T07:53:56.692Z">
+<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8&#x2F;%E5%90%8C%E6%AD%A5%E5%88%B7%E7%9B%98%E5%92%8C%E5%BC%82%E6%AD%A5%E5%88%B7%E7%9B%98.png">
+<meta property="og:updated_time" content="2020-01-11T13:09:34.559Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8&#x2F;%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84.png">
 
@@ -383,6 +384,7 @@
 <p><strong>刷盘机制</strong></p>
 <p>同步刷盘：在返回写成功状态时，消息已经被写入磁盘。具体流程是，消息写入内存的PageCache后，立刻通知刷盘线程刷盘， 然后等待刷盘完成，刷盘线程执行完成后唤醒等待的线程，返回消息写成功的状态。</p>
 <p>异步刷盘：在返回写成功状态时，消息可能只是被写入了内存的PageCache，写操作的返回快，吞吐量大；当内存里的消息量积累到一定程度时，统一触发写磁盘动作，快速写入。</p>
+<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8/%E5%90%8C%E6%AD%A5%E5%88%B7%E7%9B%98%E5%92%8C%E5%BC%82%E6%AD%A5%E5%88%B7%E7%9B%98.png" alt="同步刷盘和异步刷盘"></p>
 <p>总结以上内容：在消息存储中主要做了存取两方面的优化，在存的方面，让消息存成一个大文件，为了读取的速度考虑，并且可以根据具体的业务场景选择不同的刷盘机制。在取的方面，考虑<code>ConsumeQueue</code>索引文件，也能支持集群模式下多个用户共同消费，并且用了零拷贝技术。</p>
 <hr>
 <p>参考</p>
@@ -426,6 +428,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/01/11/RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B%E9%AB%98%E5%8F%AF%E7%94%A8/" rel="prev" title="RocketMQ源码学习之高可用">
+                RocketMQ源码学习之高可用 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -506,7 +512,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">37</span>
+                  <span class="site-state-item-count">38</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
