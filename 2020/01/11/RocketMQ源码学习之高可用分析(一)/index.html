@@ -88,7 +88,7 @@
 <meta property="og:description" content="前言RocketMQ分布式集群是通过其中各个模块的配合实现高可用，RocketMQ的高可用主要可以从Producer、Consumer、Broker和NameServer出发来分析，本章旨在通过源码来简单分析其中Producer的高可用原理。其他部分在后续章节继续分析。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B9%8B%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E4%B8%8E%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9&#x2F;RocketMQ%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84.jpg">
-<meta property="og:updated_time" content="2020-01-13T06:52:20.437Z">
+<meta property="og:updated_time" content="2020-01-13T09:01:15.884Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B9%8B%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E4%B8%8E%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9&#x2F;RocketMQ%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84.jpg">
 
@@ -384,7 +384,9 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">long</span>[] latencyMax = &#123;<span class="number">50L</span>, <span class="number">100L</span>, <span class="number">550L</span>, <span class="number">1000L</span>, <span class="number">2000L</span>, <span class="number">3000L</span>, <span class="number">15000L</span>&#125;;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">long</span>[] notAvailableDuration = &#123;<span class="number">0L</span>, <span class="number">0L</span>, <span class="number">30000L</span>, <span class="number">60000L</span>, <span class="number">120000L</span>, <span class="number">180000L</span>, <span class="number">600000L</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateFaultItem</span><span class="params">(<span class="keyword">final</span> String brokerName, <span class="keyword">final</span> <span class="keyword">long</span> currentLatency, <span class="keyword">boolean</span> isolation)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.sendLatencyFaultEnable) &#123;</span><br><span class="line">        <span class="comment">// isolation表示是否隔离。如果是隔离的话，默认延迟为30s。否则为currentLatency，也就是消息发送的时间。最后通过computeNotAvailableDuration获得一个规避时间。比如isolation为false，currentLatency==560，最终得到的规避时间duration=30000L=30s</span></span><br><span class="line">        <span class="keyword">long</span> duration = computeNotAvailableDuration(isolation ? <span class="number">30000</span> : currentLatency);</span><br><span class="line">        <span class="comment">// </span></span><br><span class="line">        <span class="keyword">this</span>.latencyFaultTolerance.updateFaultItem(brokerName, currentLatency, duration);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">long</span> <span class="title">computeNotAvailableDuration</span><span class="params">(<span class="keyword">final</span> <span class="keyword">long</span> currentLatency)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = latencyMax.length - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">        <span class="keyword">if</span> (currentLatency &gt;= latencyMax[i])</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.notAvailableDuration[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>最终这个规避时间是体现在上面开启Broker故障延迟机制的<code>selectOneMessageQueue</code>函数相应的逻辑中，给所有发送消息失败的broker都设置延迟，只有当到了延迟的时间，最终才会有效，且能有机会被重新选择到。</p>
-<p>总结：我认为Producer的高可用主要体现在以下几个方面。首先，在消息创建消息时，需要为每一个消息指定一个topic。topic会创建在每一个Broker组中，也就是说即使一个Broker组的Master不可用了，但是集群中其他Broker组仍然可以接收生产者生产的消息，Producer仍然可以发送消息。其次，光能选择其他broker也是不行的，还需要有容错的机制，也就是上面提到的默认的记录上一次失败broker的机制以及后面分析的故障延迟机制，都能让无法正常工作的broker被频繁连接，以免造成发送数据的成功率低和加快效率低的问题。</p>
+<p>总结：</p>
+<p>在分析Producer过程中遇到的坑就是文章中提到的不明白为何在有了一个负载均衡机制的情况下还要有一个故障延迟机制，在仔细研究相关部分的代码后问题算是很好的解决了。</p>
+<p>我认为Producer的高可用主要体现在以下几个方面。首先，在消息创建消息时，需要为每一个消息指定一个topic。topic会创建在每一个Broker组中，也就是说即使一个Broker组的Master不可用了，但是集群中其他Broker组仍然可以接收生产者生产的消息，Producer仍然可以发送消息。其次，光能选择其他broker也是不行的，还需要有容错的机制，也就是上面提到的默认的记录上一次失败broker的机制以及后面分析的故障延迟机制，都能让无法正常工作的broker被频繁连接，以免造成发送数据的成功率低和加快效率低的问题。</p>
 <hr>
 <p>参考</p>
 <p><a href="https://www.jianshu.com/p/ba36e1c9de5f" target="_blank" rel="noopener">https://www.jianshu.com/p/ba36e1c9de5f</a></p>
@@ -427,6 +429,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/01/13/RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B%E9%AB%98%E5%8F%AF%E7%94%A8%E5%88%86%E6%9E%90(%E4%BA%8C)/" rel="prev" title="RocketMQ源码学习之高可用分析(二)">
+                RocketMQ源码学习之高可用分析(二) <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -507,7 +513,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">38</span>
+                  <span class="site-state-item-count">39</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
