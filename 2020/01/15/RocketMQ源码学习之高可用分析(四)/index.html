@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/pic_32x32.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/pic_16x16.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="RocketMQ," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言之前三篇已经从Producer、Broker、Consumer三者角度出发分析了RocketMQ框架的高可用，本篇简单介绍RocketMQ中的高可用地方。之前对NameServer已经做过详细的分析，就简单的介绍一下吧。 所有高可用部分总结  RocketMQ源码学习之高可用分析(一) RocketMQ源码学习之高可用分析(二) RocketMQ源码学习之高可用分析(三) RocketMQ源码">
+<meta name="keywords" content="RocketMQ">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RocketMQ源码学习之高可用分析(四)">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;01&#x2F;15&#x2F;RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B%E9%AB%98%E5%8F%AF%E7%94%A8%E5%88%86%E6%9E%90(%E5%9B%9B)&#x2F;index.html">
+<meta property="og:site_name" content="hqfBlog">
+<meta property="og:description" content="前言之前三篇已经从Producer、Broker、Consumer三者角度出发分析了RocketMQ框架的高可用，本篇简单介绍RocketMQ中的高可用地方。之前对NameServer已经做过详细的分析，就简单的介绍一下吧。 所有高可用部分总结  RocketMQ源码学习之高可用分析(一) RocketMQ源码学习之高可用分析(二) RocketMQ源码学习之高可用分析(三) RocketMQ源码">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2020-01-16T06:33:03.323Z">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/01/15/RocketMQ源码学习之高可用分析(四)/"/>
+
+
+
+
+
+  <title>RocketMQ源码学习之高可用分析(四) | hqfBlog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+	<!--<a href="https://github.com/hqf1996" target="_blank" rel="noopener"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>-->
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">hqfBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/15/RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B%E9%AB%98%E5%8F%AF%E7%94%A8%E5%88%86%E6%9E%90(%E5%9B%9B)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="hqf1996">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="hqfBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">RocketMQ源码学习之高可用分析(四)</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-15T19:43:48+08:00">
+                2020-01-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/RocketMQ/" itemprop="url" rel="index">
+                    <span itemprop="name">RocketMQ</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>之前三篇已经从Producer、Broker、Consumer三者角度出发分析了RocketMQ框架的高可用，本篇简单介绍RocketMQ中的高可用地方。之前对NameServer已经做过详细的分析，就简单的介绍一下吧。</p>
+<p>所有高可用部分总结</p>
+<ul>
+<li><a href="https://hqf1996.github.io/2020/01/11/RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B%E9%AB%98%E5%8F%AF%E7%94%A8%E5%88%86%E6%9E%90(%E4%B8%80)/" target="_blank" rel="noopener">RocketMQ源码学习之高可用分析(一)</a></li>
+<li><a href="https://hqf1996.github.io/2020/01/13/RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B%E9%AB%98%E5%8F%AF%E7%94%A8%E5%88%86%E6%9E%90(%E4%BA%8C)/" target="_blank" rel="noopener">RocketMQ源码学习之高可用分析(二)</a></li>
+<li><a href="https://hqf1996.github.io/2020/01/15/RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B%E9%AB%98%E5%8F%AF%E7%94%A8%E5%88%86%E6%9E%90(%E4%B8%89)/" target="_blank" rel="noopener">RocketMQ源码学习之高可用分析(三)</a></li>
+<li><a href="https://hqf1996.github.io/2020/01/15/RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B%E9%AB%98%E5%8F%AF%E7%94%A8%E5%88%86%E6%9E%90(%E5%9B%9B)/" target="_blank" rel="noopener">RocketMQ源码学习之高可用分析(四)</a></li>
+</ul>
+<a id="more"></a>
+
+<h1 id="一、NameServer高可用"><a href="#一、NameServer高可用" class="headerlink" title="一、NameServer高可用"></a>一、NameServer高可用</h1><p>NameServer作为路由注册中心，与Producer、Broker、Consumer都建立了长连接，来进行互相之间的通信。并且，NameServer本身就是由多台服务器组成的集群，集群中每台服务器中数据都是一致的，并且互不影响，从而达到NameServer的高可用。</p>
+<p>因此，Broker向NameServer注册的时候需要向每个NameServer都注册自己的信息。在Producer生产或者Consumer消费的时候只需要连接其中一台NameServer进行通信获得路由信息即可。下面具体来看看这部分的代码。</p>
+<h2 id="1-1-Broker注册路由信息"><a href="#1-1-Broker注册路由信息" class="headerlink" title="1.1 Broker注册路由信息"></a>1.1 Broker注册路由信息</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> List&lt;RegisterBrokerResult&gt; <span class="title">registerBrokerAll</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> String clusterName,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> String brokerAddr,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> String brokerName,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> <span class="keyword">long</span> brokerId,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> String haServerAddr,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> TopicConfigSerializeWrapper topicConfigWrapper,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> List&lt;String&gt; filterServerList,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> <span class="keyword">boolean</span> oneway,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> <span class="keyword">int</span> timeoutMills,</span></span></span><br><span class="line"><span class="function"><span class="params">    <span class="keyword">final</span> <span class="keyword">boolean</span> compressed)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> List&lt;RegisterBrokerResult&gt; registerBrokerResultList = Lists.newArrayList();</span><br><span class="line">    List&lt;String&gt; nameServerAddressList = <span class="keyword">this</span>.remotingClient.getNameServerAddressList();</span><br><span class="line">    <span class="keyword">if</span> (nameServerAddressList != <span class="keyword">null</span> &amp;&amp; nameServerAddressList.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 装载发送的消息brokerAddr、brokerId、brokerName、clusterName、haServerAddr、compressed</span></span><br><span class="line">        <span class="keyword">final</span> RegisterBrokerRequestHeader requestHeader = <span class="keyword">new</span> RegisterBrokerRequestHeader();</span><br><span class="line">        requestHeader.setBrokerAddr(brokerAddr);</span><br><span class="line">        requestHeader.setBrokerId(brokerId);</span><br><span class="line">        requestHeader.setBrokerName(brokerName);</span><br><span class="line">        requestHeader.setClusterName(clusterName);</span><br><span class="line">        requestHeader.setHaServerAddr(haServerAddr);</span><br><span class="line">        requestHeader.setCompressed(compressed);</span><br><span class="line"></span><br><span class="line">        RegisterBrokerBody requestBody = <span class="keyword">new</span> RegisterBrokerBody();</span><br><span class="line">        requestBody.setTopicConfigSerializeWrapper(topicConfigWrapper);</span><br><span class="line">        requestBody.setFilterServerList(filterServerList);</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">byte</span>[] body = requestBody.encode(compressed);</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> bodyCrc32 = UtilAll.crc32(body);</span><br><span class="line">        requestHeader.setBodyCrc32(bodyCrc32);</span><br><span class="line">        <span class="comment">// 只有当for循环中所有线程都执行完之后才进行以下的操作</span></span><br><span class="line">        <span class="keyword">final</span> CountDownLatch countDownLatch = <span class="keyword">new</span> CountDownLatch(nameServerAddressList.size());</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">final</span> String namesrvAddr : nameServerAddressList) &#123;</span><br><span class="line">            brokerOuterExecutor.execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        <span class="comment">// 向每个NameServer注册Broker的信息</span></span><br><span class="line">                        RegisterBrokerResult result = registerBroker(namesrvAddr,oneway, timeoutMills,requestHeader,body);</span><br><span class="line">                        <span class="keyword">if</span> (result != <span class="keyword">null</span>) &#123;</span><br><span class="line">                            registerBrokerResultList.add(result);</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                        log.info(<span class="string">"register broker[&#123;&#125;]to name server &#123;&#125; OK"</span>, brokerId, namesrvAddr);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                        log.warn(<span class="string">"registerBroker Exception, &#123;&#125;"</span>, namesrvAddr, e);</span><br><span class="line">                    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                        countDownLatch.countDown();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            countDownLatch.await(timeoutMills, TimeUnit.MILLISECONDS);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> registerBrokerResultList;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="1-2-Producer通过NameServer选择消息队列"><a href="#1-2-Producer通过NameServer选择消息队列" class="headerlink" title="1.2 Producer通过NameServer选择消息队列"></a>1.2 Producer通过NameServer选择消息队列</h2><p>在之前分析<a href="https://hqf1996.github.io/2020/01/11/RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B%E9%AB%98%E5%8F%AF%E7%94%A8%E5%88%86%E6%9E%90(%E4%B8%80)/" target="_blank" rel="noopener">RocketMQ源码学习之高可用分析(一)</a>文章中我们关注的重点是两种容错机制，在此之前Producer还需要通过NameServer获得所有的指定topic的消息队列所在的Broker的地址才能进行选择，也就是之前那篇文章中断点1的部分，我们deep进去，函数之间的调用逻辑比较复杂，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sendDefaultImpl()---&gt;tryToFindTopicPublishInfo()---&gt;updateTopicRouteInfoFromNameServer()---&gt;getTopicRouteInfoFromNameServer()---&gt;invokeSync()---&gt;getAndCreateChannel()---&gt;getAndCreateNameserverChannel()</span><br></pre></td></tr></table></figure>
+
+<p>来看最终的这个函数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Channel <span class="title">getAndCreateNameserverChannel</span><span class="params">()</span> <span class="keyword">throws</span> RemotingConnectException, InterruptedException </span>&#123;</span><br><span class="line">    <span class="comment">// 返回可以被选择到的NameServer</span></span><br><span class="line">    String addr = <span class="keyword">this</span>.namesrvAddrChoosed.get();</span><br><span class="line">    <span class="keyword">if</span> (addr != <span class="keyword">null</span>) &#123;</span><br><span class="line">        ChannelWrapper cw = <span class="keyword">this</span>.channelTables.get(addr);</span><br><span class="line">        <span class="keyword">if</span> (cw != <span class="keyword">null</span> &amp;&amp; cw.isOK()) &#123;</span><br><span class="line">            <span class="keyword">return</span> cw.getChannel();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> List&lt;String&gt; addrList = <span class="keyword">this</span>.namesrvAddrList.get();</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.lockNamesrvChannel.tryLock(LOCK_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 返回可以被选择到的NameServer</span></span><br><span class="line">            addr = <span class="keyword">this</span>.namesrvAddrChoosed.get();</span><br><span class="line">            <span class="keyword">if</span> (addr != <span class="keyword">null</span>) &#123;</span><br><span class="line">                ChannelWrapper cw = <span class="keyword">this</span>.channelTables.get(addr);</span><br><span class="line">                <span class="keyword">if</span> (cw != <span class="keyword">null</span> &amp;&amp; cw.isOK()) &#123;</span><br><span class="line">                    <span class="keyword">return</span> cw.getChannel();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 从NameServer列表中选择一个连接的返回</span></span><br><span class="line">            <span class="keyword">if</span> (addrList != <span class="keyword">null</span> &amp;&amp; !addrList.isEmpty()) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; addrList.size(); i++) &#123;</span><br><span class="line">                    <span class="keyword">int</span> index = <span class="keyword">this</span>.namesrvIndex.incrementAndGet();</span><br><span class="line">                    index = Math.abs(index);</span><br><span class="line">                    index = index % addrList.size();</span><br><span class="line">                    String newAddr = addrList.get(index);</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">this</span>.namesrvAddrChoosed.set(newAddr);</span><br><span class="line">                    log.info(<span class="string">"new name server is chosen. OLD: &#123;&#125; , NEW: &#123;&#125;. namesrvIndex = &#123;&#125;"</span>, addr, newAddr, namesrvIndex);</span><br><span class="line">                    Channel channelNew = <span class="keyword">this</span>.createChannel(newAddr);</span><br><span class="line">                    <span class="keyword">if</span> (channelNew != <span class="keyword">null</span>) &#123;</span><br><span class="line">                        <span class="keyword">return</span> channelNew;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> RemotingConnectException(addrList.toString());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">this</span>.lockNamesrvChannel.unlock();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        log.warn(<span class="string">"getAndCreateNameserverChannel: try to lock name server, but timeout, &#123;&#125;ms"</span>, LOCK_TIMEOUT_MILLIS);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>至此，便连接上了一台NameServer服务器用于获得对应的路由表。</p>
+<h2 id="1-3-Consumer通过NameServer选择消息队列"><a href="#1-3-Consumer通过NameServer选择消息队列" class="headerlink" title="1.3 Consumer通过NameServer选择消息队列"></a>1.3 Consumer通过NameServer选择消息队列</h2><p>与Producer类似的，在消费端进行消费的时候，也是通过相同的函数<code>getAndCreateNameserverChannel()</code>来获得某个NameServer服务器，从而获得路由表信息，这边就不赘述了。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/RocketMQ/" rel="tag"># RocketMQ</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/15/RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B%E9%AB%98%E5%8F%AF%E7%94%A8%E5%88%86%E6%9E%90(%E4%B8%89)/" rel="next" title="RocketMQ源码学习之高可用分析(三)">
+                <i class="fa fa-chevron-left"></i> RocketMQ源码学习之高可用分析(三)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/pic.png"
+                alt="hqf1996" />
+            
+              <p class="site-author-name" itemprop="name">hqf1996</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">41</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">38</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、NameServer高可用"><span class="nav-text">一、NameServer高可用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-Broker注册路由信息"><span class="nav-text">1.1 Broker注册路由信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-Producer通过NameServer选择消息队列"><span class="nav-text">1.2 Producer通过NameServer选择消息队列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-Consumer通过NameServer选择消息队列"><span class="nav-text">1.3 Consumer通过NameServer选择消息队列</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">hqf1996</span>
+
+  
+</div>
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共字 |</span>
+</div>
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
