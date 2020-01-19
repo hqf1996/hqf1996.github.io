@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="hqfBlog">
 <meta property="og:description" content="前言本文旨在总结和整理在学习RocketMQ中遇到的零碎问题，方便之后的回顾。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-01-19T06:59:08.969Z">
+<meta property="og:updated_time" content="2020-01-19T07:02:59.260Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -353,12 +353,12 @@
         <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><center>本文旨在总结和整理在学习RocketMQ中遇到的零碎问题，方便之后的回顾。</center>
 <a id="more"></a>
 
-<h1 id="一、RocketMq如何保证高可用"><a href="#一、RocketMq如何保证高可用" class="headerlink" title="一、RocketMq如何保证高可用"></a>一、RocketMq如何保证高可用</h1><p>高可用问题在之前的文章中已经从源码层面详细分析过一遍了，具体可以看之前的博客，这边只是做一个总结。</p>
+<h1 id="一、RocketMQ如何保证高可用"><a href="#一、RocketMQ如何保证高可用" class="headerlink" title="一、RocketMQ如何保证高可用"></a>一、RocketMQ如何保证高可用</h1><p>高可用问题在之前的文章中已经从源码层面详细分析过一遍了，具体可以看之前的博客，这边只是做一个总结。</p>
 <p>高可用在RocketMQ的每个角色中都有体现。首先，从Producer出发，每一个消息都有一个Topic，每一个Topic都对应着多个Broker，因此即使一个Broker组的Master不可用了，也能选择别的Broker进行消息的发送，保证消息生产的高可用。</p>
 <p>其次，从Broker出发，高可用主要体现在主从同步上，一个Broker集群拥有多个Broker分组，每个Broker分组包含两类的服务器，一类是Master主节点，只允许有一个，另一类是Slave，允许有多个从节点。Master结点只提供<strong>读写</strong>的服务，Slave从结点只提供<strong>读</strong>的服务。每个Broker分组内Master会和Slave进行通信和数据同步，但是每个Broker分组之间不进行通信，主从同步<strong>不具备主从切换功能</strong>，当主节点宕机以后，从结点不会接管消息的接收，但可以提供消息的读取。</p>
 <p>再次，从Consumer出发，消息消费者提供了负载均衡机制，并且在消费的时候能进行主从选择，当主结点处于繁忙或者宕机的状态时，消息消费者能切换到从节点进行消息消费。</p>
 <p>最后从NameServer出发，NameServer本身就是一个集群，集群中每台服务器中数据都是一致的，并且互不影响，从而达到NameServer的高可用。</p>
-<h1 id="二、RocketMq如何保证高吞吐"><a href="#二、RocketMq如何保证高吞吐" class="headerlink" title="二、RocketMq如何保证高吞吐"></a>二、RocketMq如何保证高吞吐</h1><p>首先，提高消息生产者Producer的发送速度。</p>
+<h1 id="二、RocketMQ如何保证高吞吐"><a href="#二、RocketMQ如何保证高吞吐" class="headerlink" title="二、RocketMQ如何保证高吞吐"></a>二、RocketMQ如何保证高吞吐</h1><p>首先，提高消息生产者Producer的发送速度。</p>
 <p>其次，能在Broker端进行消息的过滤，可以减少无效消息发送到Consumer，少占用网络带宽从而提高吞吐量，过滤主要有三种方式：用消息的Tag或者Key过滤、用SQL表达式的方式进行过滤和用Filter Server方式进行过滤。</p>
 <p>再次，提高了Consumer的消息处理能力，这边主要从增加Consumer实例或者提高单个实例的线程数量来提高消息并行度，在某些业务场景下能用批量的方式进行消息的消费，还能检测延时情况，选择性的丢弃不重要的消息来提高消息消费的速度。</p>
 <p>最后，还有消息消费时候的负载均衡机制也能保证消息的高吞吐。</p>
@@ -560,7 +560,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、RocketMq如何保证高可用"><span class="nav-text">一、RocketMq如何保证高可用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、RocketMq如何保证高吞吐"><span class="nav-text">二、RocketMq如何保证高吞吐</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三、RocketMQ和kafka的区别"><span class="nav-text">三、RocketMQ和kafka的区别</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#四、RocketMQ的消息是否有序"><span class="nav-text">四、RocketMQ的消息是否有序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#五、RocketMQ的消息局部顺序是如何保证"><span class="nav-text">五、RocketMQ的消息局部顺序是如何保证</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#六、RocketMQ事务消息机制如何实现"><span class="nav-text">六、RocketMQ事务消息机制如何实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#七、重复消费问题的解决"><span class="nav-text">七、重复消费问题的解决</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#八、RocketMQ的Push或者Pull"><span class="nav-text">八、RocketMQ的Push或者Pull</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、RocketMQ如何保证高可用"><span class="nav-text">一、RocketMQ如何保证高可用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、RocketMQ如何保证高吞吐"><span class="nav-text">二、RocketMQ如何保证高吞吐</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三、RocketMQ和kafka的区别"><span class="nav-text">三、RocketMQ和kafka的区别</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#四、RocketMQ的消息是否有序"><span class="nav-text">四、RocketMQ的消息是否有序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#五、RocketMQ的消息局部顺序是如何保证"><span class="nav-text">五、RocketMQ的消息局部顺序是如何保证</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#六、RocketMQ事务消息机制如何实现"><span class="nav-text">六、RocketMQ事务消息机制如何实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#七、重复消费问题的解决"><span class="nav-text">七、重复消费问题的解决</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#八、RocketMQ的Push或者Pull"><span class="nav-text">八、RocketMQ的Push或者Pull</span></a></li></ol></div>
             
 
           </div>
