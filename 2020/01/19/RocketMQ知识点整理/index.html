@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Neo4j,py2neo," />
+  <meta name="keywords" content="RocketMQ," />
 
 
 
@@ -79,18 +79,16 @@
 
 
 
-<meta name="description" content="前言在使用或者搭建neo4j的时候会产生一些问题，这边记录一下。">
-<meta name="keywords" content="Neo4j,py2neo">
+<meta name="description" content="前言本文旨在总结和整理在学习RocketMQ中遇到的零碎问题，方便之后的回顾。">
+<meta name="keywords" content="RocketMQ">
 <meta property="og:type" content="article">
-<meta property="og:title" content="基于Neo4j搭建图谱可视化应用（二）">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2018&#x2F;12&#x2F;13&#x2F;%E5%9F%BA%E4%BA%8ENeo4j%E6%90%AD%E5%BB%BA%E5%9B%BE%E8%B0%B1%E5%8F%AF%E8%A7%86%E5%8C%96%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89&#x2F;index.html">
+<meta property="og:title" content="RocketMQ知识点整理">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;01&#x2F;19&#x2F;RocketMQ%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言在使用或者搭建neo4j的时候会产生一些问题，这边记录一下。">
+<meta property="og:description" content="前言本文旨在总结和整理在学习RocketMQ中遇到的零碎问题，方便之后的回顾。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%258%5DI5L0Q%25H0%7DAMOBKH6%250LJ.png">
-<meta property="og:updated_time" content="2019-07-15T13:03:48.559Z">
+<meta property="og:updated_time" content="2020-01-19T06:59:08.969Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%258%5DI5L0Q%25H0%7DAMOBKH6%250LJ.png">
 
 
 
@@ -120,13 +118,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/12/13/基于Neo4j搭建图谱可视化应用（二）/"/>
+  <link rel="canonical" href="http://yoursite.com/2020/01/19/RocketMQ知识点整理/"/>
 
 
 
 
 
-  <title>基于Neo4j搭建图谱可视化应用（二） | hqfBlog</title>
+  <title>RocketMQ知识点整理 | hqfBlog</title>
   
 
 
@@ -263,7 +261,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/13/%E5%9F%BA%E4%BA%8ENeo4j%E6%90%AD%E5%BB%BA%E5%9B%BE%E8%B0%B1%E5%8F%AF%E8%A7%86%E5%8C%96%E5%BA%94%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/01/19/RocketMQ%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="hqf1996">
@@ -280,7 +278,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">基于Neo4j搭建图谱可视化应用（二）</h1>
+          <h1 class="post-title" itemprop="name headline">RocketMQ知识点整理</h1>
         
 
         <div class="post-meta">
@@ -292,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-13T09:35:37+08:00">
-                2018-12-13
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-01-19T10:13:47+08:00">
+                2020-01-19
               </time>
             
 
@@ -315,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Neo4j/" itemprop="url" rel="index">
-                    <span itemprop="name">Neo4j</span>
+                  <a href="/categories/RocketMQ/" itemprop="url" rel="index">
+                    <span itemprop="name">RocketMQ</span>
                   </a>
                 </span>
 
@@ -352,46 +350,42 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><center>在使用或者搭建neo4j的时候会产生一些问题，这边记录一下。</center>
-
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><center>本文旨在总结和整理在学习RocketMQ中遇到的零碎问题，方便之后的回顾。</center>
 <a id="more"></a>
 
-<h1 id="一、数据的备份、迁移"><a href="#一、数据的备份、迁移" class="headerlink" title="一、数据的备份、迁移"></a>一、数据的备份、迁移</h1><p>在实验室的服务器A上搭建起neo4j的时候，会发现neo4j的服务会占用很大的内存，系统内存不太够。这时候，就需要对数据库进行备份、迁移到另外一台服务器B上去。</p>
-<p>首先，先进入到neo4j的bin目录下，停止neo4j的服务。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./neo4j stop</span><br></pre></td></tr></table></figure>
-
-
-
-<p>接着，对数据进行备份</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./neo4j-admin  dump --database=graph_new.db --to=/home/graph_new.dump</span><br></pre></td></tr></table></figure>
-
-
-
-<p>之后，将生成的备份文件graph_new.dump拷贝到服务器B上。注意，在还原之前先关闭服务器B上的neo4j服务。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./neo4j-admin load --from=/home/graph_new.dump --database=graph_new.db --force</span><br></pre></td></tr></table></figure>
-
-
-
-<p>最后，重启服务器。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./neo4j start</span><br></pre></td></tr></table></figure>
-
-
-
-<h1 id="二、一个neo4j数据库中如何切换多个数据库"><a href="#二、一个neo4j数据库中如何切换多个数据库" class="headerlink" title="二、一个neo4j数据库中如何切换多个数据库"></a>二、一个neo4j数据库中如何切换多个数据库</h1><p>neo4j数据库中默认是将graph.db当做当前的数据库，因此，讲道理一个neo4j只能读取一个数据库。当然，我们可以通过修改数据库的名称来解决这个问题，这里提出另外一种解决方案，软连接。</p>
-<p>当前数据库的database文件夹下存在两个数据库文件，一个是graph.db，另外一个是graph_new.db，我们将原来的数据库重命名为graph1.db，接着建立graph_new.db指向graph.db的软连接。</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln -s graph_new.db graph.db</span><br></pre></td></tr></table></figure>
-
-<p>查看是否建立成功</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls -al</span><br></pre></td></tr></table></figure>
-
-<p>效果图如图所示</p>
-<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/%258%5DI5L0Q%25H0%7DAMOBKH6%250LJ.png" alt=""></p>
-<p>接着，进入到bin目录下重启图数据库</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./neo4j restart</span><br></pre></td></tr></table></figure>
-
-
-
-<p>这样，我们就能访问新的数据库了。另外，通过连接数据库操作neo4j的方式有很多，可以通过Java的相应类，也可以通过Python的py2neo工具包。</p>
+<h1 id="一、RocketMq如何保证高可用"><a href="#一、RocketMq如何保证高可用" class="headerlink" title="一、RocketMq如何保证高可用"></a>一、RocketMq如何保证高可用</h1><p>高可用问题在之前的文章中已经从源码层面详细分析过一遍了，具体可以看之前的博客，这边只是做一个总结。</p>
+<p>高可用在RocketMQ的每个角色中都有体现。首先，从Producer出发，每一个消息都有一个Topic，每一个Topic都对应着多个Broker，因此即使一个Broker组的Master不可用了，也能选择别的Broker进行消息的发送，保证消息生产的高可用。</p>
+<p>其次，从Broker出发，高可用主要体现在主从同步上，一个Broker集群拥有多个Broker分组，每个Broker分组包含两类的服务器，一类是Master主节点，只允许有一个，另一类是Slave，允许有多个从节点。Master结点只提供<strong>读写</strong>的服务，Slave从结点只提供<strong>读</strong>的服务。每个Broker分组内Master会和Slave进行通信和数据同步，但是每个Broker分组之间不进行通信，主从同步<strong>不具备主从切换功能</strong>，当主节点宕机以后，从结点不会接管消息的接收，但可以提供消息的读取。</p>
+<p>再次，从Consumer出发，消息消费者提供了负载均衡机制，并且在消费的时候能进行主从选择，当主结点处于繁忙或者宕机的状态时，消息消费者能切换到从节点进行消息消费。</p>
+<p>最后从NameServer出发，NameServer本身就是一个集群，集群中每台服务器中数据都是一致的，并且互不影响，从而达到NameServer的高可用。</p>
+<h1 id="二、RocketMq如何保证高吞吐"><a href="#二、RocketMq如何保证高吞吐" class="headerlink" title="二、RocketMq如何保证高吞吐"></a>二、RocketMq如何保证高吞吐</h1><p>首先，提高消息生产者Producer的发送速度。</p>
+<p>其次，能在Broker端进行消息的过滤，可以减少无效消息发送到Consumer，少占用网络带宽从而提高吞吐量，过滤主要有三种方式：用消息的Tag或者Key过滤、用SQL表达式的方式进行过滤和用Filter Server方式进行过滤。</p>
+<p>再次，提高了Consumer的消息处理能力，这边主要从增加Consumer实例或者提高单个实例的线程数量来提高消息并行度，在某些业务场景下能用批量的方式进行消息的消费，还能检测延时情况，选择性的丢弃不重要的消息来提高消息消费的速度。</p>
+<p>最后，还有消息消费时候的负载均衡机制也能保证消息的高吞吐。</p>
+<p>详细可以参考<a href="https://blog.csdn.net/u012228718/article/details/87169216" target="_blank" rel="noopener">这篇博客</a>。</p>
+<h1 id="三、RocketMQ和kafka的区别"><a href="#三、RocketMQ和kafka的区别" class="headerlink" title="三、RocketMQ和kafka的区别"></a>三、RocketMQ和kafka的区别</h1><p>我认为最主要的区别有两点，一点是数据可靠性，另一点是性能的区别。</p>
+<p>数据可靠性：RocketMQ支持异步刷盘、同步刷盘、同步复制和异步复制。而Kafka只支持异步刷盘和异步复制。所以RocketMQ的同步刷盘在单机可靠性上比Kafka更高，不会造成数据丢失，而且RocketMQ的同步复制也比Kafka的异步复制更可靠，Kafka若主机宕机，备机会自动切换，由于是异步复制，那么很可能数据会有丢失，并且当Leader重启后，由于可能已经消费过，数据也可能存在冲突。但是RocketMQ同步复制是不存在这个问题的。</p>
+<p>性能：Kafka单机写入的TPS在百万条/秒，消息大小为10个字节。RocketMQ单机写入TPS单实例约7万条/秒。但是Kafka是将消息堆积起来一起发送，从而减少网络的IO，但是若此时Producer宕机，会导致消息丢失，业务出错。所以RocketMQ并不是采用这种方式，原因有以下几点：第一点是Producer通常是使用Java语言的，缓存过多的消息会导致GC。第二点，如果宕机，会造成消息的丢失，从而导致业务出错。第三点，Producer通常为分布式系统，且每台机器都是多线程发送的，认为线上单个Producer每秒产生的数据量有限，不可能上万。第四，缓存的功能完全可以由上层业务完成。</p>
+<p>其他的一些对比可以参照下面的博客：</p>
+<p><a href="https://www.cnblogs.com/ynyhl/p/11320797.html" target="_blank" rel="noopener">https://www.cnblogs.com/ynyhl/p/11320797.html</a></p>
+<h1 id="四、RocketMQ的消息是否有序"><a href="#四、RocketMQ的消息是否有序" class="headerlink" title="四、RocketMQ的消息是否有序"></a>四、RocketMQ的消息是否有序</h1><p>在RocketMQ中消息分为全局顺序消息和局部顺序消息，而全局顺序消息要求某个Topic下所有消息都要保证消息与产生顺序相同；部分顺序消息是指，只要保证每一组消息被顺序消费即可。比如之前在RocketMQ中举的那个例子。如果要保证，全局顺序消息的话，只需要把生产者和消费者设置为单线程即可，这样一来，就要牺牲高并发和高吞吐，所以一般业务也只需要部分顺序消息即可。</p>
+<h1 id="五、RocketMQ的消息局部顺序是如何保证"><a href="#五、RocketMQ的消息局部顺序是如何保证" class="headerlink" title="五、RocketMQ的消息局部顺序是如何保证"></a>五、RocketMQ的消息局部顺序是如何保证</h1><p>要保证消息局部顺序只需要保证两件事。首先在消息发送的时候，消息的生产者需要把同一个小组的消息发送到同一个Message Queue中。其次在消费的时候，只用一个线程去处理这个队列中的消息即可。</p>
+<h1 id="六、RocketMQ事务消息机制如何实现"><a href="#六、RocketMQ事务消息机制如何实现" class="headerlink" title="六、RocketMQ事务消息机制如何实现"></a>六、RocketMQ事务消息机制如何实现</h1><p>总计来说，有这么几步</p>
+<p>1、发送消息（这里是half消息）。</p>
+<p>2、服务端相应消息结果。</p>
+<p>3、根据发送结果执行本地事务。</p>
+<p>4、根据本地事务状态执行Commit或者Rollback。</p>
+<p>5、对没有Commit/Rollback的事务消息（pending状态的消息），从服务端发起一次“回查”。</p>
+<p>6、Producer收到回查消息，检查回查消息对应的本地事务的状态。</p>
+<p>7、根据本地事务状态，重新Commit或者Rollback。</p>
+<p>可参考</p>
+<p><a href="https://blog.csdn.net/zhangcongyi420/article/details/90582303" target="_blank" rel="noopener">https://blog.csdn.net/zhangcongyi420/article/details/90582303</a></p>
+<h1 id="七、重复消费问题的解决"><a href="#七、重复消费问题的解决" class="headerlink" title="七、重复消费问题的解决"></a>七、重复消费问题的解决</h1><p>RocketMQ本身不能保证消息的重复消费问题，这个问题只能在业务系统端进行解决，比如设置唯一的id号，让已经消费过的消息不再被消费即可或者消费端处理消息的业务逻辑保证幂等性。</p>
+<h1 id="八、RocketMQ的Push或者Pull"><a href="#八、RocketMQ的Push或者Pull" class="headerlink" title="八、RocketMQ的Push或者Pull"></a>八、RocketMQ的Push或者Pull</h1><p>push或者pull本质都是pull模型，即Consumer轮询从Broker拉取消息。</p>
+<p>pull是指消费者主动去Broker拉取，push是指主动推送给Broker。</p>
+<p>push实时性高，但增加服务器负载，消费端能力不同，如果push的速度较快，消费端会出现问题。</p>
+<p>pull是消费者掌握主动权，可控性较好，但时间间隔不好设置，间隔太短则请求太多，造成忙等的状态，浪费资源，间隔太长了，消息就不能及时处理。</p>
+<p>pull和push都有自己的优缺点，后面就采用了长轮询的方式，兼顾push和pull。即Client发送消息请求，Server端接受请求，如果发现Server队列里没有新消息，Server端不立即返回，而是持有这个请求一段时间（通过设置超时时间来实现），在这段时间内轮询Server队列内是否有新的消息，如果有新消息，就利用现有的连接返回消息给消费者；如果这段时间内没有新消息进入队列，则返回空。</p>
 
       
     </div>
@@ -409,9 +403,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Neo4j/" rel="tag"># Neo4j</a>
-          
-            <a href="/tags/py2neo/" rel="tag"># py2neo</a>
+            <a href="/tags/RocketMQ/" rel="tag"># RocketMQ</a>
           
         </div>
       
@@ -424,8 +416,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/12/07/%E5%9F%BA%E4%BA%8ENeo4j%E6%90%AD%E5%BB%BA%E5%9B%BE%E8%B0%B1%E5%8F%AF%E8%A7%86%E5%8C%96%E5%BA%94%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/" rel="next" title="基于Neo4j搭建图谱可视化应用（一）">
-                <i class="fa fa-chevron-left"></i> 基于Neo4j搭建图谱可视化应用（一）
+              <a href="/2020/01/15/RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B%E9%AB%98%E5%8F%AF%E7%94%A8%E5%88%86%E6%9E%90(%E5%9B%9B)/" rel="next" title="RocketMQ源码学习之高可用分析(四)">
+                <i class="fa fa-chevron-left"></i> RocketMQ源码学习之高可用分析(四)
               </a>
             
           </div>
@@ -433,10 +425,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/04/11/%E7%BA%BF%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B%E6%B1%A0/" rel="prev" title="线程与线程池">
-                线程与线程池 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -572,7 +560,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、数据的备份、迁移"><span class="nav-text">一、数据的备份、迁移</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、一个neo4j数据库中如何切换多个数据库"><span class="nav-text">二、一个neo4j数据库中如何切换多个数据库</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、RocketMq如何保证高可用"><span class="nav-text">一、RocketMq如何保证高可用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、RocketMq如何保证高吞吐"><span class="nav-text">二、RocketMq如何保证高吞吐</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三、RocketMQ和kafka的区别"><span class="nav-text">三、RocketMQ和kafka的区别</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#四、RocketMQ的消息是否有序"><span class="nav-text">四、RocketMQ的消息是否有序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#五、RocketMQ的消息局部顺序是如何保证"><span class="nav-text">五、RocketMQ的消息局部顺序是如何保证</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#六、RocketMQ事务消息机制如何实现"><span class="nav-text">六、RocketMQ事务消息机制如何实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#七、重复消费问题的解决"><span class="nav-text">七、重复消费问题的解决</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#八、RocketMQ的Push或者Pull"><span class="nav-text">八、RocketMQ的Push或者Pull</span></a></li></ol></div>
             
 
           </div>
