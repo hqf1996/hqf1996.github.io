@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="jdk1.8新特性," />
 
 
 
@@ -79,12 +79,15 @@
 
 
 
+<meta name="description" content="前言现在常用的jdk版本就是1.8的版本，1.8版本是一次重大的版本升级，本篇简单总结一下常用的一些新特性。">
+<meta name="keywords" content="jdk1.8新特性">
 <meta property="og:type" content="article">
 <meta property="og:title" content="jdk1.8新特性学习与总结">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;01&#x2F;27&#x2F;jdk1-8%E6%96%B0%E7%89%B9%E6%80%A7%E5%AD%A6%E4%B9%A0%E4%B8%8E%E6%80%BB%E7%BB%93&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
+<meta property="og:description" content="前言现在常用的jdk版本就是1.8的版本，1.8版本是一次重大的版本升级，本篇简单总结一下常用的一些新特性。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-01-27T08:20:44.757Z">
+<meta property="og:updated_time" content="2020-01-28T09:11:54.582Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -298,6 +301,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index">
+                    <span itemprop="name">Java基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -325,7 +350,26 @@
       
 
       
-        
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><center>现在常用的jdk版本就是1.8的版本，1.8版本是一次重大的版本升级，本篇简单总结一下常用的一些新特性。</center>
+
+<a id="more"></a>
+
+<h1 id="一、Lambda表达式"><a href="#一、Lambda表达式" class="headerlink" title="一、Lambda表达式"></a>一、Lambda表达式</h1><p>我认为Lambda表达式是Java8的最重要的一点更新，其中涉及到了<strong>函数接口</strong>这个概念，先来简单看看用法。</p>
+<p>在之前我们要为一个List做升序排序的时候，通常的写法是这样子的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Integer&gt; list = Arrays.asList(<span class="number">4</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">6</span>);</span><br><span class="line">Collections.sort(list, <span class="keyword">new</span> Comparator&lt;Integer&gt;() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(Integer o1, Integer o2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> o1.compareTo(o2);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">/** 不用静态方法Collections.sort()也可</span></span><br><span class="line"><span class="comment">list.sort(new Comparator&lt;Integer&gt;() &#123;</span></span><br><span class="line"><span class="comment">    <span class="doctag">@Override</span></span></span><br><span class="line"><span class="comment">    public int compare(Integer o1, Integer o2) &#123;</span></span><br><span class="line"><span class="comment">        return o1.compareTo(o2);</span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment">&#125;);</span></span><br><span class="line"><span class="comment">**/</span></span><br></pre></td></tr></table></figure>
+
+<p>用Lambda表达式简化过可以写成</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Integer&gt; list = Arrays.asList(<span class="number">4</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">6</span>);</span><br><span class="line">Collections.sort(list, (a, b) -&gt; a.compareTo(b.intValue()));</span><br><span class="line"><span class="comment">//list.sort((a, b) -&gt; a.compareTo(b.intValue()));</span></span><br></pre></td></tr></table></figure>
+
+<p>在上面的Lambda表达式中，Java编译器可以自动推导出参数类型，所以你可以不用再写一次类型。</p>
+<p>之前提到了函数接口的概念，它允许我们将函数当成参数传递给某个方法，或者把代码本身当作数据处理。比如下面这段代码实现遍历的效果</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Integer&gt; list = Arrays.asList(<span class="number">4</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">6</span>);</span><br><span class="line">list.forEach(e -&gt; System.out.println(e));</span><br><span class="line"><span class="comment">// 如果要实现更复杂的语句，只需要加上&#123;&#125;</span></span><br><span class="line">list.forEach(e -&gt; &#123;System.out.println(e);</span><br><span class="line">                   System.out.println();&#125;</span><br><span class="line">            );</span><br></pre></td></tr></table></figure>
+
+<p>稍微复杂一些，如果需要遍历的是对象，可以写成下面这段。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Student s1 = <span class="keyword">new</span> Student(<span class="string">"peter"</span>, <span class="string">"Beijing"</span>, <span class="number">1</span>);</span><br><span class="line">Student s2 = <span class="keyword">new</span> Student(<span class="string">"Mark"</span>, <span class="string">"Hangzhou"</span>, <span class="number">2</span>);</span><br><span class="line">Student s3 = <span class="keyword">new</span> Student(<span class="string">"Marry"</span>, <span class="string">"Shanghai"</span>, <span class="number">3</span>);</span><br><span class="line">List&lt;Student&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">list.add(s1);</span><br><span class="line">list.add(s2);</span><br><span class="line">list.add(s3);</span><br><span class="line">list.forEach(s -&gt; &#123;System.out.println(s.getName());</span><br><span class="line">                   System.out.println(s.getAddress());</span><br><span class="line">                   System.out.println(s.getId());&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>好了，回到之前的<strong>函数式接口</strong>的概念，Lambda之所以能在Java中使用，归功于Java中提供了一个@FunctionalInterface的注解。<strong>函数式接口</strong>就是一个有且仅有一个抽象方法，但是可以有多个非抽象方法的接口，那么就可以使用Lambda表达式来表示该接口的一个实现。</p>
+
       
     </div>
     
@@ -339,6 +383,12 @@
     
 
     <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/jdk1-8%E6%96%B0%E7%89%B9%E6%80%A7/" rel="tag"># jdk1.8新特性</a>
+          
+        </div>
       
 
       
@@ -409,8 +459,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -451,7 +510,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">38</span>
+                  <span class="site-state-item-count">39</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -474,6 +533,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、Lambda表达式"><span class="nav-text">一、Lambda表达式</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
