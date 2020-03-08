@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="hqfBlog">
 <meta property="og:description" content="前言日常记录Linux常用命令">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-01-19T02:18:10.577Z">
+<meta property="og:updated_time" content="2020-03-08T11:15:51.102Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -468,14 +468,11 @@
 
 
 
-
-
-
-
-
-
-
-
+<p>场景：发现Java的生产环境下linux服务器的CPU占用过高如何去解决？</p>
+<p>步骤一：先用top命令，然后按shift+p按照CPU占用进行排序，找到CPU占用最高的那个进程。</p>
+<p>步骤二：再用    top -H -p [进程id]    命令找到进程中资源消耗最高的线程id。</p>
+<p>步骤三：然后用    printf “%x\n” [线程id]   命令将线程id转换为16进制。</p>
+<p>步骤四：最后用    jstack [进程id] |grep -A 10 [线程id的16进制]”    查看线程状态信息。</p>
 
       
     </div>
