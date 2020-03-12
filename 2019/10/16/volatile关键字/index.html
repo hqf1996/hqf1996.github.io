@@ -88,7 +88,7 @@
 <meta property="og:description" content="前言volatile关键字在平常的使用中似乎很少用到，但是其原理值得我们研究，因为它与Java的内存模型相关，并且能保证数据的可见性，但是保证不了原子性。简单来说，线程A对一个volatile变量的修改，对于其它线程来说是可见的，即线程每次获取volatile变量的值都是最新的。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;volatile%E5%85%B3%E9%94%AE%E5%AD%97&#x2F;JMM%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.jpg">
-<meta property="og:updated_time" content="2019-10-17T12:11:16.810Z">
+<meta property="og:updated_time" content="2020-03-12T07:08:40.434Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;volatile%E5%85%B3%E9%94%AE%E5%AD%97&#x2F;JMM%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.jpg">
 
@@ -455,7 +455,9 @@
 
 <p>这边简单解释为什么需要两次check</p>
 <p>外层的check相当于第一次获得对象之后，后面无需再进入synchronized，如果没有外面的check的话，将每次都进入synchroized，我们知道加了synchroized同步后的操作肯定更加耗时的。</p>
-<p>内层的check是为了避免多线程下线程不安全的问题。假如有两个线程进入到内层，可能会产生两个实例。但是加了锁之后，第一个线程结束之后便不会重新再产生对象。</p>
+<p>加synchroized是为了避免多线程下线程不安全的问题。假如有两个线程进入到内层，可能会产生两个实例。但是加了锁之后，第一个线程结束之后便不会重新再产生对象。</p>
+<p>内层的check的原因也是因为多线程情况下，线程A已经进入到synchronized内，然后被阻塞，线程B执行并成功创建出对象，此时线程A继续执行，如果没有内层的check，会重复创建对象。</p>
+<p>另外再解释一下为什么要用volatile的原因，因为我们知道创建一个对象的步骤不是原子性的，而是要有三步：给对象分配内存空间，初始化，引用指向该内存空间。这边用volatile的原因就是为了保证禁止指令重排序。在 JVM 的即时编译器中存在<strong>指令重排序</strong>的优化。也就是说上面的第二步和第三步的顺序是不能保证的，最终的执行顺序可能是 <strong>1-2-3</strong> 也可能是 <strong>1-3-2</strong>。如果是后者，则在 3 执行完毕、2 未执行之前，被线程二抢占了，这时 instance 已经是非 null 了（但却没有初始化），所以线程二会直接返回 instance，然后使用，然后顺理成章地报错。</p>
 
       
     </div>
