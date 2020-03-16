@@ -355,8 +355,7 @@
 
       
         
-          
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>本项目实现了一个简易RPC框架，项目中迭代了五个版本的RPC框架。每个版本最终实现的结果：</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>本项目实现了一个简易RPC框架，项目中迭代了五个版本的RPC框架。每个版本最终实现的结果：</p>
 <p>V1：jdk动态代理+BIO通信+反射。</p>
 <p>V2：较第一版利用线程池实现伪异步。</p>
 <p>V3：较第二版利用NIO实现通信。</p>
@@ -366,15 +365,13 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">provider</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="comment">// 用来暴露服务的类</span></span><br><span class="line">        HelloService helloService = <span class="keyword">new</span> HelloServiceImpl();</span><br><span class="line">        <span class="comment">// 端口号</span></span><br><span class="line">        <span class="keyword">int</span> port = <span class="number">1234</span>;</span><br><span class="line">        ExportService.exportHelloService_v5(helloService, port);</span><br><span class="line">        <span class="comment">//ExportService.exportHelloService_v1(helloService, port);</span></span><br><span class="line">        <span class="comment">//ExportService.exportHelloService_v2(helloService, port);</span></span><br><span class="line">        <span class="comment">//ExportService.exportHelloService_v3(helloService, port);</span></span><br><span class="line">        <span class="comment">//ExportService.exportHelloService_v4(helloService, port);</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>客户端实现相应逻辑，向服务端发送请求，并接收和解析服务端的响应结果。</p>
-<p><strong>参考</strong></p>
-<p><a href="https://hqf1996.github.io/2019/08/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B61-0%E2%80%94%E2%80%94%E7%9F%A5%E8%AF%86%E5%82%A8%E5%A4%87/" target="_blank" rel="noopener">实现一个自己的RPC框架1.0——知识储备</a></p>
-<p><a href="https://hqf1996.github.io/2019/08/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B62-0/" target="_blank" rel="noopener">实现一个自己的RPC框架2.0</a></p>
-<p><a href="https://hqf1996.github.io/2019/08/14/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B63-0/" target="_blank" rel="noopener">实现一个自己的RPC框架3.0</a></p>
-<p><a href="https://hqf1996.github.io/2019/08/29/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B64-0/" target="_blank" rel="noopener">实现一个自己的RPC框架4.0</a></p>
-<p><a href="https://hqf1996.github.io/2019/11/10/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B65-0/" target="_blank" rel="noopener">实现一个自己的RPC框架5.0</a></p>
-<p><a href="https://hqf1996.github.io/2020/01/06/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B66-0/" target="_blank" rel="noopener">实现一个自己的RPC框架6.0</a></p>
-
-          
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/01/06/RPC%E6%A1%86%E6%9E%B6%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0%E7%B3%BB%E5%88%97/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
