@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="hqfBlog">
 <meta property="og:description" content="前言想到让线程停止的方法，可能第一个冒出来的是stop()方法，但是这个方法已经停止使用，是一个废弃的方法，因为由它会造成很多的问题，比如数据的不一致等问题。现在一般会使用另外的方法对线程进行停止，本篇主要对Thread类中interrupt()、interrupted()和isInterrupted()方法进行详解。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-12T03:12:46.731Z">
+<meta property="og:updated_time" content="2020-03-16T04:06:46.366Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -395,7 +395,7 @@
 <p>输出结果：</p>
 <p>第一次调用 false<br>第二次调用 false</p>
 </blockquote>
-<p>在之前的<code>mmThread.interrupt();</code>中明明就标记了中断标记位，但是输出的确实false，那么为何会这样？<font color="red">注意：myThread.isInterrupted()指的是当前线程是否被中断，注意这个当前线程！！也就是当前线程其实是main线程，那么mmThread被中断也就和它没有任何关系了。</font>也就是，myThread.interrupted()等价于Thread.interrupted()。</p>
+<p>在之前的<code>mmThread.interrupt();</code>中明明就标记了中断标记位，但是输出的确实false，那么为何会这样？<font color="red">注意：myThread.Interrupted()指的是当前线程是否被中断，注意这个当前线程！！也就是当前线程其实是main线程，那么mmThread被中断也就和它没有任何关系了。</font>也就是，myThread.interrupted()等价于Thread.interrupted()。</p>
 <h2 id="例六"><a href="#例六" class="headerlink" title="例六"></a>例六</h2><p>若要通过调用interrupt()来终止某个线程，其实只要在线程的run()中进行处理即可。比如跳出run()方法让线程结束。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">myThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span> ; i &lt; <span class="number">10000</span> ; ++i) &#123;</span><br><span class="line">            System.out.println(<span class="string">"i="</span> + i);</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.isInterrupted()) &#123;</span><br><span class="line">                System.out.println(<span class="string">"检测到中断，跳出线程"</span>);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"不是直接跳出中断，而是要运行完再跳出！！！"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
