@@ -79,15 +79,15 @@
 
 
 
-<meta name="description" content="前言上一篇开始的地方占了个坑，其实那两个问题也涉及到消费者这边的相关逻辑，本篇主要从保证消费者消费高可用出发，其中涉及到两个方面，其一消费者消费时，会对broker集群的所有队列进行选择，也就需要考虑消费者的负载均衡机制。其二，在Consumer的配置文件中不需要设置消费者是从master读取数据还是slave读取，当master繁忙的时候，Consumer会被自动切换到从slave读取数据，也之">
+<meta name="description" content="前言  上一篇开始的地方占了个坑，其实那两个问题也涉及到消费者这边的相关逻辑，本篇主要从保证消费者消费高可用出发，其中涉及到两个方面，其一消费者消费时，会对broker集群的所有队列进行选择，也就需要考虑消费者的负载均衡机制。其二，在Consumer的配置文件中不需要设置消费者是从master读取数据还是slave读取，当master繁忙的时候，Consumer会被自动切换到从slave读取数据，">
 <meta name="keywords" content="RocketMQ">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RocketMQ源码学习之高可用分析(三)">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;01&#x2F;15&#x2F;RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B%E9%AB%98%E5%8F%AF%E7%94%A8%E5%88%86%E6%9E%90(%E4%B8%89)&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言上一篇开始的地方占了个坑，其实那两个问题也涉及到消费者这边的相关逻辑，本篇主要从保证消费者消费高可用出发，其中涉及到两个方面，其一消费者消费时，会对broker集群的所有队列进行选择，也就需要考虑消费者的负载均衡机制。其二，在Consumer的配置文件中不需要设置消费者是从master读取数据还是slave读取，当master繁忙的时候，Consumer会被自动切换到从slave读取数据，也之">
+<meta property="og:description" content="前言  上一篇开始的地方占了个坑，其实那两个问题也涉及到消费者这边的相关逻辑，本篇主要从保证消费者消费高可用出发，其中涉及到两个方面，其一消费者消费时，会对broker集群的所有队列进行选择，也就需要考虑消费者的负载均衡机制。其二，在Consumer的配置文件中不需要设置消费者是从master读取数据还是slave读取，当master繁忙的时候，Consumer会被自动切换到从slave读取数据，">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-01-15T10:31:35.681Z">
+<meta property="og:updated_time" content="2020-03-16T07:16:49.857Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -351,7 +351,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>上一篇开始的地方占了个坑，其实那两个问题也涉及到消费者这边的相关逻辑，本篇主要从保证消费者消费高可用出发，其中涉及到两个方面，其一消费者消费时，会对broker集群的所有队列进行选择，也就需要考虑消费者的负载均衡机制。其二，在Consumer的配置文件中不需要设置消费者是从master读取数据还是slave读取，当master繁忙的时候，Consumer会被自动切换到从slave读取数据，也之所以有了这种机制，当master发生故障的时候，Consumer仍然可以从slave读取数据，不影响Consumer的消费，达到高可用。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>上一篇开始的地方占了个坑，其实那两个问题也涉及到消费者这边的相关逻辑，本篇主要从保证消费者消费高可用出发，其中涉及到两个方面，其一消费者消费时，会对broker集群的所有队列进行选择，也就需要考虑消费者的负载均衡机制。其二，在Consumer的配置文件中不需要设置消费者是从master读取数据还是slave读取，当master繁忙的时候，Consumer会被自动切换到从slave读取数据，也之所以有了这种机制，当master发生故障的时候，Consumer仍然可以从slave读取数据，不影响Consumer的消费，达到高可用。</p>
 <a id="more"></a>
 
 <h1 id="一、Consumer高可用"><a href="#一、Consumer高可用" class="headerlink" title="一、Consumer高可用"></a>一、Consumer高可用</h1><h2 id="1-1-Consumer端的负载均衡机制"><a href="#1-1-Consumer端的负载均衡机制" class="headerlink" title="1.1 Consumer端的负载均衡机制"></a>1.1 Consumer端的负载均衡机制</h2><p>先引入一个消费者组的概念</p>

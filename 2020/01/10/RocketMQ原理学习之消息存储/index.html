@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="前言消息存储是消息队列中最为重要的一部分，因为对其有高可靠性的要求，就要求数据进行持久化存储。作为数据的存储介质，无非就是数据库和文件系统两种，比如ActiveMQ就是将数据存储在DB中，而rocketMQ则是将数据存放在文件系统中。本篇主要从保证rocketMQ的读写性能出发，分析其中的原理。">
+<meta name="description" content="前言  消息存储是消息队列中最为重要的一部分，因为对其有高可靠性的要求，就要求数据进行持久化存储。作为数据的存储介质，无非就是数据库和文件系统两种，比如ActiveMQ就是将数据存储在DB中，而rocketMQ则是将数据存放在文件系统中。本篇主要从保证rocketMQ的读写性能出发，分析其中的原理。">
 <meta name="keywords" content="RocketMQ">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RocketMQ原理学习之消息存储">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;01&#x2F;10&#x2F;RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言消息存储是消息队列中最为重要的一部分，因为对其有高可靠性的要求，就要求数据进行持久化存储。作为数据的存储介质，无非就是数据库和文件系统两种，比如ActiveMQ就是将数据存储在DB中，而rocketMQ则是将数据存放在文件系统中。本篇主要从保证rocketMQ的读写性能出发，分析其中的原理。">
+<meta property="og:description" content="前言  消息存储是消息队列中最为重要的一部分，因为对其有高可靠性的要求，就要求数据进行持久化存储。作为数据的存储介质，无非就是数据库和文件系统两种，比如ActiveMQ就是将数据存储在DB中，而rocketMQ则是将数据存放在文件系统中。本篇主要从保证rocketMQ的读写性能出发，分析其中的原理。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8&#x2F;%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8&#x2F;%E6%B6%88%E6%81%AF%E5%9C%A8CommitLog%E5%92%8CConsumeQueue%E4%B8%AD%E7%9A%84%E5%AD%98%E5%82%A8.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8&#x2F;%E5%90%8C%E6%AD%A5%E5%88%B7%E7%9B%98%E5%92%8C%E5%BC%82%E6%AD%A5%E5%88%B7%E7%9B%98.png">
-<meta property="og:updated_time" content="2020-01-11T13:09:34.559Z">
+<meta property="og:updated_time" content="2020-03-16T07:16:44.475Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%8E%9F%E7%90%86%E5%AD%A6%E4%B9%A0%E4%B9%8B%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8&#x2F;%E6%B6%88%E6%81%AF%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84.png">
 
@@ -355,7 +355,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>消息存储是消息队列中最为重要的一部分，因为对其有高可靠性的要求，就要求数据进行持久化存储。作为数据的存储介质，无非就是数据库和文件系统两种，比如ActiveMQ就是将数据存储在DB中，而rocketMQ则是将数据存放在文件系统中。本篇主要从保证rocketMQ的读写性能出发，分析其中的原理。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>消息存储是消息队列中最为重要的一部分，因为对其有高可靠性的要求，就要求数据进行持久化存储。作为数据的存储介质，无非就是数据库和文件系统两种，比如ActiveMQ就是将数据存储在DB中，而rocketMQ则是将数据存放在文件系统中。本篇主要从保证rocketMQ的读写性能出发，分析其中的原理。</p>
 <a id="more"></a>
 
 <h1 id="一、数据库和文件系统存储对比"><a href="#一、数据库和文件系统存储对比" class="headerlink" title="一、数据库和文件系统存储对比"></a>一、数据库和文件系统存储对比</h1><p>数据库作为存储介质：我总结有两点不是很好的地方。其一是在单表数据量达到千万级别的情况下，其IO读写性能往往会出现瓶颈。其二是在可靠性方面，如果一旦DB出现故障，则MQ的消息就无法落盘存储会导致线上故障。</p>

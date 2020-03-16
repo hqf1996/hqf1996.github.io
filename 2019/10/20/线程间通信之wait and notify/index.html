@@ -79,15 +79,15 @@
 
 
 
-<meta name="description" content="前言wait和notify这两个方法通常在线程间通信中常常用到，其中wait方法和sleep方法虽然都能够让线程“停下来”，但是有很大的区别，另外，耳熟能详的生产者消费者问题也涉及到wait和notify，本篇就简单的整理一下这些问题吧！">
+<meta name="description" content="前言  wait和notify这两个方法通常在线程间通信中常常用到，其中wait方法和sleep方法虽然都能够让线程“停下来”，但是有很大的区别，另外，耳熟能详的生产者消费者问题也涉及到wait和notify，本篇就简单的整理一下这些问题吧！">
 <meta name="keywords" content="Java,多线程,线程间通信">
 <meta property="og:type" content="article">
 <meta property="og:title" content="线程间通信之wait&#x2F;notify">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;20&#x2F;%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%E4%B9%8Bwait%20and%20notify&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言wait和notify这两个方法通常在线程间通信中常常用到，其中wait方法和sleep方法虽然都能够让线程“停下来”，但是有很大的区别，另外，耳熟能详的生产者消费者问题也涉及到wait和notify，本篇就简单的整理一下这些问题吧！">
+<meta property="og:description" content="前言  wait和notify这两个方法通常在线程间通信中常常用到，其中wait方法和sleep方法虽然都能够让线程“停下来”，但是有很大的区别，另外，耳熟能详的生产者消费者问题也涉及到wait和notify，本篇就简单的整理一下这些问题吧！">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-21T05:44:30.452Z">
+<meta property="og:updated_time" content="2020-03-16T07:15:43.914Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -351,7 +351,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>wait和notify这两个方法通常在线程间通信中常常用到，其中wait方法和sleep方法虽然都能够让线程“停下来”，但是有很大的区别，另外，耳熟能详的生产者消费者问题也涉及到wait和notify，本篇就简单的整理一下这些问题吧！</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>wait和notify这两个方法通常在线程间通信中常常用到，其中wait方法和sleep方法虽然都能够让线程“停下来”，但是有很大的区别，另外，耳熟能详的生产者消费者问题也涉及到wait和notify，本篇就简单的整理一下这些问题吧！</p>
 <a id="more"></a>
 
 <h1 id="一、wait-notify-的简单使用"><a href="#一、wait-notify-的简单使用" class="headerlink" title="一、wait()/notify()的简单使用"></a>一、wait()/notify()的简单使用</h1><p>用一个例子来看一下简单的使用：假设有两个线程，一个线程用来判断数组中长度是否达到5，达到的时候通知一下，另一个线程用来往数组中添加元素。</p>

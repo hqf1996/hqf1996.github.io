@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="前言我们知道，Lock接口的实现基本都是通过聚合了一个同步器的子类来完成线程的访问控制的。队列同步器AbstractQueuedSynchronizer是用来构建锁或者其他同步组件的基础框架，以下简称AQS。网上关于AQS的总结已经很到位了，这边主要记录一下自己的学习过程。">
+<meta name="description" content="前言  我们知道，Lock接口的实现基本都是通过聚合了一个同步器的子类来完成线程的访问控制的。队列同步器AbstractQueuedSynchronizer是用来构建锁或者其他同步组件的基础框架，以下简称AQS。网上关于AQS的总结已经很到位了，这边主要记录一下自己的学习过程。">
 <meta name="keywords" content="Java,多线程,AQS">
 <meta property="og:type" content="article">
 <meta property="og:title" content="队列同步器AQS">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;25&#x2F;%E9%98%9F%E5%88%97%E5%90%8C%E6%AD%A5%E5%99%A8AQS&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言我们知道，Lock接口的实现基本都是通过聚合了一个同步器的子类来完成线程的访问控制的。队列同步器AbstractQueuedSynchronizer是用来构建锁或者其他同步组件的基础框架，以下简称AQS。网上关于AQS的总结已经很到位了，这边主要记录一下自己的学习过程。">
+<meta property="og:description" content="前言  我们知道，Lock接口的实现基本都是通过聚合了一个同步器的子类来完成线程的访问控制的。队列同步器AbstractQueuedSynchronizer是用来构建锁或者其他同步组件的基础框架，以下简称AQS。网上关于AQS的总结已经很到位了，这边主要记录一下自己的学习过程。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E9%98%9F%E5%88%97%E5%90%8C%E6%AD%A5%E5%99%A8AQS&#x2F;AQS%E7%A4%BA%E6%84%8F%E5%9B%BE.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E9%98%9F%E5%88%97%E5%90%8C%E6%AD%A5%E5%99%A8AQS&#x2F;ReentrantLock%E7%9A%84%E7%B1%BB.png">
-<meta property="og:updated_time" content="2019-10-27T09:06:14.529Z">
+<meta property="og:updated_time" content="2020-03-16T07:15:04.106Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E9%98%9F%E5%88%97%E5%90%8C%E6%AD%A5%E5%99%A8AQS&#x2F;AQS%E7%A4%BA%E6%84%8F%E5%9B%BE.png">
 
@@ -354,7 +354,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>我们知道，Lock接口的实现基本都是通过聚合了一个同步器的子类来完成线程的访问控制的。队列同步器<code>AbstractQueuedSynchronizer</code>是用来构建锁或者其他同步组件的基础框架，以下简称<code>AQS</code>。网上关于AQS的总结已经很到位了，这边主要记录一下自己的学习过程。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>我们知道，Lock接口的实现基本都是通过聚合了一个同步器的子类来完成线程的访问控制的。队列同步器<code>AbstractQueuedSynchronizer</code>是用来构建锁或者其他同步组件的基础框架，以下简称<code>AQS</code>。网上关于AQS的总结已经很到位了，这边主要记录一下自己的学习过程。</p>
 <a id="more"></a>
 
 <h1 id="一、AQS到底是什么？"><a href="#一、AQS到底是什么？" class="headerlink" title="一、AQS到底是什么？"></a>一、AQS到底是什么？</h1><p>AQS是一个用来构建锁和其他同步组件的基础框架，像是ReentrantLock、ReentrantReadWriteLock、CountDownLatch等等，这些锁或者同步组件都不陌生，但是之前我并不了解他们的具体底层实现，在了解了AQS之后才感觉到它们其实都是有联系的，而其中的联系就是AQS。AQS内部通过内部类Node构成一个双向的FIFO队列来进行锁的获取，通过一个int类型的成员变量state来控制同步状态，当state=0时，说明没有任何线程占有共享资源的锁，当state=1时，则说明有线程目前正在使用共享变量，其他线程必须加入同步队列进行等待，这个state是volatile类型的，也就是可以保证对所有线程的可见性。注意，在AQS中有两种队列的形式，一种是同步队列，用于存放所有等待获取锁的线程，另一种是等待队列（非必要的，只有在Condition的时候才会有，是一个单向的链表），通过Condition调用await()方法释放锁后，将加入等待队列。</p>

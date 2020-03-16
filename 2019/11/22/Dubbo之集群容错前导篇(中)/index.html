@@ -79,15 +79,15 @@
 
 
 
-<meta name="description" content="前言上一篇主要介绍了服务目录 Directory的相关部分，本篇就主要结合源码来说说服务路由 Router相关部分，当然了，这边我们主要关注点是它是如何过滤的。具体的源码分析也能参考官方博客。">
+<meta name="description" content="前言  上一篇主要介绍了服务目录 Directory的相关部分，本篇就主要结合源码来说说服务路由 Router相关部分，当然了，这边我们主要关注点是它是如何过滤的。具体的源码分析也能参考官方博客。">
 <meta name="keywords" content="Dubbo">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Dubbo之集群容错前导篇(中)">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;11&#x2F;22&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87(%E4%B8%AD)&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言上一篇主要介绍了服务目录 Directory的相关部分，本篇就主要结合源码来说说服务路由 Router相关部分，当然了，这边我们主要关注点是它是如何过滤的。具体的源码分析也能参考官方博客。">
+<meta property="og:description" content="前言  上一篇主要介绍了服务目录 Directory的相关部分，本篇就主要结合源码来说说服务路由 Router相关部分，当然了，这边我们主要关注点是它是如何过滤的。具体的源码分析也能参考官方博客。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-11-22T07:53:41.453Z">
+<meta property="og:updated_time" content="2020-03-16T07:16:01.562Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -351,7 +351,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>上一篇主要介绍了服务目录 <code>Directory</code>的相关部分，本篇就主要结合源码来说说服务路由 <code>Router</code>相关部分，当然了，这边我们主要关注点是它是如何过滤的。具体的源码分析也能参考<a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/router.html" target="_blank" rel="noopener">官方博客</a>。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>上一篇主要介绍了服务目录 <code>Directory</code>的相关部分，本篇就主要结合源码来说说服务路由 <code>Router</code>相关部分，当然了，这边我们主要关注点是它是如何过滤的。具体的源码分析也能参考<a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/router.html" target="_blank" rel="noopener">官方博客</a>。</p>
 <a id="more"></a>
 
 <h1 id="Router"><a href="#Router" class="headerlink" title="Router"></a>Router</h1><h2 id="1-简介"><a href="#1-简介" class="headerlink" title="1.简介"></a>1.简介</h2><p>这边可能要联系到Directory的相关内容，回想一下，在上一篇服务目录中<code>RegistryDirectory</code>类中的刷新操作中，其实也需要多次进行路由，目的也就是筛选出符合条件的<code>Invoker</code>。它整个调用的逻辑是这样的</p>

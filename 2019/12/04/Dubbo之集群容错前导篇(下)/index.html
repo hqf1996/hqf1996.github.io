@@ -79,16 +79,16 @@
 
 
 
-<meta name="description" content="前言在之前通过源码角度分析了Dubbo集群容错的服务目录 Directory、服务路由 Router两个部分，本篇主要介绍一下集群Cluster部分，简单介绍Cluster到底是干什么的，简单介绍一下Dubbo的9种集群容错的实现，官方文档上虽然只介绍了主要的5种集群容错模式。">
+<meta name="description" content="前言  在之前通过源码角度分析了Dubbo集群容错的服务目录 Directory、服务路由 Router两个部分，本篇主要介绍一下集群Cluster部分，简单介绍Cluster到底是干什么的，简单介绍一下Dubbo的9种集群容错的实现，官方文档上虽然只介绍了主要的5种集群容错模式。">
 <meta name="keywords" content="Dubbo">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Dubbo之集群容错前导篇(下)">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;04&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87(%E4%B8%8B)&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言在之前通过源码角度分析了Dubbo集群容错的服务目录 Directory、服务路由 Router两个部分，本篇主要介绍一下集群Cluster部分，简单介绍Cluster到底是干什么的，简单介绍一下Dubbo的9种集群容错的实现，官方文档上虽然只介绍了主要的5种集群容错模式。">
+<meta property="og:description" content="前言  在之前通过源码角度分析了Dubbo集群容错的服务目录 Directory、服务路由 Router两个部分，本篇主要介绍一下集群Cluster部分，简单介绍Cluster到底是干什么的，简单介绍一下Dubbo的9种集群容错的实现，官方文档上虽然只介绍了主要的5种集群容错模式。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87&#x2F;cluster%E7%B1%BB%E5%9B%BE%20-%20.webp">
-<meta property="og:updated_time" content="2019-12-08T15:51:37.732Z">
+<meta property="og:updated_time" content="2020-03-16T07:15:58.768Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87&#x2F;cluster%E7%B1%BB%E5%9B%BE%20-%20.webp">
 
@@ -353,7 +353,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在之前通过源码角度分析了Dubbo集群容错的服务目录 <code>Directory</code>、服务路由 <code>Router</code>两个部分，本篇主要介绍一下集群<code>Cluster</code>部分，简单介绍Cluster到底是干什么的，简单介绍一下Dubbo的9种集群容错的实现，官方文档上虽然只介绍了主要的5种集群容错模式。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>在之前通过源码角度分析了Dubbo集群容错的服务目录 <code>Directory</code>、服务路由 <code>Router</code>两个部分，本篇主要介绍一下集群<code>Cluster</code>部分，简单介绍Cluster到底是干什么的，简单介绍一下Dubbo的9种集群容错的实现，官方文档上虽然只介绍了主要的5种集群容错模式。</p>
 <a id="more"></a>
 
 <h1 id="Cluster"><a href="#Cluster" class="headerlink" title="Cluster"></a>Cluster</h1><h2 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h2><p>cluster到底在什么时候用到？以下一段话截取自<a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/cluster.html" target="_blank" rel="noopener">官方文档</a></p>

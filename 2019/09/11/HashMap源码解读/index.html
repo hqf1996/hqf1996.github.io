@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="前言HashMap是Java中最为常见的一个数据结构，它是一种基于哈希表(散列表)，实现Map接口的集合，在JDK1.7中其主要是由数组+链表构成，而到了JDK1.8的时候就由数组+链表+红黑树构成。其实HashMap中还是有许多地方值得我们注意的地方。比如说HashMap在JDK1.7和JDK1.8中有较大的不同，那么都有哪些不同？HashMap在什么条件下会进行扩容，如何扩容？HashMap的">
+<meta name="description" content="前言  HashMap是Java中最为常见的一个数据结构，它是一种基于哈希表(散列表)，实现Map接口的集合，在JDK1.7中其主要是由数组+链表构成，而到了JDK1.8的时候就由数组+链表+红黑树构成。其实HashMap中还是有许多地方值得我们注意的地方。比如说HashMap在JDK1.7和JDK1.8中有较大的不同，那么都有哪些不同？HashMap在什么条件下会进行扩容，如何扩容？HashMa">
 <meta name="keywords" content="HashMap,Java基础">
 <meta property="og:type" content="article">
 <meta property="og:title" content="HashMap源码解读">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;09&#x2F;11&#x2F;HashMap%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言HashMap是Java中最为常见的一个数据结构，它是一种基于哈希表(散列表)，实现Map接口的集合，在JDK1.7中其主要是由数组+链表构成，而到了JDK1.8的时候就由数组+链表+红黑树构成。其实HashMap中还是有许多地方值得我们注意的地方。比如说HashMap在JDK1.7和JDK1.8中有较大的不同，那么都有哪些不同？HashMap在什么条件下会进行扩容，如何扩容？HashMap的">
+<meta property="og:description" content="前言  HashMap是Java中最为常见的一个数据结构，它是一种基于哈希表(散列表)，实现Map接口的集合，在JDK1.7中其主要是由数组+链表构成，而到了JDK1.8的时候就由数组+链表+红黑树构成。其实HashMap中还是有许多地方值得我们注意的地方。比如说HashMap在JDK1.7和JDK1.8中有较大的不同，那么都有哪些不同？HashMap在什么条件下会进行扩容，如何扩容？HashMa">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;HashMap%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB&#x2F;HashMap%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84.jpg">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;HashMap%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB&#x2F;%E5%8D%95%E7%BA%BF%E7%A8%8Brehash.jpg">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;HashMap%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB&#x2F;%E5%B9%B6%E5%8F%91rehash1.jpg">
-<meta property="og:updated_time" content="2019-11-01T08:33:28.418Z">
+<meta property="og:updated_time" content="2020-03-16T07:16:08.429Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;HashMap%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB&#x2F;HashMap%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84.jpg">
 
@@ -355,7 +355,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>HashMap是Java中最为常见的一个数据结构，它是一种基于哈希表(散列表)，实现Map接口的集合，在JDK1.7中其主要是由<strong>数组+链表</strong>构成，而到了JDK1.8的时候就由<strong>数组+链表+红黑树</strong>构成。其实HashMap中还是有许多地方值得我们注意的地方。比如说HashMap在JDK1.7和JDK1.8中有较大的不同，那么都有哪些不同？HashMap在什么条件下会进行扩容，如何扩容？HashMap的get/put过程是如何实现的？HashMap如何解决并发问题？HashMap的key如何设置？下面将对HashMap进行一次比较系统的整理与学习。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>HashMap是Java中最为常见的一个数据结构，它是一种基于哈希表(散列表)，实现Map接口的集合，在JDK1.7中其主要是由<strong>数组+链表</strong>构成，而到了JDK1.8的时候就由<strong>数组+链表+红黑树</strong>构成。其实HashMap中还是有许多地方值得我们注意的地方。比如说HashMap在JDK1.7和JDK1.8中有较大的不同，那么都有哪些不同？HashMap在什么条件下会进行扩容，如何扩容？HashMap的get/put过程是如何实现的？HashMap如何解决并发问题？HashMap的key如何设置？下面将对HashMap进行一次比较系统的整理与学习。</p>
 <a id="more"></a>
 
 <h1 id="一、我对HashMap的疑问"><a href="#一、我对HashMap的疑问" class="headerlink" title="一、我对HashMap的疑问"></a>一、我对HashMap的疑问</h1><p>HashMap的使用是很简单的，但是在没有看源码之前，我对HashMap还是有着一些疑问。</p>

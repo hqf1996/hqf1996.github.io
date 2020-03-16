@@ -79,19 +79,19 @@
 
 
 
-<meta name="description" content="前言在不同服务部署在不同的机器上的前提下，服务器之间存在大量的网络通信，这时候就需要写大量的网络通信的代码，十分不方便。如果能够让服务器调用远程方法就像是调用本地方法一样，将会大大减少工作量，这种方法的实现其实就是RPC。">
+<meta name="description" content="前言  在不同服务部署在不同的机器上的前提下，服务器之间存在大量的网络通信，这时候就需要写大量的网络通信的代码，十分不方便。如果能够让服务器调用远程方法就像是调用本地方法一样，将会大大减少工作量，这种方法的实现其实就是RPC。">
 <meta name="keywords" content="RPC">
 <meta property="og:type" content="article">
 <meta property="og:title" content="实现一个自己的RPC框架2.0">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;08&#x2F;11&#x2F;%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B62-0&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言在不同服务部署在不同的机器上的前提下，服务器之间存在大量的网络通信，这时候就需要写大量的网络通信的代码，十分不方便。如果能够让服务器调用远程方法就像是调用本地方法一样，将会大大减少工作量，这种方法的实现其实就是RPC。">
+<meta property="og:description" content="前言  在不同服务部署在不同的机器上的前提下，服务器之间存在大量的网络通信，这时候就需要写大量的网络通信的代码，十分不方便。如果能够让服务器调用远程方法就像是调用本地方法一样，将会大大减少工作量，这种方法的实现其实就是RPC。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RPC%E6%A1%86%E6%9E%B61.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%9C%8D%E5%8A%A1%E7%AB%AF%E7%9B%91%E5%90%AC%E7%AB%AF%E5%8F%A3.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%90%91%E7%AB%AF%E5%8F%A3%E5%8F%91%E9%80%81%E8%AF%B7%E6%B1%82%E5%B9%B6%E8%8E%B7%E5%BE%97%E8%BF%94%E5%9B%9E.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%8E%A5%E5%8F%97%E8%AF%B7%E6%B1%82%E5%B9%B6%E5%A4%84%E7%90%86%E8%BF%94%E5%9B%9E.png">
-<meta property="og:updated_time" content="2019-08-13T11:09:17.753Z">
+<meta property="og:updated_time" content="2020-03-16T07:15:25.779Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RPC%E6%A1%86%E6%9E%B61.png">
 
@@ -356,7 +356,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在不同服务部署在不同的机器上的前提下，服务器之间存在大量的网络通信，这时候就需要写大量的网络通信的代码，十分不方便。如果能够让服务器调用远程方法就像是调用本地方法一样，将会大大减少工作量，这种方法的实现其实就是RPC。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>在不同服务部署在不同的机器上的前提下，服务器之间存在大量的网络通信，这时候就需要写大量的网络通信的代码，十分不方便。如果能够让服务器调用远程方法就像是调用本地方法一样，将会大大减少工作量，这种方法的实现其实就是RPC。</p>
 <a id="more"></a>
 
 <p>大致的实现应该如下图一样。</p>

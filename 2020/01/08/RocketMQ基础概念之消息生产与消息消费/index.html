@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="前言最近打算开始学习消息队列相关内容，计划先从简单的整体框架出发宏观把握，再深入到源码层面。打算从rocketMQ出发进行展开，本篇先从基础的整体框架，消息生产方式和消息消费方式进行学习。">
+<meta name="description" content="前言  最近打算开始学习消息队列相关内容，计划先从简单的整体框架出发宏观把握，再深入到源码层面。打算从rocketMQ出发进行展开，本篇先从基础的整体框架，消息生产方式和消息消费方式进行学习。">
 <meta name="keywords" content="RocketMQ">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RocketMQ基础概念之消息生产与消息消费">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;01&#x2F;08&#x2F;RocketMQ%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B9%8B%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E4%B8%8E%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言最近打算开始学习消息队列相关内容，计划先从简单的整体框架出发宏观把握，再深入到源码层面。打算从rocketMQ出发进行展开，本篇先从基础的整体框架，消息生产方式和消息消费方式进行学习。">
+<meta property="og:description" content="前言  最近打算开始学习消息队列相关内容，计划先从简单的整体框架出发宏观把握，再深入到源码层面。打算从rocketMQ出发进行展开，本篇先从基础的整体框架，消息生产方式和消息消费方式进行学习。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B9%8B%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E4%B8%8E%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9&#x2F;RocketMQ%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84.jpg">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B9%8B%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E4%B8%8E%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9&#x2F;%E4%BA%8B%E5%8A%A1%E6%B6%88%E6%81%AF.png">
-<meta property="og:updated_time" content="2020-01-08T08:23:09.426Z">
+<meta property="og:updated_time" content="2020-03-16T07:16:41.852Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B9%8B%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E4%B8%8E%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9&#x2F;RocketMQ%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84.jpg">
 
@@ -354,7 +354,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>最近打算开始学习消息队列相关内容，计划先从简单的整体框架出发宏观把握，再深入到源码层面。打算从rocketMQ出发进行展开，本篇先从基础的整体框架，消息生产方式和消息消费方式进行学习。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>最近打算开始学习消息队列相关内容，计划先从简单的整体框架出发宏观把握，再深入到源码层面。打算从rocketMQ出发进行展开，本篇先从基础的整体框架，消息生产方式和消息消费方式进行学习。</p>
 <a id="more"></a>
 
 <h1 id="一、RocketMQ简介"><a href="#一、RocketMQ简介" class="headerlink" title="一、RocketMQ简介"></a>一、RocketMQ简介</h1><p>目前主流的MQ主要有RocketMQ、kafka、RabbitMQ，消息队列作为高并发系统的核心组件之一，能够帮助业务系统解构提升开发效率和系统稳定性。主要的优势有流量削峰、应用解耦、数据分发（提升性能）和蓄流压测（通过堆积消息进行压测）。</p>

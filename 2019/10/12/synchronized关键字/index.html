@@ -79,13 +79,13 @@
 
 
 
-<meta name="description" content="前言在并发中一个常见的关键字就是synchronized，但是在jdk1.5（包含jdk1.5）之前synchronized是一个重量级锁，就显得十分笨重，所以慢慢地摒弃了它，但是在jdk1.6之后，对synchronized进行了各种优化， 它就显得不那么笨重，下面一起来探讨一下synchronized的基本使用方法，底层原理实现等等知识。">
+<meta name="description" content="前言  在并发中一个常见的关键字就是synchronized，但是在jdk1.5（包含jdk1.5）之前synchronized是一个重量级锁，就显得十分笨重，所以慢慢地摒弃了它，但是在jdk1.6之后，对synchronized进行了各种优化， 它就显得不那么笨重，下面一起来探讨一下synchronized的基本使用方法，底层原理实现等等知识。">
 <meta name="keywords" content="Java,多线程,synchronized">
 <meta property="og:type" content="article">
 <meta property="og:title" content="synchronized关键字">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;12&#x2F;synchronized%E5%85%B3%E9%94%AE%E5%AD%97&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言在并发中一个常见的关键字就是synchronized，但是在jdk1.5（包含jdk1.5）之前synchronized是一个重量级锁，就显得十分笨重，所以慢慢地摒弃了它，但是在jdk1.6之后，对synchronized进行了各种优化， 它就显得不那么笨重，下面一起来探讨一下synchronized的基本使用方法，底层原理实现等等知识。">
+<meta property="og:description" content="前言  在并发中一个常见的关键字就是synchronized，但是在jdk1.5（包含jdk1.5）之前synchronized是一个重量级锁，就显得十分笨重，所以慢慢地摒弃了它，但是在jdk1.6之后，对synchronized进行了各种优化， 它就显得不那么笨重，下面一起来探讨一下synchronized的基本使用方法，底层原理实现等等知识。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;synchronized%E5%85%B3%E9%94%AE%E5%AD%97&#x2F;%E5%8F%8D%E7%BC%96%E8%AF%91class%E6%96%87%E4%BB%B6.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;synchronized%E5%85%B3%E9%94%AE%E5%AD%97&#x2F;%E5%8F%8D%E7%BC%96%E8%AF%91class%E6%96%87%E4%BB%B62.png">
@@ -98,7 +98,7 @@
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;synchronized%E5%85%B3%E9%94%AE%E5%AD%97&#x2F;%E5%81%8F%E5%90%91%E9%94%81%E8%8E%B7%E5%BE%97%E5%92%8C%E6%92%A4%E9%94%80%E6%B5%81%E7%A8%8B.webp">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;synchronized%E5%85%B3%E9%94%AE%E5%AD%97&#x2F;%E8%BD%BB%E9%87%8F%E7%BA%A7%E9%94%81%E8%BF%87%E7%A8%8B.webp">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;synchronized%E5%85%B3%E9%94%AE%E5%AD%97&#x2F;%E9%94%81%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9.webp">
-<meta property="og:updated_time" content="2019-10-15T11:59:44.198Z">
+<meta property="og:updated_time" content="2020-03-16T07:17:13.097Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;synchronized%E5%85%B3%E9%94%AE%E5%AD%97&#x2F;%E5%8F%8D%E7%BC%96%E8%AF%91class%E6%96%87%E4%BB%B6.png">
 
@@ -363,7 +363,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在并发中一个常见的关键字就是synchronized，但是在jdk1.5（包含jdk1.5）之前synchronized是一个重量级锁，就显得十分笨重，所以慢慢地摒弃了它，但是在jdk1.6之后，对synchronized进行了各种优化， 它就显得不那么笨重，下面一起来探讨一下synchronized的基本使用方法，底层原理实现等等知识。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>在并发中一个常见的关键字就是synchronized，但是在jdk1.5（包含jdk1.5）之前synchronized是一个重量级锁，就显得十分笨重，所以慢慢地摒弃了它，但是在jdk1.6之后，对synchronized进行了各种优化， 它就显得不那么笨重，下面一起来探讨一下synchronized的基本使用方法，底层原理实现等等知识。</p>
 <a id="more"></a>
 
 <h1 id="一、简单的用法"><a href="#一、简单的用法" class="headerlink" title="一、简单的用法"></a>一、简单的用法</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">synchronized</span> <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">testMethod1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testMethod2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (test<span class="class">.<span class="keyword">class</span>) </span>&#123;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">synchronized</span> <span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testMethod3</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testMethod4</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testMethod5</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="string">"abc"</span>) &#123;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>

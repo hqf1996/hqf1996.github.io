@@ -351,7 +351,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>此版本的RPC采用NIO来实现。NIO最大的特点有这几个：第一，NIO是面向缓冲区的，和普通面向流的IO不同。面向流的IO方式每次都是从流中读取一个或多个字节，没有缓存在任何的地方。而面向缓冲区则可以在缓冲区中对我缓冲的数据进行操作，增加了处理的灵活性。第二，NIO是非阻塞的，这就意味着一个线程能管理多个输入输出通道，解决了之前我们使用BIO时候阻塞的问题。第三，为了一个线程能管理多个通道，引入了Selector，多个通道都能注册在同一个选择器上，因此Selector也能被称为多路复用器。在使用的时候，Selector会不断地轮询注册在其上面的通道，如果通道发生读或者写的事件，这个通道就会处于就绪的状态，从而被Selector轮询出来，再进行后面的操作。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>此版本的RPC采用NIO来实现。NIO最大的特点有这几个：第一，NIO是面向缓冲区的，和普通面向流的IO不同。面向流的IO方式每次都是从流中读取一个或多个字节，没有缓存在任何的地方。而面向缓冲区则可以在缓冲区中对我缓冲的数据进行操作，增加了处理的灵活性。第二，NIO是非阻塞的，这就意味着一个线程能管理多个输入输出通道，解决了之前我们使用BIO时候阻塞的问题。第三，为了一个线程能管理多个通道，引入了Selector，多个通道都能注册在同一个选择器上，因此Selector也能被称为多路复用器。在使用的时候，Selector会不断地轮询注册在其上面的通道，如果通道发生读或者写的事件，这个通道就会处于就绪的状态，从而被Selector轮询出来，再进行后面的操作。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/08/29/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B64-0/#more" rel="contents">
@@ -498,7 +500,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>之前总结的是Class文件存储格式的具体细节，在Class文件中描述的各种信息，最终都要加载到虚拟机中之后才能运行和使用。那么虚拟机是如何加载这些Class文件的，Class文件中的信息进入到虚拟机后会发生什么变化，这些将会在本篇进行总结。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>之前总结的是Class文件存储格式的具体细节，在Class文件中描述的各种信息，最终都要加载到虚拟机中之后才能运行和使用。那么虚拟机是如何加载这些Class文件的，Class文件中的信息进入到虚拟机后会发生什么变化，这些将会在本篇进行总结。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/08/19/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/#more" rel="contents">
@@ -645,7 +649,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>上一种方法是采用最简单的线程的方式，当客户端发起一个请求的时候，服务端就要相应的生成一个线程来处理这个请求，并且在处理一个请求的时候，其他请求都会被阻塞。试想一下，当在同一时间有大量的请求访问服务端时，服务端能够创建的线程数量是有一定的限制的，并不能无限地创建，这样一来就会产生服务端内存溢出或者线程不够用的错误，在该版本中我引入了线程池来管理客户端发送过来的请求，这样就不会产生这类问题。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>上一种方法是采用最简单的线程的方式，当客户端发起一个请求的时候，服务端就要相应的生成一个线程来处理这个请求，并且在处理一个请求的时候，其他请求都会被阻塞。试想一下，当在同一时间有大量的请求访问服务端时，服务端能够创建的线程数量是有一定的限制的，并不能无限地创建，这样一来就会产生服务端内存溢出或者线程不够用的错误，在该版本中我引入了线程池来管理客户端发送过来的请求，这样就不会产生这类问题。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/08/14/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B63-0/#more" rel="contents">
@@ -792,7 +798,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>JVM上不仅仅能够运行Java语言，还能运行其他多种语言，比如说Clojure、Groovy、JRuby、Scala等等。其实Java虚拟机不和包括Java在内的任何语言绑定，它只与“Class文件”这种特定的二进制文件格式所关联。正如下图所示</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>JVM上不仅仅能够运行Java语言，还能运行其他多种语言，比如说Clojure、Groovy、JRuby、Scala等等。其实Java虚拟机不和包括Java在内的任何语言绑定，它只与“Class文件”这种特定的二进制文件格式所关联。正如下图所示</p>
 <p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/JVM%E8%AF%AD%E8%A8%80%E6%97%A0%E5%85%B3%E6%80%A7.jpg" alt="JVM语言无关性"></p>
           <!--noindex-->
           <div class="post-button text-center">
@@ -940,7 +948,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在不同服务部署在不同的机器上的前提下，服务器之间存在大量的网络通信，这时候就需要写大量的网络通信的代码，十分不方便。如果能够让服务器调用远程方法就像是调用本地方法一样，将会大大减少工作量，这种方法的实现其实就是RPC。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>在不同服务部署在不同的机器上的前提下，服务器之间存在大量的网络通信，这时候就需要写大量的网络通信的代码，十分不方便。如果能够让服务器调用远程方法就像是调用本地方法一样，将会大大减少工作量，这种方法的实现其实就是RPC。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/08/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B62-0/#more" rel="contents">
@@ -1087,7 +1097,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在实现一个自己的RPC框架之前，需要先了解动态代理和反射，反射可以参考这篇文章 <a href="https://blog.csdn.net/lwl20140904/article/details/80163880" target="_blank" rel="noopener">java反射</a>。动态代理和反射可以说是RPC的精髓所在，正是通过它们，才能使远程调用“本地化”。代理模式是基本的设计模式之一，其中动态代理更为重要。代理模式的目的就是为其他对象提供一个代理以控制对某个对象的访问。代理类负责为委托类预处理消息，过滤消息并转发消息，以及进行消息被委托类执行后的后续处理。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>在实现一个自己的RPC框架之前，需要先了解动态代理和反射，反射可以参考这篇文章 <a href="https://blog.csdn.net/lwl20140904/article/details/80163880" target="_blank" rel="noopener">java反射</a>。动态代理和反射可以说是RPC的精髓所在，正是通过它们，才能使远程调用“本地化”。代理模式是基本的设计模式之一，其中动态代理更为重要。代理模式的目的就是为其他对象提供一个代理以控制对某个对象的访问。代理类负责为委托类预处理消息，过滤消息并转发消息，以及进行消息被委托类执行后的后续处理。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/08/11/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B61-0%E2%80%94%E2%80%94%E7%9F%A5%E8%AF%86%E5%82%A8%E5%A4%87/#more" rel="contents">
@@ -1234,7 +1246,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在看JVM性能调优和故障处理工具的时候JDK提供了一些比较好用的工具，比如说jps是一个用来监控虚拟机的进程状况的工具，jstat是一个虚拟机统计信息监视的工具，jinfo是一个Java配置信息工具，jmap是一个Java内存映像工具，jstack是一个堆栈跟踪工具等等，这些工具都十分小巧实用。但是最近发现一个阿里开源的Java在线诊断工具Arthas（阿尔萨斯），可堪称诊断利器。官方文档是这么介绍的：</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>在看JVM性能调优和故障处理工具的时候JDK提供了一些比较好用的工具，比如说jps是一个用来监控虚拟机的进程状况的工具，jstat是一个虚拟机统计信息监视的工具，jinfo是一个Java配置信息工具，jmap是一个Java内存映像工具，jstack是一个堆栈跟踪工具等等，这些工具都十分小巧实用。但是最近发现一个阿里开源的Java在线诊断工具Arthas（阿尔萨斯），可堪称诊断利器。官方文档是这么介绍的：</p>
 <blockquote>
 <p>当你遇到以下类似问题而束手无策时，<code>Arthas</code>可以帮助你解决：</p>
 <ol>
@@ -1394,7 +1408,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>垃圾收集(GC)与内存动态分配，是JVM中很重要的一块内容，与C++语言不同的是，Java语言能够自己对内存进行回收以及动态分配，但是仍然可能产生内存的溢出或者内存泄漏的问题，所以了解垃圾收集与内存分配的原理是必须的。从JVM的内存划分区域来看，栈区（由于是以HotSpot虚拟机为例，将Java虚拟机栈以及本地方法区栈统称为栈区）、程序计数器是线程私有的，随着线程的消亡而消失，这几个区域的内存分配与回收都存在确定性，所以这几个区域就不必去过多考虑回收的问题。但是，堆和方法区就不一样，一个接口中的多个实现类需要的内存可能不一样，一个方法中多个分支需要的内存可能也不一样，我们只有在程序运行的过程中才会知道创建哪些对象，这部分的内存分配和回收是动态的，所以这两个区域是垃圾回收和内存分配所重点关注的区域。其中Java堆区是垃圾收集器主要管理的区域。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>垃圾收集(GC)与内存动态分配，是JVM中很重要的一块内容，与C++语言不同的是，Java语言能够自己对内存进行回收以及动态分配，但是仍然可能产生内存的溢出或者内存泄漏的问题，所以了解垃圾收集与内存分配的原理是必须的。从JVM的内存划分区域来看，栈区（由于是以HotSpot虚拟机为例，将Java虚拟机栈以及本地方法区栈统称为栈区）、程序计数器是线程私有的，随着线程的消亡而消失，这几个区域的内存分配与回收都存在确定性，所以这几个区域就不必去过多考虑回收的问题。但是，堆和方法区就不一样，一个接口中的多个实现类需要的内存可能不一样，一个方法中多个分支需要的内存可能也不一样，我们只有在程序运行的过程中才会知道创建哪些对象，这部分的内存分配和回收是动态的，所以这两个区域是垃圾回收和内存分配所重点关注的区域。其中Java堆区是垃圾收集器主要管理的区域。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/08/04/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E4%B8%8E%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/#more" rel="contents">
@@ -1541,7 +1557,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>Redis是一个开源的使用 ANSI C 语言编写、遵守 BSD 协议、支持网络、可基于内存亦可持久化的日志型、Key-Value 数据库，并提供多种语言的 API的非关系型数据库。传统数据库遵循 ACID 规则。而 Nosql（Not Only SQL 的缩写，是对不同于传统的关系型数据库的数据库管理系统的统称），一般为分布式而分布式一般遵循 CAP 定理。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>Redis是一个开源的使用 ANSI C 语言编写、遵守 BSD 协议、支持网络、可基于内存亦可持久化的日志型、Key-Value 数据库，并提供多种语言的 API的非关系型数据库。传统数据库遵循 ACID 规则。而 Nosql（Not Only SQL 的缩写，是对不同于传统的关系型数据库的数据库管理系统的统称），一般为分布式而分布式一般遵循 CAP 定理。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/07/22/Redis%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E5%AF%B9%E8%B1%A1/#more" rel="contents">
@@ -1688,7 +1706,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>SSH是Secure Shell protocal的缩写，它是一种网络协议，用于计算机之间的加密登录。SSH命令也是一个非常常用且有用的命令，一般会用于远程登录。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>SSH是Secure Shell protocal的缩写，它是一种网络协议，用于计算机之间的加密登录。SSH命令也是一个非常常用且有用的命令，一般会用于远程登录。</p>
 <p>最简单的，如果你想以用户名root登录远程主机host，只需要执行如下命令中的任意一条，第一条是常用的。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh root@host</span><br><span class="line">ssh -l root host</span><br></pre></td></tr></table></figure>
           <!--noindex-->

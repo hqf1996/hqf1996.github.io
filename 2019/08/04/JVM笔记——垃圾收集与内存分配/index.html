@@ -79,13 +79,13 @@
 
 
 
-<meta name="description" content="前言垃圾收集(GC)与内存动态分配，是JVM中很重要的一块内容，与C++语言不同的是，Java语言能够自己对内存进行回收以及动态分配，但是仍然可能产生内存的溢出或者内存泄漏的问题，所以了解垃圾收集与内存分配的原理是必须的。从JVM的内存划分区域来看，栈区（由于是以HotSpot虚拟机为例，将Java虚拟机栈以及本地方法区栈统称为栈区）、程序计数器是线程私有的，随着线程的消亡而消失，这几个区域的内存">
+<meta name="description" content="前言  垃圾收集(GC)与内存动态分配，是JVM中很重要的一块内容，与C++语言不同的是，Java语言能够自己对内存进行回收以及动态分配，但是仍然可能产生内存的溢出或者内存泄漏的问题，所以了解垃圾收集与内存分配的原理是必须的。从JVM的内存划分区域来看，栈区（由于是以HotSpot虚拟机为例，将Java虚拟机栈以及本地方法区栈统称为栈区）、程序计数器是线程私有的，随着线程的消亡而消失，这几个区域的">
 <meta name="keywords" content="JVM,JVM垃圾收集,JVM内存分配">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM笔记——垃圾收集与内存分配">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;08&#x2F;04&#x2F;JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E4%B8%8E%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言垃圾收集(GC)与内存动态分配，是JVM中很重要的一块内容，与C++语言不同的是，Java语言能够自己对内存进行回收以及动态分配，但是仍然可能产生内存的溢出或者内存泄漏的问题，所以了解垃圾收集与内存分配的原理是必须的。从JVM的内存划分区域来看，栈区（由于是以HotSpot虚拟机为例，将Java虚拟机栈以及本地方法区栈统称为栈区）、程序计数器是线程私有的，随着线程的消亡而消失，这几个区域的内存">
+<meta property="og:description" content="前言  垃圾收集(GC)与内存动态分配，是JVM中很重要的一块内容，与C++语言不同的是，Java语言能够自己对内存进行回收以及动态分配，但是仍然可能产生内存的溢出或者内存泄漏的问题，所以了解垃圾收集与内存分配的原理是必须的。从JVM的内存划分区域来看，栈区（由于是以HotSpot虚拟机为例，将Java虚拟机栈以及本地方法区栈统称为栈区）、程序计数器是线程私有的，随着线程的消亡而消失，这几个区域的">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;GC%20Roots.jpg">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E6%A0%87%E8%AE%B0%E6%B8%85%E9%99%A4%E7%AE%97%E6%B3%95%E7%A4%BA%E6%84%8F%E5%9B%BE.jpg">
@@ -97,7 +97,7 @@
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Parallel%20Scavenge%E6%94%B6%E9%9B%86%E5%99%A8.jpg">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;CMS%E6%94%B6%E9%9B%86%E5%99%A8.jpg">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;G1%E6%94%B6%E9%9B%86%E5%99%A8.jpg">
-<meta property="og:updated_time" content="2019-08-08T12:58:26.402Z">
+<meta property="og:updated_time" content="2020-03-16T07:16:20.614Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;GC%20Roots.jpg">
 
@@ -362,7 +362,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>垃圾收集(GC)与内存动态分配，是JVM中很重要的一块内容，与C++语言不同的是，Java语言能够自己对内存进行回收以及动态分配，但是仍然可能产生内存的溢出或者内存泄漏的问题，所以了解垃圾收集与内存分配的原理是必须的。从JVM的内存划分区域来看，栈区（由于是以HotSpot虚拟机为例，将Java虚拟机栈以及本地方法区栈统称为栈区）、程序计数器是线程私有的，随着线程的消亡而消失，这几个区域的内存分配与回收都存在确定性，所以这几个区域就不必去过多考虑回收的问题。但是，堆和方法区就不一样，一个接口中的多个实现类需要的内存可能不一样，一个方法中多个分支需要的内存可能也不一样，我们只有在程序运行的过程中才会知道创建哪些对象，这部分的内存分配和回收是动态的，所以这两个区域是垃圾回收和内存分配所重点关注的区域。其中Java堆区是垃圾收集器主要管理的区域。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>垃圾收集(GC)与内存动态分配，是JVM中很重要的一块内容，与C++语言不同的是，Java语言能够自己对内存进行回收以及动态分配，但是仍然可能产生内存的溢出或者内存泄漏的问题，所以了解垃圾收集与内存分配的原理是必须的。从JVM的内存划分区域来看，栈区（由于是以HotSpot虚拟机为例，将Java虚拟机栈以及本地方法区栈统称为栈区）、程序计数器是线程私有的，随着线程的消亡而消失，这几个区域的内存分配与回收都存在确定性，所以这几个区域就不必去过多考虑回收的问题。但是，堆和方法区就不一样，一个接口中的多个实现类需要的内存可能不一样，一个方法中多个分支需要的内存可能也不一样，我们只有在程序运行的过程中才会知道创建哪些对象，这部分的内存分配和回收是动态的，所以这两个区域是垃圾回收和内存分配所重点关注的区域。其中Java堆区是垃圾收集器主要管理的区域。</p>
 <a id="more"></a>
 
 <h1 id="垃圾回收之前的工作"><a href="#垃圾回收之前的工作" class="headerlink" title="垃圾回收之前的工作"></a>垃圾回收之前的工作</h1><p>​    垃圾收集或者说是内存回收，我们怎么判断一个对象是否已经“没有用”了呢？这是在进行垃圾收集之前，一个很直接的问题。在<strong>Java堆</strong>中主要有这么几种策略。</p>

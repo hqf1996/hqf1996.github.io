@@ -79,15 +79,15 @@
 
 
 
-<meta name="description" content="前言想到让线程停止的方法，可能第一个冒出来的是stop()方法，但是这个方法已经停止使用，是一个废弃的方法，因为由它会造成很多的问题，比如数据的不一致等问题。现在一般会使用另外的方法对线程进行停止，本篇主要对Thread类中interrupt()、interrupted()和isInterrupted()方法进行详解。">
+<meta name="description" content="前言  想到让线程停止的方法，可能第一个冒出来的是stop()方法，但是这个方法已经停止使用，是一个废弃的方法，因为由它会造成很多的问题，比如数据的不一致等问题。现在一般会使用另外的方法对线程进行停止，本篇主要对Thread类中interrupt()、interrupted()和isInterrupted()方法进行详解。">
 <meta name="keywords" content="Java,多线程,停止线程">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Thread类之停止线程">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;11&#x2F;Thread%E7%B1%BB%E4%B9%8B%E5%81%9C%E6%AD%A2%E7%BA%BF%E7%A8%8B&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言想到让线程停止的方法，可能第一个冒出来的是stop()方法，但是这个方法已经停止使用，是一个废弃的方法，因为由它会造成很多的问题，比如数据的不一致等问题。现在一般会使用另外的方法对线程进行停止，本篇主要对Thread类中interrupt()、interrupted()和isInterrupted()方法进行详解。">
+<meta property="og:description" content="前言  想到让线程停止的方法，可能第一个冒出来的是stop()方法，但是这个方法已经停止使用，是一个废弃的方法，因为由它会造成很多的问题，比如数据的不一致等问题。现在一般会使用另外的方法对线程进行停止，本篇主要对Thread类中interrupt()、interrupted()和isInterrupted()方法进行详解。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-03-16T04:06:46.366Z">
+<meta property="og:updated_time" content="2020-03-16T07:17:15.718Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -351,7 +351,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>想到让线程停止的方法，可能第一个冒出来的是stop()方法，但是这个方法已经停止使用，是一个废弃的方法，因为由它会造成很多的问题，比如数据的不一致等问题。现在一般会使用另外的方法对线程进行停止，本篇主要对Thread类中interrupt()、interrupted()和isInterrupted()方法进行详解。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>想到让线程停止的方法，可能第一个冒出来的是stop()方法，但是这个方法已经停止使用，是一个废弃的方法，因为由它会造成很多的问题，比如数据的不一致等问题。现在一般会使用另外的方法对线程进行停止，本篇主要对Thread类中interrupt()、interrupted()和isInterrupted()方法进行详解。</p>
 <a id="more"></a>
 
 <h1 id="一、方法简介"><a href="#一、方法简介" class="headerlink" title="一、方法简介"></a>一、方法简介</h1><h2 id="1-interrupt-方法"><a href="#1-interrupt-方法" class="headerlink" title="1. interrupt()方法"></a>1. interrupt()方法</h2><p>其作用是中断此线程（此线程不一定是当前线程，而是指调用该方法的Thread实例所代表的线程），但实际上只是给线程设置一个中断标志，线程仍会继续运行。</p>

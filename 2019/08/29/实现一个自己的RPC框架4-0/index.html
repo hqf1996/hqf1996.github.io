@@ -79,15 +79,15 @@
 
 
 
-<meta name="description" content="前言此版本的RPC采用NIO来实现。NIO最大的特点有这几个：第一，NIO是面向缓冲区的，和普通面向流的IO不同。面向流的IO方式每次都是从流中读取一个或多个字节，没有缓存在任何的地方。而面向缓冲区则可以在缓冲区中对我缓冲的数据进行操作，增加了处理的灵活性。第二，NIO是非阻塞的，这就意味着一个线程能管理多个输入输出通道，解决了之前我们使用BIO时候阻塞的问题。第三，为了一个线程能管理多个通道，引">
+<meta name="description" content="前言  此版本的RPC采用NIO来实现。NIO最大的特点有这几个：第一，NIO是面向缓冲区的，和普通面向流的IO不同。面向流的IO方式每次都是从流中读取一个或多个字节，没有缓存在任何的地方。而面向缓冲区则可以在缓冲区中对我缓冲的数据进行操作，增加了处理的灵活性。第二，NIO是非阻塞的，这就意味着一个线程能管理多个输入输出通道，解决了之前我们使用BIO时候阻塞的问题。第三，为了一个线程能管理多个通道">
 <meta name="keywords" content="RPC,NIO">
 <meta property="og:type" content="article">
 <meta property="og:title" content="实现一个自己的RPC框架4.0">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;08&#x2F;29&#x2F;%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B64-0&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言此版本的RPC采用NIO来实现。NIO最大的特点有这几个：第一，NIO是面向缓冲区的，和普通面向流的IO不同。面向流的IO方式每次都是从流中读取一个或多个字节，没有缓存在任何的地方。而面向缓冲区则可以在缓冲区中对我缓冲的数据进行操作，增加了处理的灵活性。第二，NIO是非阻塞的，这就意味着一个线程能管理多个输入输出通道，解决了之前我们使用BIO时候阻塞的问题。第三，为了一个线程能管理多个通道，引">
+<meta property="og:description" content="前言  此版本的RPC采用NIO来实现。NIO最大的特点有这几个：第一，NIO是面向缓冲区的，和普通面向流的IO不同。面向流的IO方式每次都是从流中读取一个或多个字节，没有缓存在任何的地方。而面向缓冲区则可以在缓冲区中对我缓冲的数据进行操作，增加了处理的灵活性。第二，NIO是非阻塞的，这就意味着一个线程能管理多个输入输出通道，解决了之前我们使用BIO时候阻塞的问题。第三，为了一个线程能管理多个通道">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-08-29T07:43:12.011Z">
+<meta property="og:updated_time" content="2020-03-16T07:15:31.000Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -351,7 +351,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>此版本的RPC采用NIO来实现。NIO最大的特点有这几个：第一，NIO是面向缓冲区的，和普通面向流的IO不同。面向流的IO方式每次都是从流中读取一个或多个字节，没有缓存在任何的地方。而面向缓冲区则可以在缓冲区中对我缓冲的数据进行操作，增加了处理的灵活性。第二，NIO是非阻塞的，这就意味着一个线程能管理多个输入输出通道，解决了之前我们使用BIO时候阻塞的问题。第三，为了一个线程能管理多个通道，引入了Selector，多个通道都能注册在同一个选择器上，因此Selector也能被称为多路复用器。在使用的时候，Selector会不断地轮询注册在其上面的通道，如果通道发生读或者写的事件，这个通道就会处于就绪的状态，从而被Selector轮询出来，再进行后面的操作。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>此版本的RPC采用NIO来实现。NIO最大的特点有这几个：第一，NIO是面向缓冲区的，和普通面向流的IO不同。面向流的IO方式每次都是从流中读取一个或多个字节，没有缓存在任何的地方。而面向缓冲区则可以在缓冲区中对我缓冲的数据进行操作，增加了处理的灵活性。第二，NIO是非阻塞的，这就意味着一个线程能管理多个输入输出通道，解决了之前我们使用BIO时候阻塞的问题。第三，为了一个线程能管理多个通道，引入了Selector，多个通道都能注册在同一个选择器上，因此Selector也能被称为多路复用器。在使用的时候，Selector会不断地轮询注册在其上面的通道，如果通道发生读或者写的事件，这个通道就会处于就绪的状态，从而被Selector轮询出来，再进行后面的操作。</p>
 <a id="more"></a>
 
 <h1 id="一、Java-NIO中的组件"><a href="#一、Java-NIO中的组件" class="headerlink" title="一、Java NIO中的组件"></a><strong>一、Java NIO中的组件</strong></h1><p>​        基于以上三点，简单总结一下从Java 1.4之后提出的Java NIO中的三个比较重要的主键：<code>Buffer</code>、<code>Channel</code>、<code>Selector</code>。</p>

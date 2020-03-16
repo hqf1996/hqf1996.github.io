@@ -79,15 +79,15 @@
 
 
 
-<meta name="description" content="前言在实现实验的算法的时候，要想在一个固定间隔时间对代码中某些变量有一个监控或者固定间隔时间处理一些事务逻辑，必不可少的就是定时的任务调度了。同样的，在做项目的过程中，这种定时的任务调度就更加广泛了，比如说间隔一定的时间给用户发送消息，定时清理掉一些数据的任务等等。这边就介绍一下之前用到的三种任务调度方式Timer、ScheduledExecutorService以及Quartz。">
+<meta name="description" content="前言  在实现实验的算法的时候，要想在一个固定间隔时间对代码中某些变量有一个监控或者固定间隔时间处理一些事务逻辑，必不可少的就是定时的任务调度了。同样的，在做项目的过程中，这种定时的任务调度就更加广泛了，比如说间隔一定的时间给用户发送消息，定时清理掉一些数据的任务等等。这边就介绍一下之前用到的三种任务调度方式Timer、ScheduledExecutorService以及Quartz。">
 <meta name="keywords" content="多线程,任务调度">
 <meta property="og:type" content="article">
 <meta property="og:title" content="任务调度">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;09&#x2F;05&#x2F;%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言在实现实验的算法的时候，要想在一个固定间隔时间对代码中某些变量有一个监控或者固定间隔时间处理一些事务逻辑，必不可少的就是定时的任务调度了。同样的，在做项目的过程中，这种定时的任务调度就更加广泛了，比如说间隔一定的时间给用户发送消息，定时清理掉一些数据的任务等等。这边就介绍一下之前用到的三种任务调度方式Timer、ScheduledExecutorService以及Quartz。">
+<meta property="og:description" content="前言  在实现实验的算法的时候，要想在一个固定间隔时间对代码中某些变量有一个监控或者固定间隔时间处理一些事务逻辑，必不可少的就是定时的任务调度了。同样的，在做项目的过程中，这种定时的任务调度就更加广泛了，比如说间隔一定的时间给用户发送消息，定时清理掉一些数据的任务等等。这边就介绍一下之前用到的三种任务调度方式Timer、ScheduledExecutorService以及Quartz。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-09-09T13:38:49.488Z">
+<meta property="og:updated_time" content="2020-03-16T07:15:19.833Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -351,7 +351,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在实现实验的算法的时候，要想在一个固定间隔时间对代码中某些变量有一个监控或者固定间隔时间处理一些事务逻辑，必不可少的就是定时的任务调度了。同样的，在做项目的过程中，这种定时的任务调度就更加广泛了，比如说间隔一定的时间给用户发送消息，定时清理掉一些数据的任务等等。这边就介绍一下之前用到的三种任务调度方式Timer、ScheduledExecutorService以及Quartz。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>在实现实验的算法的时候，要想在一个固定间隔时间对代码中某些变量有一个监控或者固定间隔时间处理一些事务逻辑，必不可少的就是定时的任务调度了。同样的，在做项目的过程中，这种定时的任务调度就更加广泛了，比如说间隔一定的时间给用户发送消息，定时清理掉一些数据的任务等等。这边就介绍一下之前用到的三种任务调度方式Timer、ScheduledExecutorService以及Quartz。</p>
 <a id="more"></a>
 
 <h1 id="一、Timer"><a href="#一、Timer" class="headerlink" title="一、Timer"></a>一、Timer</h1><h2 id="1-简单介绍"><a href="#1-简单介绍" class="headerlink" title="1.简单介绍"></a>1.简单介绍</h2><p>timer是一个JDK原生的定时工具，其可以根据给定的时间间隔定时调度任务。主要有以下几个核心函数。</p>

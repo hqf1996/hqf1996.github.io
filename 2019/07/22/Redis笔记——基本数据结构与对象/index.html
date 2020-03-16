@@ -79,15 +79,15 @@
 
 
 
-<meta name="description" content="前言Redis是一个开源的使用 ANSI C 语言编写、遵守 BSD 协议、支持网络、可基于内存亦可持久化的日志型、Key-Value 数据库，并提供多种语言的 API的非关系型数据库。传统数据库遵循 ACID 规则。而 Nosql（Not Only SQL 的缩写，是对不同于传统的关系型数据库的数据库管理系统的统称），一般为分布式而分布式一般遵循 CAP 定理。">
+<meta name="description" content="前言  Redis是一个开源的使用 ANSI C 语言编写、遵守 BSD 协议、支持网络、可基于内存亦可持久化的日志型、Key-Value 数据库，并提供多种语言的 API的非关系型数据库。传统数据库遵循 ACID 规则。而 Nosql（Not Only SQL 的缩写，是对不同于传统的关系型数据库的数据库管理系统的统称），一般为分布式而分布式一般遵循 CAP 定理。">
 <meta name="keywords" content="Redis">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis笔记——基本数据结构与对象">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;07&#x2F;22&#x2F;Redis%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E5%AF%B9%E8%B1%A1&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言Redis是一个开源的使用 ANSI C 语言编写、遵守 BSD 协议、支持网络、可基于内存亦可持久化的日志型、Key-Value 数据库，并提供多种语言的 API的非关系型数据库。传统数据库遵循 ACID 规则。而 Nosql（Not Only SQL 的缩写，是对不同于传统的关系型数据库的数据库管理系统的统称），一般为分布式而分布式一般遵循 CAP 定理。">
+<meta property="og:description" content="前言  Redis是一个开源的使用 ANSI C 语言编写、遵守 BSD 协议、支持网络、可基于内存亦可持久化的日志型、Key-Value 数据库，并提供多种语言的 API的非关系型数据库。传统数据库遵循 ACID 规则。而 Nosql（Not Only SQL 的缩写，是对不同于传统的关系型数据库的数据库管理系统的统称），一般为分布式而分布式一般遵循 CAP 定理。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-10-19T11:05:41.999Z">
+<meta property="og:updated_time" content="2020-03-16T07:16:38.907Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -351,7 +351,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>Redis是一个开源的使用 ANSI C 语言编写、遵守 BSD 协议、支持网络、可基于内存亦可持久化的日志型、Key-Value 数据库，并提供多种语言的 API的非关系型数据库。传统数据库遵循 ACID 规则。而 Nosql（Not Only SQL 的缩写，是对不同于传统的关系型数据库的数据库管理系统的统称），一般为分布式而分布式一般遵循 CAP 定理。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>Redis是一个开源的使用 ANSI C 语言编写、遵守 BSD 协议、支持网络、可基于内存亦可持久化的日志型、Key-Value 数据库，并提供多种语言的 API的非关系型数据库。传统数据库遵循 ACID 规则。而 Nosql（Not Only SQL 的缩写，是对不同于传统的关系型数据库的数据库管理系统的统称），一般为分布式而分布式一般遵循 CAP 定理。</p>
 <a id="more"></a>
 
 <h1 id="一、基本的数据结构"><a href="#一、基本的数据结构" class="headerlink" title="一、基本的数据结构"></a><strong>一、基本的数据结构</strong></h1><h2 id="1-字符串（简单动态字符串SDS）"><a href="#1-字符串（简单动态字符串SDS）" class="headerlink" title="1. 字符串（简单动态字符串SDS）"></a>1. 字符串（简单动态字符串SDS）</h2><h2 id="2-链表"><a href="#2-链表" class="headerlink" title="2. 链表"></a>2. 链表</h2><h2 id="3-字典"><a href="#3-字典" class="headerlink" title="3. 字典"></a>3. 字典</h2><h2 id="4-跳跃表"><a href="#4-跳跃表" class="headerlink" title="4. 跳跃表"></a>4. 跳跃表</h2><h2 id="5-整数集合"><a href="#5-整数集合" class="headerlink" title="5. 整数集合"></a>5. 整数集合</h2><h2 id="6-压缩列表"><a href="#6-压缩列表" class="headerlink" title="6. 压缩列表"></a>6. 压缩列表</h2><h1 id="二、对象"><a href="#二、对象" class="headerlink" title="二、对象"></a><strong>二、对象</strong></h1><p>​    Redis并没有直接使用上述的基本数据结构，而是基于以上的基本数据结构创建了一个对象系统。主要有以下五种对象。</p>

@@ -79,16 +79,16 @@
 
 
 
-<meta name="description" content="前言volatile关键字在平常的使用中似乎很少用到，但是其原理值得我们研究，因为它与Java的内存模型相关，并且能保证数据的可见性，但是保证不了原子性。简单来说，线程A对一个volatile变量的修改，对于其它线程来说是可见的，即线程每次获取volatile变量的值都是最新的。">
+<meta name="description" content="前言  volatile关键字在平常的使用中似乎很少用到，但是其原理值得我们研究，因为它与Java的内存模型相关，并且能保证数据的可见性，但是保证不了原子性。简单来说，线程A对一个volatile变量的修改，对于其它线程来说是可见的，即线程每次获取volatile变量的值都是最新的。">
 <meta name="keywords" content="Java,多线程,volatile">
 <meta property="og:type" content="article">
 <meta property="og:title" content="volatile关键字">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;16&#x2F;volatile%E5%85%B3%E9%94%AE%E5%AD%97&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言volatile关键字在平常的使用中似乎很少用到，但是其原理值得我们研究，因为它与Java的内存模型相关，并且能保证数据的可见性，但是保证不了原子性。简单来说，线程A对一个volatile变量的修改，对于其它线程来说是可见的，即线程每次获取volatile变量的值都是最新的。">
+<meta property="og:description" content="前言  volatile关键字在平常的使用中似乎很少用到，但是其原理值得我们研究，因为它与Java的内存模型相关，并且能保证数据的可见性，但是保证不了原子性。简单来说，线程A对一个volatile变量的修改，对于其它线程来说是可见的，即线程每次获取volatile变量的值都是最新的。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;volatile%E5%85%B3%E9%94%AE%E5%AD%97&#x2F;JMM%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.jpg">
-<meta property="og:updated_time" content="2020-03-12T07:08:40.434Z">
+<meta property="og:updated_time" content="2020-03-16T07:17:20.269Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;volatile%E5%85%B3%E9%94%AE%E5%AD%97&#x2F;JMM%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B.jpg">
 
@@ -353,7 +353,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>volatile关键字在平常的使用中似乎很少用到，但是其原理值得我们研究，因为它与Java的内存模型相关，并且能保证数据的可见性，但是保证不了原子性。简单来说，线程A对一个volatile变量的修改，对于其它线程来说是可见的，即线程每次获取volatile变量的值都是最新的。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>volatile关键字在平常的使用中似乎很少用到，但是其原理值得我们研究，因为它与Java的内存模型相关，并且能保证数据的可见性，但是保证不了原子性。简单来说，线程A对一个volatile变量的修改，对于其它线程来说是可见的，即线程每次获取volatile变量的值都是最新的。</p>
 <a id="more"></a>
 
 <h1 id="一、volatile的两层含义"><a href="#一、volatile的两层含义" class="headerlink" title="一、volatile的两层含义"></a>一、volatile的两层含义</h1><p>volatile的实现原理其实包含了两个点：</p>

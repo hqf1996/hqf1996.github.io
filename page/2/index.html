@@ -351,7 +351,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>最近打算开始学习消息队列相关内容，计划先从简单的整体框架出发宏观把握，再深入到源码层面。打算从rocketMQ出发进行展开，本篇先从基础的整体框架，消息生产方式和消息消费方式进行学习。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>最近打算开始学习消息队列相关内容，计划先从简单的整体框架出发宏观把握，再深入到源码层面。打算从rocketMQ出发进行展开，本篇先从基础的整体框架，消息生产方式和消息消费方式进行学习。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2020/01/08/RocketMQ%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B9%8B%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E4%B8%8E%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/#more" rel="contents">
@@ -498,7 +500,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>此版本加入了ZooKeeper作为服务治理的方法。整体的流程很简单，服务者通过Zookeeper注册服务，消费者通过ZooKeeper来获取提供服务的服务者，从而实现对应方法调用。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>此版本加入了ZooKeeper作为服务治理的方法。整体的流程很简单，服务者通过Zookeeper注册服务，消费者通过ZooKeeper来获取提供服务的服务者，从而实现对应方法调用。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2020/01/06/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B66-0/#more" rel="contents">
@@ -645,7 +649,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>Dubbo中的SPI机制，全称为 Service Provider Interface，是一种服务发现机制。是提供给扩展者使用的一种机制，比方说可以载入Dubbo中的各种可配置组件，比如：动态代理方式（ProxyFactory）、负载均衡策略（LoadBalance）、RCP协议（Protocol）、拦截器（Filter）、容器类型（Container）、集群方式（Cluster）和注册中心类型（RegistryFactory）等，增强了JDK 的SPI，使得其在最大程度的<strong>解耦</strong>。比较类似于Spring中IoC的思想。关于Spring的IoC的具体分析留到后面学习Spring源码的时候再做分析，这边主要看的是Dubbo中SPI机制的实现。另外，我们知道jdk本身就有SPI，那么Dubbo中对SPI是如何实现的。另外补充一点，SPI是一种破坏双亲委派机制的做法，关于双亲委派机制可以看<a href="https://hqf1996.github.io/2019/08/19/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">本篇</a>第四节的部分，所以说一种机制的出现肯定有好也有坏，关键看的是在何种情况下的使用。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>Dubbo中的SPI机制，全称为 Service Provider Interface，是一种服务发现机制。是提供给扩展者使用的一种机制，比方说可以载入Dubbo中的各种可配置组件，比如：动态代理方式（ProxyFactory）、负载均衡策略（LoadBalance）、RCP协议（Protocol）、拦截器（Filter）、容器类型（Container）、集群方式（Cluster）和注册中心类型（RegistryFactory）等，增强了JDK 的SPI，使得其在最大程度的<strong>解耦</strong>。比较类似于Spring中IoC的思想。关于Spring的IoC的具体分析留到后面学习Spring源码的时候再做分析，这边主要看的是Dubbo中SPI机制的实现。另外，我们知道jdk本身就有SPI，那么Dubbo中对SPI是如何实现的。另外补充一点，SPI是一种破坏双亲委派机制的做法，关于双亲委派机制可以看<a href="https://hqf1996.github.io/2019/08/19/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6/" target="_blank" rel="noopener">本篇</a>第四节的部分，所以说一种机制的出现肯定有好也有坏，关键看的是在何种情况下的使用。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/12/20/Dubbo%E4%B9%8BSPI/#more" rel="contents">
@@ -792,7 +798,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>前三篇博客已经总结完了集群容错的比较重要的三个部分，本篇是集群容错的最后一个部分，也就是负载均衡<code>LoadBalance</code>。负载均衡在任何分布式的项目中都或多或少的会遇见，解决的方法也大同小异，并且，dubbo中的负载均衡在面试中似乎也是一个经常被问到的点。本篇简单总结Dubbo中的集群容错部分。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>前三篇博客已经总结完了集群容错的比较重要的三个部分，本篇是集群容错的最后一个部分，也就是负载均衡<code>LoadBalance</code>。负载均衡在任何分布式的项目中都或多或少的会遇见，解决的方法也大同小异，并且，dubbo中的负载均衡在面试中似乎也是一个经常被问到的点。本篇简单总结Dubbo中的集群容错部分。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/12/13/Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87(%E5%AE%8C%E7%BB%93)/#more" rel="contents">
@@ -939,7 +947,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在之前通过源码角度分析了Dubbo集群容错的服务目录 <code>Directory</code>、服务路由 <code>Router</code>两个部分，本篇主要介绍一下集群<code>Cluster</code>部分，简单介绍Cluster到底是干什么的，简单介绍一下Dubbo的9种集群容错的实现，官方文档上虽然只介绍了主要的5种集群容错模式。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>在之前通过源码角度分析了Dubbo集群容错的服务目录 <code>Directory</code>、服务路由 <code>Router</code>两个部分，本篇主要介绍一下集群<code>Cluster</code>部分，简单介绍Cluster到底是干什么的，简单介绍一下Dubbo的9种集群容错的实现，官方文档上虽然只介绍了主要的5种集群容错模式。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/12/04/Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87(%E4%B8%8B)/#more" rel="contents">
@@ -1086,7 +1096,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>上一篇主要介绍了服务目录 <code>Directory</code>的相关部分，本篇就主要结合源码来说说服务路由 <code>Router</code>相关部分，当然了，这边我们主要关注点是它是如何过滤的。具体的源码分析也能参考<a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/router.html" target="_blank" rel="noopener">官方博客</a>。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>上一篇主要介绍了服务目录 <code>Directory</code>的相关部分，本篇就主要结合源码来说说服务路由 <code>Router</code>相关部分，当然了，这边我们主要关注点是它是如何过滤的。具体的源码分析也能参考<a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/router.html" target="_blank" rel="noopener">官方博客</a>。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/11/22/Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87(%E4%B8%AD)/#more" rel="contents">
@@ -1233,7 +1245,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在Dubbo集群容错分析之前，要先有一个宏观的了解，集群容错源码分别是服务目录 <code>Directory</code>、服务路由 <code>Router</code>、集群 <code>Cluster</code>和负载均衡<code>LoadBalance</code>四个部分，这个在<a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/directory.html" target="_blank" rel="noopener">官网的博客</a>中有简单的介绍，本篇就结合官网的介绍来简单介绍一下服务目录 <code>Directory</code>部分。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>在Dubbo集群容错分析之前，要先有一个宏观的了解，集群容错源码分别是服务目录 <code>Directory</code>、服务路由 <code>Router</code>、集群 <code>Cluster</code>和负载均衡<code>LoadBalance</code>四个部分，这个在<a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/directory.html" target="_blank" rel="noopener">官网的博客</a>中有简单的介绍，本篇就结合官网的介绍来简单介绍一下服务目录 <code>Directory</code>部分。</p>
 <p><code>ps:以下所有的源码分析都是基于Dubbo2.6.6版本</code></p>
           <!--noindex-->
           <div class="post-button text-center">
@@ -1381,7 +1395,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>距离上一个版本的RPC也有一两个月的时间了，中间也是在做论文的相关实验，自己也陆陆续续学习了一点Netty和其他的知识，今天记录和分享一下用Netty实现的RPC框架。在上一个博客中提到，使用NIO会有很多问题，比如Selector的空轮询、编码难度大等问题，用Netty能很好的解决以上问题，因为它把NIO很好的进行了封装，让使用者不必去考虑这么多的问题，这也是Netty的一个优势所在吧。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>距离上一个版本的RPC也有一两个月的时间了，中间也是在做论文的相关实验，自己也陆陆续续学习了一点Netty和其他的知识，今天记录和分享一下用Netty实现的RPC框架。在上一个博客中提到，使用NIO会有很多问题，比如Selector的空轮询、编码难度大等问题，用Netty能很好的解决以上问题，因为它把NIO很好的进行了封装，让使用者不必去考虑这么多的问题，这也是Netty的一个优势所在吧。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/11/10/%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B65-0/#more" rel="contents">
@@ -1528,7 +1544,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>平时看他人的博客或者看论文的时候，会发现一些很有新意的算法和想法，所以开一篇博客记录一些有趣的算法或者想法。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>平时看他人的博客或者看论文的时候，会发现一些很有新意的算法和想法，所以开一篇博客记录一些有趣的算法或者想法。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/11/06/%E7%AE%97%E6%B3%95%E9%9A%8F%E8%AE%B0/#more" rel="contents">
@@ -1675,7 +1693,9 @@
 
       
         
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在之前的博客中，我介绍了HashMap的具体实现以及一些值得注意的地方。HashMap是线程不安全的，换句话说，当我们在并发的情况下使用HashMap的时候，会造成数据的错误。所以在并发的情况下，通常使用HashTable和ConcurrentHashMap这种线程安全的并发容器来代替HashMap这种线程不安全的集合。本篇主要介绍HashTable和ConcurrentHashMap是如何在并发的情况下实现线程安全的。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>在之前的博客中，我介绍了HashMap的具体实现以及一些值得注意的地方。HashMap是线程不安全的，换句话说，当我们在并发的情况下使用HashMap的时候，会造成数据的错误。所以在并发的情况下，通常使用HashTable和ConcurrentHashMap这种线程安全的并发容器来代替HashMap这种线程不安全的集合。本篇主要介绍HashTable和ConcurrentHashMap是如何在并发的情况下实现线程安全的。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/10/27/Java%E5%B9%B6%E5%8F%91%E5%AE%B9%E5%99%A8(%E8%BD%AC%E8%BD%BD%E6%95%B4%E7%90%86)/#more" rel="contents">

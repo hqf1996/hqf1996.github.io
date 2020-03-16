@@ -79,15 +79,15 @@
 
 
 
-<meta name="description" content="前言在实现一个自己的RPC框架之前，需要先了解动态代理和反射，反射可以参考这篇文章 java反射。动态代理和反射可以说是RPC的精髓所在，正是通过它们，才能使远程调用“本地化”。代理模式是基本的设计模式之一，其中动态代理更为重要。代理模式的目的就是为其他对象提供一个代理以控制对某个对象的访问。代理类负责为委托类预处理消息，过滤消息并转发消息，以及进行消息被委托类执行后的后续处理。">
+<meta name="description" content="前言  在实现一个自己的RPC框架之前，需要先了解动态代理和反射，反射可以参考这篇文章 java反射。动态代理和反射可以说是RPC的精髓所在，正是通过它们，才能使远程调用“本地化”。代理模式是基本的设计模式之一，其中动态代理更为重要。代理模式的目的就是为其他对象提供一个代理以控制对某个对象的访问。代理类负责为委托类预处理消息，过滤消息并转发消息，以及进行消息被委托类执行后的后续处理。">
 <meta name="keywords" content="RPC,动态代理">
 <meta property="og:type" content="article">
 <meta property="og:title" content="实现一个自己的RPC框架1.0——知识储备">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;08&#x2F;11&#x2F;%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84RPC%E6%A1%86%E6%9E%B61-0%E2%80%94%E2%80%94%E7%9F%A5%E8%AF%86%E5%82%A8%E5%A4%87&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言在实现一个自己的RPC框架之前，需要先了解动态代理和反射，反射可以参考这篇文章 java反射。动态代理和反射可以说是RPC的精髓所在，正是通过它们，才能使远程调用“本地化”。代理模式是基本的设计模式之一，其中动态代理更为重要。代理模式的目的就是为其他对象提供一个代理以控制对某个对象的访问。代理类负责为委托类预处理消息，过滤消息并转发消息，以及进行消息被委托类执行后的后续处理。">
+<meta property="og:description" content="前言  在实现一个自己的RPC框架之前，需要先了解动态代理和反射，反射可以参考这篇文章 java反射。动态代理和反射可以说是RPC的精髓所在，正是通过它们，才能使远程调用“本地化”。代理模式是基本的设计模式之一，其中动态代理更为重要。代理模式的目的就是为其他对象提供一个代理以控制对某个对象的访问。代理类负责为委托类预处理消息，过滤消息并转发消息，以及进行消息被委托类执行后的后续处理。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-08-11T11:38:33.483Z">
+<meta property="og:updated_time" content="2020-03-16T07:15:22.771Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -351,7 +351,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>在实现一个自己的RPC框架之前，需要先了解动态代理和反射，反射可以参考这篇文章 <a href="https://blog.csdn.net/lwl20140904/article/details/80163880" target="_blank" rel="noopener">java反射</a>。动态代理和反射可以说是RPC的精髓所在，正是通过它们，才能使远程调用“本地化”。代理模式是基本的设计模式之一，其中动态代理更为重要。代理模式的目的就是为其他对象提供一个代理以控制对某个对象的访问。代理类负责为委托类预处理消息，过滤消息并转发消息，以及进行消息被委托类执行后的后续处理。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>在实现一个自己的RPC框架之前，需要先了解动态代理和反射，反射可以参考这篇文章 <a href="https://blog.csdn.net/lwl20140904/article/details/80163880" target="_blank" rel="noopener">java反射</a>。动态代理和反射可以说是RPC的精髓所在，正是通过它们，才能使远程调用“本地化”。代理模式是基本的设计模式之一，其中动态代理更为重要。代理模式的目的就是为其他对象提供一个代理以控制对某个对象的访问。代理类负责为委托类预处理消息，过滤消息并转发消息，以及进行消息被委托类执行后的后续处理。</p>
 <a id="more"></a>
 
 <h1 id="静态代理模式"><a href="#静态代理模式" class="headerlink" title="静态代理模式"></a>静态代理模式</h1><p>1、基本设计思想：一个静态的代理模式包括几个部分：抽象类、委托类，代理类，其中委托类和代理类都需要实现抽象类（比如下面的HelloService类）的接口。在main函数里面，我们调用的是代理类的方法。</p>

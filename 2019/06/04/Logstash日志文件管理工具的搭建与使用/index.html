@@ -79,15 +79,15 @@
 
 
 
-<meta name="description" content="前言由于实验室需要搭建一个类似于后台运维的平台，其中涉及到了日志的收集这一项。需要的是从不同的服务器中收集到有用的信息，并统一进行处理展示。这里的日志收集我主要是用Logstash来进行的，下面简单介绍一下logstach的搭建与使用。">
+<meta name="description" content="前言  由于实验室需要搭建一个类似于后台运维的平台，其中涉及到了日志的收集这一项。需要的是从不同的服务器中收集到有用的信息，并统一进行处理展示。这里的日志收集我主要是用Logstash来进行的，下面简单介绍一下logstach的搭建与使用。">
 <meta name="keywords" content="Logstash,日志管理">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Logstach日志文件管理工具的搭建与使用">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;06&#x2F;04&#x2F;Logstash%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7%E7%9A%84%E6%90%AD%E5%BB%BA%E4%B8%8E%E4%BD%BF%E7%94%A8&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言由于实验室需要搭建一个类似于后台运维的平台，其中涉及到了日志的收集这一项。需要的是从不同的服务器中收集到有用的信息，并统一进行处理展示。这里的日志收集我主要是用Logstash来进行的，下面简单介绍一下logstach的搭建与使用。">
+<meta property="og:description" content="前言  由于实验室需要搭建一个类似于后台运维的平台，其中涉及到了日志的收集这一项。需要的是从不同的服务器中收集到有用的信息，并统一进行处理展示。这里的日志收集我主要是用Logstash来进行的，下面简单介绍一下logstach的搭建与使用。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-07-15T13:03:24.766Z">
+<meta property="og:updated_time" content="2020-03-16T07:16:35.840Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -351,7 +351,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>由于实验室需要搭建一个类似于后台运维的平台，其中涉及到了日志的收集这一项。需要的是从不同的服务器中收集到有用的信息，并统一进行处理展示。这里的日志收集我主要是用Logstash来进行的，下面简单介绍一下logstach的搭建与使用。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>由于实验室需要搭建一个类似于后台运维的平台，其中涉及到了日志的收集这一项。需要的是从不同的服务器中收集到有用的信息，并统一进行处理展示。这里的日志收集我主要是用Logstash来进行的，下面简单介绍一下logstach的搭建与使用。</p>
 <a id="more"></a>
 
 <h1 id="一、平台的搭建"><a href="#一、平台的搭建" class="headerlink" title="一、平台的搭建"></a>一、平台的搭建</h1><p><strong>先来了解一下Logstash是啥：</strong>Logstash是一个开源数据搜集引擎，支持实时数据管道功能。Logstash可以动态整合分散的数据源，根据你的选择对数据标准化。根据不同的高级下游分析和可视化用例对数据进行梳理。尽管Logstash的早期目标是搜集日志，现在它的功能已完全不只于此。任何事件类型都可以加入分析，通过输入、过滤器和输出插件进行转换。与此同时，还提供了很多原生编解码工具简化消息处理。Logstash通过海量数据处理和多种多样的数据格式支持延伸了你对数据的洞察力。</p>

@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="前言前三篇博客已经总结完了集群容错的比较重要的三个部分，本篇是集群容错的最后一个部分，也就是负载均衡LoadBalance。负载均衡在任何分布式的项目中都或多或少的会遇见，解决的方法也大同小异，并且，dubbo中的负载均衡在面试中似乎也是一个经常被问到的点。本篇简单总结Dubbo中的集群容错部分。">
+<meta name="description" content="前言  前三篇博客已经总结完了集群容错的比较重要的三个部分，本篇是集群容错的最后一个部分，也就是负载均衡LoadBalance。负载均衡在任何分布式的项目中都或多或少的会遇见，解决的方法也大同小异，并且，dubbo中的负载均衡在面试中似乎也是一个经常被问到的点。本篇简单总结Dubbo中的集群容错部分。">
 <meta name="keywords" content="Dubbo">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Dubbo之集群容错前导篇(完结)">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;13&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87(%E5%AE%8C%E7%BB%93)&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言前三篇博客已经总结完了集群容错的比较重要的三个部分，本篇是集群容错的最后一个部分，也就是负载均衡LoadBalance。负载均衡在任何分布式的项目中都或多或少的会遇见，解决的方法也大同小异，并且，dubbo中的负载均衡在面试中似乎也是一个经常被问到的点。本篇简单总结Dubbo中的集群容错部分。">
+<meta property="og:description" content="前言  前三篇博客已经总结完了集群容错的比较重要的三个部分，本篇是集群容错的最后一个部分，也就是负载均衡LoadBalance。负载均衡在任何分布式的项目中都或多或少的会遇见，解决的方法也大同小异，并且，dubbo中的负载均衡在面试中似乎也是一个经常被问到的点。本篇简单总结Dubbo中的集群容错部分。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87&#x2F;%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%9A%84%E7%B1%BB%E7%BB%A7%E6%89%BF%E5%9B%BE.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87&#x2F;%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99.jpg">
-<meta property="og:updated_time" content="2019-12-16T08:51:55.759Z">
+<meta property="og:updated_time" content="2020-03-16T07:15:55.367Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Dubbo%E4%B9%8B%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%89%8D%E5%AF%BC%E7%AF%87&#x2F;%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%9A%84%E7%B1%BB%E7%BB%A7%E6%89%BF%E5%9B%BE.png">
 
@@ -354,7 +354,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>前三篇博客已经总结完了集群容错的比较重要的三个部分，本篇是集群容错的最后一个部分，也就是负载均衡<code>LoadBalance</code>。负载均衡在任何分布式的项目中都或多或少的会遇见，解决的方法也大同小异，并且，dubbo中的负载均衡在面试中似乎也是一个经常被问到的点。本篇简单总结Dubbo中的集群容错部分。</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>前三篇博客已经总结完了集群容错的比较重要的三个部分，本篇是集群容错的最后一个部分，也就是负载均衡<code>LoadBalance</code>。负载均衡在任何分布式的项目中都或多或少的会遇见，解决的方法也大同小异，并且，dubbo中的负载均衡在面试中似乎也是一个经常被问到的点。本篇简单总结Dubbo中的集群容错部分。</p>
 <a id="more"></a>
 
 <h1 id="LoadBalance"><a href="#LoadBalance" class="headerlink" title="LoadBalance"></a>LoadBalance</h1><h2 id="1、简介"><a href="#1、简介" class="headerlink" title="1、简介"></a>1、简介</h2><p>Dubbo提供了四种负载均衡机制，分别是基于权重随机算法的 RandomLoadBalance、基于最少活跃调用数算法的 LeastActiveLoadBalance、基于 hash 一致性的 ConsistentHashLoadBalance，以及基于加权轮询算法的 RoundRobinLoadBalance。</p>

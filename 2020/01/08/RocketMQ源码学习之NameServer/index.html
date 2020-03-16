@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="前言NameServer是RocketMQ中一个十分重要的概念，还记得上一篇中提到启动消息队列的步骤吗，就是先启动NameServer，然后再启动Broker。NameServer是一个简单的路由注册中心，也就是相当于之前dubbo中ZK的地位，在开始本篇之前，先提出几个问题：  NameServer在整个架构中的作用是什么 NameServer中存储了Broker中的哪些信息 NameServe">
+<meta name="description" content="前言  NameServer是RocketMQ中一个十分重要的概念，还记得上一篇中提到启动消息队列的步骤吗，就是先启动NameServer，然后再启动Broker。NameServer是一个简单的路由注册中心，也就是相当于之前dubbo中ZK的地位，在开始本篇之前，先提出几个问题：  NameServer在整个架构中的作用是什么 NameServer中存储了Broker中的哪些信息 NameSer">
 <meta name="keywords" content="RocketMQ">
 <meta property="og:type" content="article">
 <meta property="og:title" content="RocketMQ源码学习之NameServer">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;01&#x2F;08&#x2F;RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言NameServer是RocketMQ中一个十分重要的概念，还记得上一篇中提到启动消息队列的步骤吗，就是先启动NameServer，然后再启动Broker。NameServer是一个简单的路由注册中心，也就是相当于之前dubbo中ZK的地位，在开始本篇之前，先提出几个问题：  NameServer在整个架构中的作用是什么 NameServer中存储了Broker中的哪些信息 NameServe">
+<meta property="og:description" content="前言  NameServer是RocketMQ中一个十分重要的概念，还记得上一篇中提到启动消息队列的步骤吗，就是先启动NameServer，然后再启动Broker。NameServer是一个简单的路由注册中心，也就是相当于之前dubbo中ZK的地位，在开始本篇之前，先提出几个问题：  NameServer在整个架构中的作用是什么 NameServer中存储了Broker中的哪些信息 NameSer">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer&#x2F;rocketmq%E4%B9%8Bnameserver%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer&#x2F;NameServer%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E5%9B%BE.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer&#x2F;namesrv%E5%85%B3%E9%94%AE%E7%B1%BB1.png">
-<meta property="og:updated_time" content="2020-01-09T08:13:40.675Z">
+<meta property="og:updated_time" content="2020-03-16T07:16:57.959Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer&#x2F;rocketmq%E4%B9%8Bnameserver%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B.png">
 
@@ -355,7 +355,9 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><p>NameServer是RocketMQ中一个十分重要的概念，还记得<a href="https://hqf1996.github.io/2020/01/08/RocketMQ%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B9%8B%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E4%B8%8E%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/" target="_blank" rel="noopener">上一篇</a>中提到启动消息队列的步骤吗，就是先启动NameServer，然后再启动Broker。NameServer是一个简单的路由注册中心，也就是相当于之前dubbo中ZK的地位，在开始本篇之前，先提出几个问题：</p>
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
+
+<p>NameServer是RocketMQ中一个十分重要的概念，还记得<a href="https://hqf1996.github.io/2020/01/08/RocketMQ%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B9%8B%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E4%B8%8E%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/" target="_blank" rel="noopener">上一篇</a>中提到启动消息队列的步骤吗，就是先启动NameServer，然后再启动Broker。NameServer是一个简单的路由注册中心，也就是相当于之前dubbo中ZK的地位，在开始本篇之前，先提出几个问题：</p>
 <ul>
 <li>NameServer在整个架构中的作用是什么</li>
 <li>NameServer中存储了Broker中的哪些信息</li>
