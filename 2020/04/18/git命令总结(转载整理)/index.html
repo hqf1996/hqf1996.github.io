@@ -88,7 +88,7 @@
 <meta property="og:description" content="前言  项目的版本管理在开发的时候是一个常规操作，结合其他博客与实际操作来整理一下Git的一些常规操作。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Git%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93&#x2F;git%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93.png">
-<meta property="og:updated_time" content="2020-04-18T02:30:10.389Z">
+<meta property="og:updated_time" content="2020-04-18T15:34:15.593Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Git%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93&#x2F;git%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93.png">
 
@@ -358,12 +358,46 @@
 <p>项目的版本管理在开发的时候是一个常规操作，结合其他博客与实际操作来整理一下Git的一些常规操作。</p>
 <a id="more"></a>
 
-<h1 id="一、整体结构"><a href="#一、整体结构" class="headerlink" title="一、整体结构"></a>一、整体结构</h1><p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/Git%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/git%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93.png" alt="Git的整体流程图"></p>
+<h1 id="整体结构"><a href="#整体结构" class="headerlink" title="整体结构"></a>整体结构</h1><p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/Git%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93/git%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93.png" alt="Git的整体流程图"></p>
 <p>上图是git的一个整体结构图，git中主要包含四块区域。</p>
 <p>workspace：工作区。可以理解为项目所在目录。执行<code>git add *</code>命令就把改动提交到了暂存区，执行<code>git pull</code>命令将远程仓库的数据拉到当前分支并合并，执行<code>git checkout [branch-name]</code>切换分支。</p>
 <p>Index：暂存区。执行<code>git commit -m &#39;说明&#39;</code> 命令就把改动提交到了仓库区（当前分支）。</p>
 <p>Repository：本地仓库区。执行<code>git push origin master</code>提交到远程仓库，执行<code>git clone 地址</code>将克隆远程仓库到本地。</p>
-<p>Remote：远程仓库，比如Github这种仓库。</p>
+<p>Remote：远程仓库，比如Github这种仓库，但是前提是要Git先关联上远程仓库，具体可以参考<a href="https://www.cnblogs.com/plinx/archive/2013/04/08/3009159.html" target="_blank" rel="noopener">这篇</a>。</p>
+<h1 id="Git的配置"><a href="#Git的配置" class="headerlink" title="Git的配置"></a>Git的配置</h1><p>查看当前git的配置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --list</span><br></pre></td></tr></table></figure>
+
+<p>如果还没有进行过配置，可以通过如下命令配置用户名和邮箱</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config [--global] user.name "[name]"</span><br><span class="line">git config [--global] user.email "[email address]"</span><br></pre></td></tr></table></figure>
+
+<h1 id="创建仓库"><a href="#创建仓库" class="headerlink" title="创建仓库"></a>创建仓库</h1><p>在当前目录新建一个Git代码库</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git init</span><br></pre></td></tr></table></figure>
+
+<h1 id="提交文件"><a href="#提交文件" class="headerlink" title="提交文件"></a>提交文件</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 添加当前目录的所有文件到暂存区</span></span><br><span class="line">git add *</span><br><span class="line"><span class="meta">#</span><span class="bash"> 添加当前目录的单个文件到暂存区</span></span><br><span class="line">git add test.txt</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 提交暂存区到仓库区</span></span><br><span class="line">git commit -m [message]</span><br><span class="line"><span class="meta">#</span><span class="bash"> 可以查看一下仓库当前的状态</span></span><br><span class="line">git status</span><br><span class="line"><span class="meta">#</span><span class="bash"> 可以查看提交的历史记录(SHA-A校验和，作者名称，邮箱，提交时间，提交说明)</span></span><br><span class="line">git log</span><br><span class="line"><span class="meta">#</span><span class="bash"> 为远程Git仓库更名为origin，origin是默认远程仓库的叫法，当然也可以叫别的</span></span><br><span class="line">git remote add origin git@github.com:hqf1996/myGitTest.git</span><br><span class="line"><span class="meta">#</span><span class="bash"> 下一步操作就是把本地库的所有内容都推送到远程库中（注意由于远程库是空的，我们第一次推送master分支时，加上了-u参数，Git不但会把本地的master分支内容推送的远程新的master分支，还会把本地的master分支和远程的master分支关联起来，在以后的推送或者拉取时就可以简化命令）</span></span><br><span class="line">git push -u origin master</span><br><span class="line"><span class="meta">#</span><span class="bash"> 之后就能用以下命令即可提交了</span></span><br><span class="line">git push origin master</span><br></pre></td></tr></table></figure>
+
+<p>以上操作是将本地的内容推送到远程的空仓库中的操作，如果想从远程仓库克隆整个项目，则可以通过以下命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone git@github.com:hqf1996/myGitTest.git</span><br></pre></td></tr></table></figure>
+
+<h1 id="分支"><a href="#分支" class="headerlink" title="分支"></a>分支</h1><p>如果在多人协作的情况下，分支是一个非常常用的功能。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 列出所有本地分支</span></span><br><span class="line">git branch</span><br><span class="line"><span class="meta">#</span><span class="bash"> 列出所有远程分支</span></span><br><span class="line">git branch -r</span><br><span class="line"><span class="meta">#</span><span class="bash"> 列出所有本地分支和远程分支</span></span><br><span class="line">git branch -a</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 创建一个分支（但还未切换到该分支上）</span></span><br><span class="line">git branch slave1</span><br><span class="line"><span class="meta">#</span><span class="bash"> 切换分支</span></span><br><span class="line">git checkout slave1</span><br><span class="line"><span class="meta">#</span><span class="bash"> 还能创建分支与切换分支合并使用</span></span><br><span class="line">git checkout -b slave1</span><br><span class="line"><span class="meta">#</span><span class="bash"> 用于合并指定分支(slave1)到当前分支(master)</span></span><br><span class="line">git merge slave1</span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除分支</span></span><br><span class="line">git branch -d slave1</span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除远程分支</span></span><br><span class="line">git push origin --delete slave1</span><br></pre></td></tr></table></figure>
+
+<h1 id="标签"><a href="#标签" class="headerlink" title="标签"></a>标签</h1><p>标签主要是用来做版本回退的。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 列出所有tag</span></span><br><span class="line">git tag</span><br><span class="line"><span class="meta">#</span><span class="bash"> 新建一个tag在当前commit(指的就是上一次做commit操作时候的那个commit)</span></span><br><span class="line">git tag [tag]</span><br><span class="line"><span class="meta">#</span><span class="bash"> 新建一个tag在指定commit（要用commit号【e97e9dc4dde4a50a8371adbf0492189d6088237f】这种老长一串）</span></span><br><span class="line">git tag [tag] [commit]</span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除本地tag</span></span><br><span class="line">git tag -d [tag]</span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除远程tag</span></span><br><span class="line">git push origin :refs/tags/[tagName]</span><br></pre></td></tr></table></figure>
+
+<h1 id="撤销"><a href="#撤销" class="headerlink" title="撤销"></a>撤销</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 恢复暂存区的指定文件到工作区</span></span><br><span class="line">git checkout [file]</span><br><span class="line"><span class="meta">#</span><span class="bash"> 恢复暂存区的所有文件到工作区</span></span><br><span class="line">git checkout .</span><br><span class="line"><span class="meta">#</span><span class="bash"> 回退到上一个版本，在Git中，用HEAD表示当前版本</span></span><br><span class="line">git reset --hard HEAD^</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
 
       
     </div>
@@ -538,7 +572,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、整体结构"><span class="nav-text">一、整体结构</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#整体结构"><span class="nav-text">整体结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Git的配置"><span class="nav-text">Git的配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建仓库"><span class="nav-text">创建仓库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#提交文件"><span class="nav-text">提交文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#分支"><span class="nav-text">分支</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#标签"><span class="nav-text">标签</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#撤销"><span class="nav-text">撤销</span></a></li></ol></div>
             
 
           </div>
