@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="SSH,端口转发," />
+  <meta name="keywords" content="Spring," />
 
 
 
@@ -79,18 +79,16 @@
 
 
 
-<meta name="description" content="前言  SSH是Secure Shell protocal的缩写，它是一种网络协议，用于计算机之间的加密登录。SSH命令也是一个非常常用且有用的命令，一般会用于远程登录。 最简单的，如果你想以用户名root登录远程主机host，只需要执行如下命令中的任意一条，第一条是常用的。 12ssh root@hostssh -l root host">
-<meta name="keywords" content="SSH,端口转发">
+<meta name="description" content="前言  IOC（Inversion Of Controll，控制反转）是一种设计思想，将原本在程序中手动创建对象的控制权，交由给Spring框架来管理。IOC容器可以看作Spring实现IOC的载体，它实际上就是一个Map，Map中存放的是各种对象，IOC容器就像是一个工厂，当需要创建一个对象，只需要配置好配置文件&#x2F;注解即可，不用考虑对象是如何被创建出来的，大大增加了项目的可维护性且降低了开发难度">
+<meta name="keywords" content="Spring">
 <meta property="og:type" content="article">
-<meta property="og:title" content="SSH端口转发">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;07&#x2F;18&#x2F;SSH%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91&#x2F;index.html">
+<meta property="og:title" content="Spring源码解读之IOC容器(一)">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;04&#x2F;23&#x2F;Spring%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB%E4%B9%8BIOC%E5%AE%B9%E5%99%A8-%E4%B8%80&#x2F;index.html">
 <meta property="og:site_name" content="hqfBlog">
-<meta property="og:description" content="前言  SSH是Secure Shell protocal的缩写，它是一种网络协议，用于计算机之间的加密登录。SSH命令也是一个非常常用且有用的命令，一般会用于远程登录。 最简单的，如果你想以用户名root登录远程主机host，只需要执行如下命令中的任意一条，第一条是常用的。 12ssh root@hostssh -l root host">
+<meta property="og:description" content="前言  IOC（Inversion Of Controll，控制反转）是一种设计思想，将原本在程序中手动创建对象的控制权，交由给Spring框架来管理。IOC容器可以看作Spring实现IOC的载体，它实际上就是一个Map，Map中存放的是各种对象，IOC容器就像是一个工厂，当需要创建一个对象，只需要配置好配置文件&#x2F;注解即可，不用考虑对象是如何被创建出来的，大大增加了项目的可维护性且降低了开发难度">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;SSH%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91&#x2F;ssh%E8%B0%83%E8%AF%95.png">
-<meta property="og:updated_time" content="2020-03-16T07:17:10.350Z">
+<meta property="og:updated_time" content="2020-04-23T14:36:02.491Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;SSH%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91&#x2F;ssh%E8%B0%83%E8%AF%95.png">
 
 
 
@@ -120,13 +118,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2019/07/18/SSH端口转发/"/>
+  <link rel="canonical" href="http://yoursite.com/2020/04/23/Spring源码解读之IOC容器-一/"/>
 
 
 
 
 
-  <title>SSH端口转发 | hqfBlog</title>
+  <title>Spring源码解读之IOC容器(一) | hqfBlog</title>
   
 
 
@@ -263,7 +261,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/18/SSH%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/23/Spring%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB%E4%B9%8BIOC%E5%AE%B9%E5%99%A8-%E4%B8%80/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="hqf1996">
@@ -280,7 +278,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">SSH端口转发</h1>
+          <h1 class="post-title" itemprop="name headline">Spring源码解读之IOC容器(一)</h1>
         
 
         <div class="post-meta">
@@ -293,8 +291,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-18T10:58:02+08:00">
-                2019-07-18
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-23T17:03:50+08:00">
+                2020-04-23
               </time>
             
 
@@ -316,8 +314,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux/" itemprop="url" rel="index">
-                    <span itemprop="name">Linux</span>
+                  <a href="/categories/Spring/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring</span>
                   </a>
                 </span>
 
@@ -355,57 +353,24 @@
       
         <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a><center>前言</center></h1><br/>
 
-<p>SSH是Secure Shell protocal的缩写，它是一种网络协议，用于计算机之间的加密登录。SSH命令也是一个非常常用且有用的命令，一般会用于远程登录。</p>
-<p>最简单的，如果你想以用户名root登录远程主机host，只需要执行如下命令中的任意一条，第一条是常用的。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ssh root@host</span><br><span class="line">ssh -l root host</span><br></pre></td></tr></table></figure>
-
+<p>IOC（Inversion Of Controll，控制反转）是一种设计思想，将原本在程序中手动创建对象的控制权，交由给Spring框架来管理。IOC容器可以看作Spring实现IOC的载体，它实际上就是一个Map，Map中存放的是各种对象，IOC容器就像是一个工厂，当需要创建一个对象，只需要配置好配置文件/注解即可，不用考虑对象是如何被创建出来的，大大增加了项目的可维护性且降低了开发难度。</p>
 <a id="more"></a>
 
-<p>SSH有很多用法，可以进行远程操作，绑定本地端口，本地端口转发，远程端口转发等。这里我主要记录一下之前用到的本地端口转发与远程端口转发。</p>
-<h2 id="本地端口转发"><a href="#本地端口转发" class="headerlink" title="本地端口转发"></a>本地端口转发</h2><p>​    有时候可能无法通过SSH命令直接连接到目标主机，这时候需要通过中间的转跳机来实现数据的传送，这时候就需要用SSH来实现本地端口转发的功能。也称为<strong>local forwarding</strong>。假定host1是本地主机，我们想要连接host2这个远程主机，但是两者并不能直接连通，但是host3能同时连通host1和host2，这时候我们只要将host3主机当做跳板即可。一般命令可以这么写</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -L 1234:host2:22 root@host3</span><br></pre></td></tr></table></figure>
+<p>那么问题来了，IOC底层到底是如何去根据配置文件/注解去实例化Bean的，在实例化之前都做了哪些工作呢，也只有关注源码才能解决问题了。本文是基于Spring5.2.1版本，重点关注基于配置文件的实现方式。</p>
+<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>先看启动一个Spring程序的最简单的例子。</p>
+<p>抽象类<code>IAccountDao.java</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IAccountDao</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">saveAccount</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>这时候在本地通过1234端口即可访问host2主机。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -p 1234 root@localhost</span><br></pre></td></tr></table></figure>
+<p>接口实现类<code>AccountDaoImpl.java</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AccountDaoImpl</span> <span class="keyword">implements</span> <span class="title">IAccountDao</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">saveAccount</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"保存账户成功"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<blockquote>
-<p>-L表示本地转发，1234:host2:22分别表示<strong>本地端口:目标主机:目标主机端口</strong>，host3就是转跳机。这样访问host上的1234端口就相当于访问host2的22端口了。该命令实现的功能是，ssh绑定本地端口1234（创建socket并监听)，然后将所有该端口监听到的数据通过host3进行转发到host2相应的端口，这样访问host1上的1234端口就等于访问host2的22端口。本地端口转发使得host1与host2之间仿佛形成了一个数据传输的秘密隧道，因此又称为ssh隧道。</p>
-</blockquote>
-<p>若不想登录到转跳机中，只想打通隧道，命令需要多加两个参数</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -f -N -L 1234:host2:22 root@host3</span><br></pre></td></tr></table></figure>
+<p>配置类<code>bean.xml</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"accountDao"</span> <span class="attr">class</span>=<span class="string">"dao.impl.AccountDaoImpl"</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<blockquote>
-<p>-f表示后台认证用户/密码，通常和-N连用，不用登录到远程主机。</p>
-</blockquote>
-<p>也可以通过本地的1234端口访问到host2的22端口。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -p 1234 root@localhost</span><br></pre></td></tr></table></figure>
+<p>测试类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">test</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        ApplicationContext ac = <span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"bean.xml"</span>);</span><br><span class="line">        IAccountDao dao = (IAccountDao) ac.getBean(<span class="string">"accountDao"</span>);</span><br><span class="line">        dao.saveAccount();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="远程端口转发"><a href="#远程端口转发" class="headerlink" title="远程端口转发"></a>远程端口转发</h2><p>​    远程端口转发是指绑定远程端口的转发。接着考虑上面的例子。在本地端口转发的时候，连接的路径其实是host1—&gt;host3—&gt;host2，万一当host1无法连接到host3，但是host3却能够连接host1的时候，这时候就需要考虑远程端口转发。我们在host3上建立与host1的ssh连接，再通过host1使用这条连接即可。一般命令可以这么写，首先在<font color="red">host3</font>上执行如下的命令</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -R 1234:host2:22 root@host1</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>其中1234:host2:22分别代表<strong>远程主机端口:目标主机:目标主机端口</strong>，这样host1就能监控它自己的1234端口了。因为对于host3来说，host1是远程主机，所以这种方法称为远程端口转发。</p>
-</blockquote>
-<p>与前面的例子类似的，也能加上-f -N的参数。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -f -N -R 1234:host2:22 root@host1</span><br></pre></td></tr></table></figure>
-
-<hr>
-<p>更新 2019年11月19日</p>
-<h2 id="ssh命令完善"><a href="#ssh命令完善" class="headerlink" title="ssh命令完善"></a>ssh命令完善</h2><h3 id="1、端口"><a href="#1、端口" class="headerlink" title="1、端口"></a>1、端口</h3><p>SSH默认使用的端口号是22，大多Linux系统的22端口都是开放的，像是之前直接访问没有加端口号的情况就是默认访问22端口，如果不想通过22端口进行访问，我们就可以用<code>-p</code>参数来指定端口号。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 通过1234端口进行访问</span></span><br><span class="line">ssh root@10.1.13.111 -p 1234</span><br></pre></td></tr></table></figure>
-
-<h3 id="2、打开调试模式"><a href="#2、打开调试模式" class="headerlink" title="2、打开调试模式"></a>2、打开调试模式</h3><p>在ssh命令中添加上<code>-v</code>就行了</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -v root@10.1.13.111</span><br></pre></td></tr></table></figure>
-
-<p>会在窗口中打出连接的过程</p>
-<p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/SSH%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/ssh%E8%B0%83%E8%AF%95.png" alt="ssh调试"></p>
-<h3 id="3、挂载远程文件系统"><a href="#3、挂载远程文件系统" class="headerlink" title="3、挂载远程文件系统"></a>3、挂载远程文件系统</h3><p>另外一个很赞的基于 SSH 的工具叫 <code>sshfs</code>。 sshfs 可以让你在本地直接挂载远程主机的文件系统。它的使用格式如下：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sshfs -o idmap=user user@hostname:/home/user ~/Remote</span><br></pre></td></tr></table></figure>
-
-<p>比如</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sshfs -o idmap=user pi@192.168.0.116:/home/pi ~/Pi</span><br></pre></td></tr></table></figure>
-
-<p>这个命令可以将远程主机 pi 用户的主目录挂载到本地主目录下的 Pi 文件夹。</p>
+<p>代码很简单，研究源码的话就主要从<code>ApplicationContext ac = new ClassPathXmlApplicationContext(&quot;bean.xml&quot;);</code>出发，研究IOC中是如何创建实例Bean的并注入依赖。</p>
 
       
     </div>
@@ -423,9 +388,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/SSH/" rel="tag"># SSH</a>
-          
-            <a href="/tags/%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91/" rel="tag"># 端口转发</a>
+            <a href="/tags/Spring/" rel="tag"># Spring</a>
           
         </div>
       
@@ -438,8 +401,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/06/13/JVM%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94JVM%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F/" rel="next" title="JVM笔记——JVM内存区域">
-                <i class="fa fa-chevron-left"></i> JVM笔记——JVM内存区域
+              <a href="/2020/04/19/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AE%9E%E7%8E%B0/" rel="next" title="分布式锁的实现">
+                <i class="fa fa-chevron-left"></i> 分布式锁的实现
               </a>
             
           </div>
@@ -447,10 +410,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/07/22/Redis%E7%AC%94%E8%AE%B0%E2%80%94%E2%80%94%E5%9F%BA%E6%9C%AC%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E5%AF%B9%E8%B1%A1/" rel="prev" title="Redis笔记——基本数据结构与对象">
-                Redis笔记——基本数据结构与对象 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -586,7 +545,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#本地端口转发"><span class="nav-text">本地端口转发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#远程端口转发"><span class="nav-text">远程端口转发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ssh命令完善"><span class="nav-text">ssh命令完善</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、端口"><span class="nav-text">1、端口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、打开调试模式"><span class="nav-text">2、打开调试模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、挂载远程文件系统"><span class="nav-text">3、挂载远程文件系统</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-text">引言</span></a></li></ol></div>
             
 
           </div>
