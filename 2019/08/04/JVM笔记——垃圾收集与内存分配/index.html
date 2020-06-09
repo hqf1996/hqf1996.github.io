@@ -97,7 +97,7 @@
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Parallel%20Scavenge%E6%94%B6%E9%9B%86%E5%99%A8.jpg">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;CMS%E6%94%B6%E9%9B%86%E5%99%A8.jpg">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;G1%E6%94%B6%E9%9B%86%E5%99%A8.jpg">
-<meta property="og:updated_time" content="2020-03-16T07:16:20.614Z">
+<meta property="og:updated_time" content="2020-06-09T05:52:38.805Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;GC%20Roots.jpg">
 
@@ -465,7 +465,7 @@
 <p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/CMS%E6%94%B6%E9%9B%86%E5%99%A8.jpg" alt="CMS收集器"></p>
 <p>2、介绍</p>
 <p>CMS（Concurrent Mark Sweep）收集器是一种以获取最短回收停顿时间为目标的收集器，目前很大一部分的Java应用集中在互联网站或者B/S系统的服务端上，这类应用尤其重视服务的响应速度，希望系统停顿时间最短。</p>
-<p>CMS收集器主要是基于“标记-清楚”算法。整个过程分为四个步骤：1.初始标记。2、并发标记。3、重新标记。4、并发清除。下面详细介绍一下。</p>
+<p>CMS收集器主要是基于“标记-清除”算法。整个过程分为四个步骤：1.初始标记。2、并发标记。3、重新标记。4、并发清除。下面详细介绍一下。</p>
 <blockquote>
 <p><strong>初始标记</strong></p>
 <blockquote>
@@ -513,7 +513,8 @@
 <h2 id="G1收集器"><a href="#G1收集器" class="headerlink" title="G1收集器"></a>G1收集器</h2><p>1、运行示意图</p>
 <p><img src="https://hqf1996-1258281483.cos.ap-shanghai.myqcloud.com/G1%E6%94%B6%E9%9B%86%E5%99%A8.jpg" alt="G1收集器"></p>
 <p>2、介绍</p>
-<p>G1收集器是当今收集器技术发展的最前沿成果之一，G1是一款面向服务端应用的垃圾收集器。主要分为以下几个步骤：</p>
+<p>G1收集器是当今收集器技术发展的最前沿成果之一，G1是一款面向服务端应用的垃圾收集器。同优秀的CMS垃圾回收器一样，G1也是<strong>关注最小时延</strong>的垃圾回收器，G1最大的特点是<strong>引入分区</strong>的思路，<strong>弱化了分代</strong>的概念，合理利用垃圾收集各个周期的资源，解决了其他收集器甚至CMS的众多缺陷。</p>
+<p>主要分为以下几个步骤：</p>
 <blockquote>
 <p>初始标记</p>
 <p>并发标记</p>
