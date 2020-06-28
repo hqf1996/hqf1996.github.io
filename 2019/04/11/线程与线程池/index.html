@@ -88,7 +88,7 @@
 <meta property="og:description" content="前言  本篇主要叙述线程的基础知识。线程的几个实现方式以及线程池的实现方式。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%B1%BB%E5%9B%BE.png">
-<meta property="og:updated_time" content="2020-03-16T07:15:46.781Z">
+<meta property="og:updated_time" content="2020-06-28T07:01:56.202Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%B1%BB%E5%9B%BE.png">
 
@@ -399,6 +399,21 @@
 <p><font Color="red">unit</font>：时间单位。</p>
 <p><font Color="red">workQueue</font>：任务队列容量。</p>
 <p>这边的几个参数理解起来还是很抽象的，这里就举一个简单例子来说明：一个线程池就像是一个加工厂，其中核心线程池数量（corePoolSize）就像是工厂的工人，比如说corePoolSize为10，相当于加工厂中有10个工人，并且每个工人只能同时做一个任务。当有任务来的时候，分配给工人完成。当任务量很少的时候，可能会有空闲着的工人，也就是会有空闲的核心线程，但是核心线程会一直存活且保持10的数量。当工厂接受任务的数量大于10的时候，这时候就需要排队等待了，也就是这边的进入任务队列。但是当来任务的速度大大超过工人完成任务的速度时，就需要进行一些补救的措施，也就是重新招临时工，比如重新招收了5个临时工，现在就有15个工人在工作，相当于线程池最大的线程数 maximumPoolSize。如果任务量超过了线程池最大线程数，这时候就不再接受任务或者抛弃掉之前的任务。当任务数量少于任务队列的容量时，临时工就没有必要再存在了。</p>
+<p>还有另外两个参数，相对不重要一些，这个构造函数中用的是两个默认的参数</p>
+<ol>
+<li><strong><code>threadFactory</code></strong> :executor 创建新线程的时候会用到。</li>
+<li><strong><code>handler</code></strong> :饱和策略。关于饱和策略下面单独介绍一下。</li>
+</ol>
+<blockquote>
+<p>定义：如果当前线程池中同时运行的线程数量达到了最大线程数量并且队列也已经放满了，这时候ThreadPoolExecutor就制定了一些策略。</p>
+<ul>
+<li><strong><code>ThreadPoolExecutor.AbortPolicy</code></strong>：抛出 <code>RejectedExecutionException</code>来拒绝新任务的处理。</li>
+<li><strong><code>ThreadPoolExecutor.CallerRunsPolicy</code></strong>：调用执行自己的线程运行任务。您不会任务请求。但是这种策略会降低对于新任务提交速度，影响程序的整体性能。另外，这个策略喜欢增加队列容量。如果您的应用程序可以承受此延迟并且你不能任务丢弃任何一个任务请求的话，你可以选择这个策略。</li>
+<li><strong><code>ThreadPoolExecutor.DiscardPolicy</code>：</strong> 不处理新任务，直接丢弃掉。</li>
+<li><strong><code>ThreadPoolExecutor.DiscardOldestPolicy</code>：</strong> 此策略将丢弃最早的未处理的任务请求。</li>
+</ul>
+<p>注意：源码中AbortPolicy是直接抛出RejectedExecutionExpection异常，而在DiscardPolicy中是啥都不干，也就是<code>rejectedExecution</code>方法是一个空方法。</p>
+</blockquote>
 </blockquote>
 <hr>
 <p>为了启动线程池中的任务，需要调用Execute这个方法。一般写代码的时候我们会这样使用。</p>

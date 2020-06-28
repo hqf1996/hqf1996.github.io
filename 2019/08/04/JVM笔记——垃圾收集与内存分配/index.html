@@ -97,7 +97,7 @@
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Parallel%20Scavenge%E6%94%B6%E9%9B%86%E5%99%A8.jpg">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;CMS%E6%94%B6%E9%9B%86%E5%99%A8.jpg">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;G1%E6%94%B6%E9%9B%86%E5%99%A8.jpg">
-<meta property="og:updated_time" content="2020-06-09T05:52:38.805Z">
+<meta property="og:updated_time" content="2020-06-21T11:48:40.503Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;GC%20Roots.jpg">
 
@@ -516,10 +516,11 @@
 <p>G1收集器是当今收集器技术发展的最前沿成果之一，G1是一款面向服务端应用的垃圾收集器。同优秀的CMS垃圾回收器一样，G1也是<strong>关注最小时延</strong>的垃圾回收器，G1最大的特点是<strong>引入分区</strong>的思路，<strong>弱化了分代</strong>的概念，合理利用垃圾收集各个周期的资源，解决了其他收集器甚至CMS的众多缺陷。</p>
 <p>主要分为以下几个步骤：</p>
 <blockquote>
-<p>初始标记</p>
-<p>并发标记</p>
-<p>最终标记</p>
-<p>筛选回收</p>
+<p>初始标记：这阶段仅仅只是标记GC Roots能直接关联到的对象并修改TAMS(Next Top at Mark Start)的值，让下一阶段用户程序并发运行时，能在正确的可用的Region中创建新对象，这阶段需要停顿线程，但是耗时很短。而且是借用进行Minor GC的时候同步完成的，所以G1收集器在这个阶段实际并没有额外的停顿。</p>
+<p>并发标记：从GC Roots开始对堆的对象进行可达性分析，递归扫描整个堆里的对象图，找出存活的对象，这阶段耗时较长，但是可以与用户程序并发执行。当对象图扫描完成以后，还要重新处理SATB（原始快照）记录下的在并发时有引用变动的对象。</p>
+<p>最终标记：对用户线程做另一个短暂的暂停，用于处理并发阶段结束后仍遗留下来的最后那少量的 SATB 记录。</p>
+<p>筛选回收：负责更新 Region 的统计数据，对各个 Region 的回收价值和成本进行排序，根据用户所期望的停顿时间来制定回收计划。</p>
+<p>筛选回收阶段首先对各个Region的回收价值和成本进行排序，根据用户所期望的GC停顿时间(可以用JVM参数 -XX:MaxGCPauseMillis指定)来制定回收计划，比如说老年代此时有1000个Region都满了，但是因为根据预期停顿时间，本次垃圾回收可能只能停顿200毫秒，那么通过之前回收成本计算得知，可能回收其中800个Region刚好需要200ms，那么就只会回收800个Region，尽量把GC导致的停顿时间控制在我们指定的范围内。这个阶段其实也可以做到与用户程序一起并发执行，但是因为只回收一部分Region，时间是用户可控制的，而且停顿用户线程将大幅提高收集效率。不管是年轻代或是老年代，回收算法主要用的是复制算法，将一个region中的存活对象复制到另一个region中，这种不会像CMS那样回收完因为有很多内存碎片还需要整理一次，G1采用复制算法回收几乎不会有太多内存碎片。</p>
 </blockquote>
 <p>在《深入理解JAVA虚拟机》一书中并没有对G1收集器做过多的叙述，这边可以参考这几篇文章</p>
 <p> <a href="https://www.jianshu.com/p/39a1a93e1010" target="_blank" rel="noopener">Java G1深入理解</a></p>
