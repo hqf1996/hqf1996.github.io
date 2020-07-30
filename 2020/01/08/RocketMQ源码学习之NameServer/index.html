@@ -90,7 +90,7 @@
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer&#x2F;rocketmq%E4%B9%8Bnameserver%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer&#x2F;NameServer%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E5%9B%BE.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer&#x2F;namesrv%E5%85%B3%E9%94%AE%E7%B1%BB1.png">
-<meta property="og:updated_time" content="2020-03-16T07:16:57.959Z">
+<meta property="og:updated_time" content="2020-07-28T08:34:24.237Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8BNameServer&#x2F;rocketmq%E4%B9%8Bnameserver%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B.png">
 
@@ -441,6 +441,9 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">long</span> BROKER_CHANNEL_EXPIRED_TIME = <span class="number">1000</span> * <span class="number">60</span> * <span class="number">2</span>;</span><br></pre></td></tr></table></figure>
 
 <p>当超过2分钟没有更新，则移除它并执行销毁逻辑，也就是用<code>onChannelDestroy()方法</code>从其他hashmap中移除掉这台服务器。</p>
+<p>补充一点：RocketMQ中有两个触发点来触发路由删除，一个就是上面所说的定时扫描brokerLiveTable来进行判断，若超过两分钟没有更新活跃的时间，则删除改broker。还有一个在broker正常关闭的时候，会执行unregisterBroker执行。但是两者的删除方式都是一样的，都是从路由表中删除与该broker相关的信息。</p>
+<p>注意，这边总结一下：每隔30秒broker向nameserver发送一次心跳包，nameserver接收到心跳包之后更新自己的路由信息，且nameserver每隔10s扫描一次brokerLiveTable，去清除brokerId和brokerAddr不符的broker或者是那些已经超过两分钟没有活跃的broker。</p>
+<p>在nameserver接收到每一个心跳包后，将更新brokerLiveTable中关于Broker的状态信息以及路由表（topicQueueTable、brokerAddrTable、brokerLiveTable、filterServerTable）。更新上述路由表使用了<strong>锁粒度较少的读写锁</strong>，允许多个消息发送者并发读，保证消息发送时的高并发。但同一时刻NameServer只处理一个Broker心跳包，多个心跳包请求串行执行。这也是读写锁经典的使用场景。</p>
 <hr>
 <p>参考</p>
 <p><a href="https://cloud.tencent.com/developer/article/1374005" target="_blank" rel="noopener">https://cloud.tencent.com/developer/article/1374005</a></p>

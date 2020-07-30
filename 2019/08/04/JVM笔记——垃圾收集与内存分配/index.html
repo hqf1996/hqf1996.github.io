@@ -97,7 +97,7 @@
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;Parallel%20Scavenge%E6%94%B6%E9%9B%86%E5%99%A8.jpg">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;CMS%E6%94%B6%E9%9B%86%E5%99%A8.jpg">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;G1%E6%94%B6%E9%9B%86%E5%99%A8.jpg">
-<meta property="og:updated_time" content="2020-06-21T11:48:40.503Z">
+<meta property="og:updated_time" content="2020-07-19T12:57:05.515Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;GC%20Roots.jpg">
 
@@ -521,6 +521,7 @@
 <p>最终标记：对用户线程做另一个短暂的暂停，用于处理并发阶段结束后仍遗留下来的最后那少量的 SATB 记录。</p>
 <p>筛选回收：负责更新 Region 的统计数据，对各个 Region 的回收价值和成本进行排序，根据用户所期望的停顿时间来制定回收计划。</p>
 <p>筛选回收阶段首先对各个Region的回收价值和成本进行排序，根据用户所期望的GC停顿时间(可以用JVM参数 -XX:MaxGCPauseMillis指定)来制定回收计划，比如说老年代此时有1000个Region都满了，但是因为根据预期停顿时间，本次垃圾回收可能只能停顿200毫秒，那么通过之前回收成本计算得知，可能回收其中800个Region刚好需要200ms，那么就只会回收800个Region，尽量把GC导致的停顿时间控制在我们指定的范围内。这个阶段其实也可以做到与用户程序一起并发执行，但是因为只回收一部分Region，时间是用户可控制的，而且停顿用户线程将大幅提高收集效率。不管是年轻代或是老年代，回收算法主要用的是复制算法，将一个region中的存活对象复制到另一个region中，这种不会像CMS那样回收完因为有很多内存碎片还需要整理一次，G1采用复制算法回收几乎不会有太多内存碎片。</p>
+<p>与CMS的“标记–清理”算法不同，G1从整体来看是基于“标记整理”算法实现的收集器；从局部上来看是基于“复制”算法实现的。</p>
 </blockquote>
 <p>在《深入理解JAVA虚拟机》一书中并没有对G1收集器做过多的叙述，这边可以参考这几篇文章</p>
 <p> <a href="https://www.jianshu.com/p/39a1a93e1010" target="_blank" rel="noopener">Java G1深入理解</a></p>
