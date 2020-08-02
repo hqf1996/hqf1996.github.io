@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="hqfBlog">
 <meta property="og:description" content="前言  本文旨在总结和整理在学习RocketMQ中遇到的零碎问题，方便之后的回顾。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-03-16T07:17:00.782Z">
+<meta property="og:updated_time" content="2020-08-02T09:00:43.888Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -373,6 +373,14 @@
 <p><a href="https://www.cnblogs.com/ynyhl/p/11320797.html" target="_blank" rel="noopener">https://www.cnblogs.com/ynyhl/p/11320797.html</a></p>
 <h1 id="四、RocketMQ的消息是否有序"><a href="#四、RocketMQ的消息是否有序" class="headerlink" title="四、RocketMQ的消息是否有序"></a>四、RocketMQ的消息是否有序</h1><p>在RocketMQ中消息分为全局顺序消息和局部顺序消息，而全局顺序消息要求某个Topic下所有消息都要保证消息与产生顺序相同；部分顺序消息是指，只要保证每一组消息被顺序消费即可。比如之前在RocketMQ中举的那个例子。如果要保证，全局顺序消息的话，只需要把生产者和消费者设置为单线程即可，这样一来，就要牺牲高并发和高吞吐，所以一般业务也只需要部分顺序消息即可。</p>
 <h1 id="五、RocketMQ的消息局部顺序是如何保证"><a href="#五、RocketMQ的消息局部顺序是如何保证" class="headerlink" title="五、RocketMQ的消息局部顺序是如何保证"></a>五、RocketMQ的消息局部顺序是如何保证</h1><p>要保证消息局部顺序只需要保证两件事。首先在消息发送的时候，消息的生产者需要把同一个小组的消息发送到同一个Message Queue中。其次在消费的时候，只用一个线程去处理这个队列中的消息即可。</p>
+<p>那么如何保证一个队列只被一个消费者消费且如何保证一个消费者中只有一个线程能进行消费</p>
+<p>从源码的角度分析一下</p>
+<blockquote>
+<p>首先，顺序消息在创建消息队列拉取任务时需要在Broker服务器锁定该消息队列。</p>
+<p>其次，创建消息拉取任务时，消息客户端向broker端申请锁定MessageQueue，使得一个MessageQueue同一个时刻只能被一个消费客户端消费</p>
+<p>然后，消息消费时，多线程针对同一个消息队列的消费先尝试使用synchronized申请独占锁，加锁成功才能进行消费，使得一个MessageQueue同一个时刻只能被一个消费客户端中一个线程消费</p>
+</blockquote>
+<p>参考：<a href="https://blog.csdn.net/hosaos/article/details/90675978" target="_blank" rel="noopener">https://blog.csdn.net/hosaos/article/details/90675978</a></p>
 <h1 id="六、RocketMQ事务消息机制如何实现"><a href="#六、RocketMQ事务消息机制如何实现" class="headerlink" title="六、RocketMQ事务消息机制如何实现"></a>六、RocketMQ事务消息机制如何实现</h1><p>总计来说，有这么几步</p>
 <p>1、发送消息（这里是half消息）。</p>
 <p>2、服务端相应消息结果。</p>
@@ -384,11 +392,13 @@
 <p>可参考</p>
 <p><a href="https://blog.csdn.net/zhangcongyi420/article/details/90582303" target="_blank" rel="noopener">https://blog.csdn.net/zhangcongyi420/article/details/90582303</a></p>
 <h1 id="七、重复消费问题的解决"><a href="#七、重复消费问题的解决" class="headerlink" title="七、重复消费问题的解决"></a>七、重复消费问题的解决</h1><p>RocketMQ本身不能保证消息的重复消费问题，这个问题只能在业务系统端进行解决，比如设置唯一的id号，让已经消费过的消息不再被消费即可或者消费端处理消息的业务逻辑保证幂等性。</p>
-<h1 id="八、RocketMQ的Push或者Pull"><a href="#八、RocketMQ的Push或者Pull" class="headerlink" title="八、RocketMQ的Push或者Pull"></a>八、RocketMQ的Push或者Pull</h1><p>push或者pull本质都是pull模型，即Consumer轮询从Broker拉取消息。</p>
+<h1 id="八、RocketMQ的Push或者Pull"><a href="#八、RocketMQ的Push或者Pull" class="headerlink" title="八、RocketMQ的Push或者Pull"></a>八、RocketMQ的Push或者Pull</h1><p>push或者pull本质都是pull模型，即Consumer轮询从Broker拉取消息。RocketMQ中并没有真正实现推模式，而是消费者主动向消息服务器拉取消息，RocketMQ推模式是循环向消息服务端发送消息拉取请求。</p>
 <p>pull是指消费者主动去Broker拉取，push是指主动推送给Broker。</p>
 <p>push实时性高，但增加服务器负载，消费端能力不同，如果push的速度较快，消费端会出现问题。</p>
 <p>pull是消费者掌握主动权，可控性较好，但时间间隔不好设置，间隔太短则请求太多，造成忙等的状态，浪费资源，间隔太长了，消息就不能及时处理。</p>
-<p>pull和push都有自己的优缺点，后面就采用了长轮询的方式，兼顾push和pull。即Client发送消息请求，Server端接受请求，如果发现Server队列里没有新消息，Server端不立即返回，而是持有这个请求一段时间（通过设置超时时间来实现），在这段时间内轮询Server队列内是否有新的消息，如果有新消息，就利用现有的连接返回消息给消费者；如果这段时间内没有新消息进入队列，则返回空。</p>
+<p>pull和push都有自己的优缺点，后面就采用了长轮询的方式，兼顾push和pull。</p>
+<p>如果<strong>不启用长轮询</strong>机制，则会在服务端等待一段时间后（挂起）再去判断消息是否已经到达消息队列，如果消息未到达则提示消息拉取客户端消息不存在。</p>
+<p>如果<strong>开启了长轮询</strong>，即Client发送消息请求，Server端接受请求，如果发现Server队列里没有新消息，Server端不立即返回，而是持有这个请求一段时间（通过设置超时时间来实现），在这段时间内轮询Server队列内是否有新的消息，如果有新消息，就利用现有的连接返回消息给消费者；如果这段时间内没有新消息进入队列，则返回空。</p>
 
       
     </div>

@@ -88,7 +88,7 @@
 <meta property="og:description" content="前言  RocketMQ分布式集群是通过其中各个模块的配合实现高可用，RocketMQ的高可用主要可以从Producer、Consumer、Broker和NameServer出发来分析，本章旨在通过源码来简单分析其中Producer的高可用原理。其他部分在后续章节继续分析。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B9%8B%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E4%B8%8E%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9&#x2F;RocketMQ%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84.jpg">
-<meta property="og:updated_time" content="2020-07-30T04:02:43.940Z">
+<meta property="og:updated_time" content="2020-07-30T06:48:46.590Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https:&#x2F;&#x2F;hqf1996-1258281483.cos.ap-shanghai.myqcloud.com&#x2F;RocketMQ%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B9%8B%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E4%B8%8E%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9&#x2F;RocketMQ%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84.jpg">
 
@@ -364,7 +364,22 @@
 <blockquote>
 <p>在发送消息之前，首先需要确保生产者处于运行状态，然后验证消息是否符合相应的规范，具体的规范要求是主题名称、消息体不能为空、消息长度不能等于0且默认不能超过允许发送消息的最大长度4M（maxMessageSize=1024*1024*4）</p>
 </blockquote>
-<p><strong>查找路由</strong>和<strong>消息发送</strong>后面的高可用分析中会有提及。</p>
+<p><strong>查找路由</strong></p>
+<p><strong>消息发送</strong></p>
+<blockquote>
+<ol>
+<li>检查消息发送是否合理<ul>
+<li>检查该broker是否有写权限</li>
+<li>检查该Topic是否可以进行消息发送</li>
+<li>在nameserver端存储主题的配置信息</li>
+<li>检查队列，如果队列不合法，返回错误码</li>
+</ul>
+</li>
+<li>如果消息重试次数超过允许的最大重试次数，消息将进入到DLD延迟队列。延迟队列主题：%DLQ%+消费组名。</li>
+<li>调用DefaultMessageStore#putMessage进行消息存储。</li>
+</ol>
+<p>注意：消息发送方式有三种，分别是同步发送、异步发送和单向发送。其中同步和异步都可以控制重试次数，但是单向没有重试机制。</p>
+</blockquote>
 <h1 id="二、Producer发送消息高可用"><a href="#二、Producer发送消息高可用" class="headerlink" title="二、Producer发送消息高可用"></a>二、Producer发送消息高可用</h1><p>在消息创建消息时，需要为每一个消息指定一个topic。topic会创建在每一个Broker组中，也就是说即使一个Broker组的Master不可用了，但是集群中其他Broker组仍然可以接收生产者生产的消息，Producer仍然可以发送消息。下面通过定位到发送消息的源代码看其如何实现高可用。</p>
 <p>首先要发送一条消息通常代码逻辑是这样子的，在基础概念的篇章就详细的介绍了关于各种类型消息的生产和发送的方法，可以回顾<a href="https://hqf1996.github.io/2020/01/08/RocketMQ%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5%E4%B9%8B%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E4%B8%8E%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9/" target="_blank" rel="noopener">这篇博客</a>。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    <span class="comment">// 实例化消息生产者Producer</span></span><br><span class="line">    DefaultMQProducer producer = <span class="keyword">new</span> DefaultMQProducer(<span class="string">"group1"</span>);</span><br><span class="line">    <span class="comment">//...中间代码省略</span></span><br><span class="line">    <span class="comment">// 发送消息到一个Broker</span></span><br><span class="line">    SendResult sendResult = producer.send(msg);</span><br><span class="line">	<span class="comment">//...后续代码省略</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>

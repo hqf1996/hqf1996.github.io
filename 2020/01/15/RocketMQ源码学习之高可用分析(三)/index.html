@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="hqfBlog">
 <meta property="og:description" content="前言  上一篇开始的地方占了个坑，其实那两个问题也涉及到消费者这边的相关逻辑，本篇主要从保证消费者消费高可用出发，其中涉及到两个方面，其一消费者消费时，会对broker集群的所有队列进行选择，也就需要考虑消费者的负载均衡机制。其二，在Consumer的配置文件中不需要设置消费者是从master读取数据还是slave读取，当master繁忙的时候，Consumer会被自动切换到从slave读取数据，">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2020-03-16T07:16:49.857Z">
+<meta property="og:updated_time" content="2020-08-02T08:35:04.498Z">
 <meta name="twitter:card" content="summary">
 
 
@@ -415,6 +415,24 @@
 <p>问：如果主服务器宕机，那么消息消费如何保证？如果主服务器又恢复之后，消息消费者从主还是从拉取消息，现在又如何保证消息同步？</p>
 <p>答：主服务器宕机之后，消息消费从从服务器拉取。当主服务器恢复之后，消息消费者从主服务器拉取消息，消息消费者内存中存在消息消费的进度，因为和Broker有长连接，所以会让master主动更新消息消费进度。从而达到主从的消息同步，不会再去消费那些在从服务器中已经消费过的消息。</p>
 </blockquote>
+<h1 id="二、消费者消息拉取"><a href="#二、消费者消息拉取" class="headerlink" title="二、消费者消息拉取"></a>二、消费者消息拉取</h1><p>RocketMQ使用一个单独的线程PullMessageService来负责消息的拉取。</p>
+<p>消费进度的管理</p>
+<blockquote>
+<p>广播模式：同一个消费组的所有消息消费者都需要消费主题下的所有消息，也就是同组内的消费者的消息消费行为是对立的、互不影响的，故消息进度需要独立存储，最理想的存储地方应该是与消费者绑定。<strong>消费进度存储在消费者本地</strong></p>
+<p>集群模式：同一个消费者组内的所有消息消费者共享消息主题下的所有消息，同一条消息（同一个消息消费队列）在同一时间内只会被消费组内的一个消费者消费，并且随着消费队列的动态变化重新负载，所以消费进度需要保存在每个消费者都能访问到的地方。<strong>消息进度存储文件放在消息服务端Broker</strong></p>
+</blockquote>
+<p>定时消息是如何实现的</p>
+<blockquote>
+<p>RocketMQ并不支持任意时间精度的的定时消息，主要考虑是性能上的损耗，所以设置了18个级别的延迟级别，具体的实现是这样的。</p>
+<ol>
+<li>producer端设置消息delayLevel延迟级别，消息属性DELAY中存储了对应了延时级别</li>
+<li>broker端收到消息后，判断延时消息延迟级别，如果大于0，则备份消息原始topic，queueId，并将消息topic改为延时消息队列特定topic(SCHEDULE_TOPIC)，queueId改为延时级别-1</li>
+<li>mq服务端ScheduleMessageService中，为每一个延迟级别单独设置一个定时器，定时(每隔1秒)拉取对应延迟级别的消费队列</li>
+<li>根据消费偏移量offset从commitLog中解析出对应消息</li>
+<li>从消息tagsCode中解析出消息应当被投递的时间，与当前时间做比较，判断是否应该进行投递</li>
+<li>若到达了投递时间，则构建一个新的消息，并从消息属性中恢复出原始的topic，queueId，并清除消息延迟属性，从新进行消息投递</li>
+</ol>
+</blockquote>
 <hr>
 <p>参考</p>
 <p><a href="https://blog.csdn.net/mxlmxlmxl33/article/details/85949429" target="_blank" rel="noopener">https://blog.csdn.net/mxlmxlmxl33/article/details/85949429</a></p>
@@ -596,7 +614,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、Consumer高可用"><span class="nav-text">一、Consumer高可用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-Consumer端的负载均衡机制"><span class="nav-text">1.1 Consumer端的负载均衡机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AllocateMessageQueueAveragely"><span class="nav-text">AllocateMessageQueueAveragely</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AllocateMessageQueueAveragelyByCircle"><span class="nav-text">AllocateMessageQueueAveragelyByCircle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AllocateMessageQueueByConfig"><span class="nav-text">AllocateMessageQueueByConfig</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AllocateMessageQueueByMachineRoom"><span class="nav-text">AllocateMessageQueueByMachineRoom</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AllocateMessageQueueConsistentHash"><span class="nav-text">AllocateMessageQueueConsistentHash</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AllocateMachineRoomNearby"><span class="nav-text">AllocateMachineRoomNearby</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-Consumer主从选择"><span class="nav-text">1.2 Consumer主从选择</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、Consumer高可用"><span class="nav-text">一、Consumer高可用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-Consumer端的负载均衡机制"><span class="nav-text">1.1 Consumer端的负载均衡机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AllocateMessageQueueAveragely"><span class="nav-text">AllocateMessageQueueAveragely</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AllocateMessageQueueAveragelyByCircle"><span class="nav-text">AllocateMessageQueueAveragelyByCircle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AllocateMessageQueueByConfig"><span class="nav-text">AllocateMessageQueueByConfig</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AllocateMessageQueueByMachineRoom"><span class="nav-text">AllocateMessageQueueByMachineRoom</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AllocateMessageQueueConsistentHash"><span class="nav-text">AllocateMessageQueueConsistentHash</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AllocateMachineRoomNearby"><span class="nav-text">AllocateMachineRoomNearby</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-Consumer主从选择"><span class="nav-text">1.2 Consumer主从选择</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、消费者消息拉取"><span class="nav-text">二、消费者消息拉取</span></a></li></ol></div>
             
 
           </div>
